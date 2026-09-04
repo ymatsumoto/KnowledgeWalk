@@ -1,0 +1,9 @@
+node_modules/
+dist/
+media/katex/
+test/dist/
+*.vsix
+.vsix-staging/
+.vscode-test-profile/
+.vscode-test/
+test/integration-dist/

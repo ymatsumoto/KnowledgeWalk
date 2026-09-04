@@ -1,0 +1,99 @@
+/* Minimal highlight.js theme driven by the VS Code colour theme.
+   Two palettes are defined: a light default and a dark override applied through the
+   `vscode-dark` / `vscode-high-contrast` classes VS Code puts on the webview body. */
+
+.hljs { color: var(--vscode-editor-foreground); background: none; }
+
+.hljs-comment,
+.hljs-quote { color: #6a737d; font-style: italic; }
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-doctag,
+.hljs-formula { color: #a626a4; }
+
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attribute,
+.hljs-meta .hljs-string { color: #50a14f; }
+
+.hljs-number,
+.hljs-literal,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag .hljs-attr { color: #986801; }
+
+.hljs-title,
+.hljs-title.class_,
+.hljs-title.function_,
+.hljs-section,
+.hljs-name { color: #4078f2; }
+
+.hljs-type,
+.hljs-class .hljs-title,
+.hljs-built_in,
+.hljs-builtin-name { color: #c18401; }
+
+.hljs-attr,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link { color: #0184bc; }
+
+.hljs-meta,
+.hljs-selector-id,
+.hljs-selector-class { color: #4078f2; }
+
+.hljs-deletion { color: #e45649; }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 600; }
+
+.vscode-dark .hljs-comment,
+.vscode-dark .hljs-quote,
+.vscode-high-contrast .hljs-comment,
+.vscode-high-contrast .hljs-quote { color: #7f848e; }
+
+.vscode-dark .hljs-keyword,
+.vscode-dark .hljs-selector-tag,
+.vscode-dark .hljs-doctag,
+.vscode-dark .hljs-formula,
+.vscode-high-contrast .hljs-keyword,
+.vscode-high-contrast .hljs-selector-tag { color: #c678dd; }
+
+.vscode-dark .hljs-string,
+.vscode-dark .hljs-regexp,
+.vscode-dark .hljs-addition,
+.vscode-dark .hljs-attribute,
+.vscode-high-contrast .hljs-string,
+.vscode-high-contrast .hljs-regexp { color: #98c379; }
+
+.vscode-dark .hljs-number,
+.vscode-dark .hljs-literal,
+.vscode-dark .hljs-variable,
+.vscode-dark .hljs-template-variable,
+.vscode-high-contrast .hljs-number,
+.vscode-high-contrast .hljs-literal { color: #d19a66; }
+
+.vscode-dark .hljs-title,
+.vscode-dark .hljs-title.class_,
+.vscode-dark .hljs-title.function_,
+.vscode-dark .hljs-section,
+.vscode-dark .hljs-name,
+.vscode-high-contrast .hljs-title,
+.vscode-high-contrast .hljs-section { color: #61afef; }
+
+.vscode-dark .hljs-type,
+.vscode-dark .hljs-built_in,
+.vscode-dark .hljs-builtin-name,
+.vscode-high-contrast .hljs-type,
+.vscode-high-contrast .hljs-built_in { color: #e5c07b; }
+
+.vscode-dark .hljs-attr,
+.vscode-dark .hljs-symbol,
+.vscode-dark .hljs-bullet,
+.vscode-dark .hljs-link,
+.vscode-high-contrast .hljs-attr,
+.vscode-high-contrast .hljs-symbol { color: #56b6c2; }
+
+.vscode-dark .hljs-deletion,
+.vscode-high-contrast .hljs-deletion { color: #e06c75; }
