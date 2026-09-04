@@ -1,0 +1,327 @@
+{
+  "name": "mdexplorer",
+  "displayName": "mdExplorer",
+  "description": "Read Markdown in VS Code like a web browser: preview by default, in-tab link navigation, and back/forward history.",
+  "version": "0.1.0",
+  "publisher": "local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished",
+    "onWebviewPanel:mdExplorer.preview",
+    "onLanguage:markdown"
+  ],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "mdExplorer.redirect",
+        "displayName": "mdExplorer Preview",
+        "selector": [
+          {
+            "filenamePattern": "*.md"
+          },
+          {
+            "filenamePattern": "*.markdown"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "mdExplorer.goBack",
+        "title": "Back",
+        "category": "mdExplorer",
+        "icon": "$(arrow-left)",
+        "enablement": "mdExplorer.canGoBack"
+      },
+      {
+        "command": "mdExplorer.goForward",
+        "title": "Forward",
+        "category": "mdExplorer",
+        "icon": "$(arrow-right)",
+        "enablement": "mdExplorer.canGoForward"
+      },
+      {
+        "command": "mdExplorer.switchToEditor",
+        "title": "Open in Editor",
+        "category": "mdExplorer",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "mdExplorer.showPreview",
+        "title": "Open Preview",
+        "category": "mdExplorer",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "mdExplorer.showPreviewToSide",
+        "title": "Open Preview to the Side",
+        "category": "mdExplorer",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "mdExplorer.refresh",
+        "title": "Refresh Preview",
+        "category": "mdExplorer",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "mdExplorer.showLog",
+        "title": "Show Log",
+        "category": "mdExplorer",
+        "icon": "$(output)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "mdExplorer.goBack",
+          "group": "navigation@1",
+          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+        },
+        {
+          "command": "mdExplorer.goForward",
+          "group": "navigation@2",
+          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+        },
+        {
+          "command": "mdExplorer.switchToEditor",
+          "group": "navigation@3",
+          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+        },
+        {
+          "command": "mdExplorer.showPreview",
+          "group": "navigation@1",
+          "when": "editorLangId == markdown"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "mdExplorer.showPreview",
+          "group": "navigation@1",
+          "when": "editorLangId == markdown"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "mdExplorer.showPreviewToSide",
+          "group": "1_mdexplorer",
+          "when": "resourceExtname =~ /^\\.(md|markdown)$/"
+        }
+      ],
+      "webview/context": [
+        {
+          "command": "mdExplorer.switchToEditor",
+          "group": "1_edit@1",
+          "when": "webviewId == 'mdExplorer.preview'"
+        },
+        {
+          "command": "mdExplorer.goBack",
+          "group": "2_nav@1",
+          "when": "webviewId == 'mdExplorer.preview' && mdxCanGoBack"
+        },
+        {
+          "command": "mdExplorer.goForward",
+          "group": "2_nav@2",
+          "when": "webviewId == 'mdExplorer.preview' && mdxCanGoForward"
+        },
+        {
+          "command": "mdExplorer.refresh",
+          "group": "2_nav@3",
+          "when": "webviewId == 'mdExplorer.preview'"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "mdExplorer.goBack",
+          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+        },
+        {
+          "command": "mdExplorer.goForward",
+          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+        },
+        {
+          "command": "mdExplorer.switchToEditor",
+          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+        },
+        {
+          "command": "mdExplorer.refresh",
+          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+        },
+        {
+          "command": "mdExplorer.showPreview",
+          "when": "editorLangId == markdown"
+        },
+        {
+          "command": "mdExplorer.showPreviewToSide",
+          "when": "editorLangId == markdown"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "mdExplorer.goBack",
+        "key": "alt+left",
+        "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+      },
+      {
+        "command": "mdExplorer.goForward",
+        "key": "alt+right",
+        "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+      }
+    ],
+    "configuration": {
+      "title": "mdExplorer",
+      "properties": {
+        "mdExplorer.doubleClickToEdit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Double-clicking the preview body closes the preview and opens the file in a text editor at the corresponding line. Disable this if it conflicts with selecting text by double-click."
+        },
+        "mdExplorer.mermaid.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render ```mermaid fenced code blocks as diagrams."
+        },
+        "mdExplorer.math.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Render $...$ and $$...$$ math with KaTeX."
+        },
+        "mdExplorer.allowRawHtml": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow raw HTML embedded in Markdown. Output is always sanitized before it is displayed."
+        },
+        "mdExplorer.linkify": {
+          "type": "string",
+          "enum": [
+            "off",
+            "urls",
+            "all"
+          ],
+          "default": "urls",
+          "enumDescriptions": [
+            "Never turn plain text into links.",
+            "Only text with an explicit scheme, such as https://example.com.",
+            "Also bare domain-like text \u2014 this mistakes filenames such as vcf2phylip.py for hostnames."
+          ],
+          "description": "Which plain text in a document is turned into links."
+        },
+        "mdExplorer.maxHistoryLength": {
+          "type": "number",
+          "default": 50,
+          "minimum": 2,
+          "description": "Maximum number of entries kept in a tab's back/forward history."
+        },
+        "mdExplorer.scrollOffset": {
+          "type": "number",
+          "default": 8,
+          "minimum": 0,
+          "description": "Pixels of breathing room left above an element when it is scrolled to the top of the preview."
+        },
+        "mdExplorer.reclaimTextEditors": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Turn a Markdown file that opened in a plain text editor into a preview. This covers tabs restored from before mdExplorer was installed, and setups where `#workbench.editorAssociations#` overrides the preview. Files you opened with **mdExplorer: Open in Editor** are left alone."
+        },
+        "mdExplorer.retainHiddenPreviews": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep a preview loaded while its tab is hidden, so switching back to it is instant. Turn this off to save memory when many previews are open; hidden tabs are then re-rendered on return, and keep their scroll position."
+        },
+        "mdExplorer.frontMatter": {
+          "type": "string",
+          "enum": [
+            "hide",
+            "table",
+            "source"
+          ],
+          "default": "hide",
+          "enumDescriptions": [
+            "Leave YAML front matter out of the preview.",
+            "Show it as a compact metadata card above the document.",
+            "Show the raw YAML in a code block."
+          ],
+          "description": "How to present the YAML front matter at the top of a document."
+        },
+        "mdExplorer.wikiLinks": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Resolve Obsidian-style `[[wiki links]]`, including `[[note|label]]`, `[[note#heading]]` and `![[image.png]]`. A bare name is looked up across the workspace, not just next to the document."
+        },
+        "mdExplorer.wikiRootMarkers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            ".obsidian"
+          ],
+          "markdownDescription": "Files or directories whose presence marks a wiki root, used to resolve `[[wiki links]]` when a document has no `root:` in its front matter. Searched upwards from the document."
+        },
+        "mdExplorer.wikiLinkFallback": {
+          "type": "string",
+          "enum": [
+            "unique",
+            "none"
+          ],
+          "default": "unique",
+          "enumDescriptions": [
+            "Look across the whole workspace when a name is not in the document\u2019s own wiki, and accept the match only if exactly one file has that name.",
+            "Never resolve a name outside the document\u2019s own wiki."
+          ],
+          "markdownDescription": "What to do when a `[[wiki link]]` names a note that is not inside the document\u2019s own wiki \u2014 for instance a project that grew links into a neighbouring wiki later."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "vscode:prepublish": "node esbuild.mjs --production",
+    "test": "node test/build.mjs && for f in test/dist/*.test.cjs; do node \"$f\" || exit 1; done",
+    "package": "node esbuild.mjs --production && node scripts/package-vsix.mjs",
+    "test:integration": "node esbuild.mjs && node test/build-integration.mjs && node test/integration/runTest.mjs",
+    "test:all": "npm run typecheck && npm test && npm run test:integration",
+    "deploy:devcontainer": "npm run package && node scripts/deploy-devcontainer.mjs"
+  },
+  "dependencies": {
+    "@vscode/markdown-it-katex": "1.1.2",
+    "dompurify": "3.2.4",
+    "highlight.js": "11.10.0",
+    "js-yaml": "4.1.0",
+    "katex": "0.16.11",
+    "markdown-it": "14.1.0",
+    "markdown-it-anchor": "9.2.0",
+    "markdown-it-footnote": "4.0.0",
+    "markdown-it-front-matter": "0.2.4",
+    "markdown-it-task-lists": "2.1.1",
+    "mermaid": "11.4.1"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "4.0.9",
+    "@types/markdown-it": "14.1.2",
+    "@types/node": "18.19.50",
+    "@types/vscode": "1.75.1",
+    "@vscode/test-electron": "2.4.1",
+    "@vscode/vsce": "2.32.0",
+    "esbuild": "0.21.5",
+    "typescript": "5.4.5"
+  },
+  "keywords": [
+    "markdown",
+    "preview",
+    "wiki",
+    "obsidian",
+    "documentation"
+  ]
+}

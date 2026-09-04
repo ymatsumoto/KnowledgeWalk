@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "paths": {
+      "vscode": [
+        "./test/vscode-stub.ts"
+      ]
+    }
+  },
+  "include": [
+    "test/*.test.ts",
+    "test/vscode-stub.ts",
+    "src/shims.d.ts"
+  ]
+}
