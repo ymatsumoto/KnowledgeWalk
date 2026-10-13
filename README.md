@@ -42,6 +42,18 @@ they get in the way.
 | Following a link | Top of the new page, or the linked `#heading` |
 | **Forward (→)** | Top of the page |
 | **Back (←)** | The link you clicked, back at the top of the view |
+| **Open Preview** from an editor | The paragraph the cursor was in, centred |
+| **Open in Editor** from a preview | The paragraph you were reading, centred |
+
+**Switching modes keeps your place.** Both directions carry the position across and
+centre what you were on, so reading and editing the same passage does not mean finding it
+twice — and you get the paragraph with its surroundings, not pinned to the top edge. Going to the editor
+takes your selection if you have one, and otherwise whatever sits at the top of the view;
+a double-click still wins over both, since it names a paragraph outright. The mapping is
+block-level — `data-line` sits on paragraphs, headings and code blocks, not on individual
+lines of prose — so you land on the paragraph containing the line, which is the same
+granularity VS Code's own Markdown preview syncs at. Nothing syncs while you read: the
+position is only carried at the moment you switch.
 
 **Rendering.** GFM tables, task lists, strikethrough and footnotes; syntax-highlighted
 code; Mermaid diagrams; KaTeX math; heading anchors; relative images. Everything follows

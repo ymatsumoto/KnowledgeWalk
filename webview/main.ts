@@ -1,5 +1,5 @@
 import DOMPurify from 'dompurify';
-import type { FromWebview, ToWebview, WebviewConfig, PreviewState } from '../src/protocol';
+import type { FromWebview, NavMode, ToWebview, WebviewConfig, PreviewState } from '../src/protocol';
 
 declare function acquireVsCodeApi(): {
   postMessage(message: FromWebview): void;
@@ -24,6 +24,9 @@ let canGoForward = false;
 /** Bumped on every render so a stale scroll-settling loop stops touching the page. */
 let renderToken = 0;
 let persisted: PreviewState | undefined = vscodeApi.getState();
+/** The document currently rendered, so a position report can name what it refers to. */
+let currentUri = '';
+let currentMode: NavMode = 'push';
 /** The first render after a page load restores the offset instead of jumping to the top. */
 let isFirstRender = true;
 
@@ -91,6 +94,8 @@ function updateContextMenu(): void {
 async function render(message: Extract<ToWebview, { type: 'render' }>): Promise<void> {
   const token = ++renderToken;
   config = message.config;
+  currentUri = message.uri;
+  currentMode = message.mode;
   canGoBack = message.canGoBack;
   canGoForward = message.canGoForward;
   updateContextMenu();
@@ -121,6 +126,12 @@ function resolveScrollTarget(
   message: Extract<ToWebview, { type: 'render' }>,
   previousScroll: number
 ): { top: number; anchored: boolean } {
+  if (typeof message.line === 'number') {
+    const block = blockForLine(message.line);
+    if (block) {
+      return { top: centerOf(block), anchored: true };
+    }
+  }
   if (message.mode === 'refresh') {
     return { top: previousScroll, anchored: true };
   }
@@ -140,12 +151,99 @@ function resolveScrollTarget(
   // aim at something and could not find it.
   const wasAskedForTarget =
     (message.mode === 'back' && typeof message.linkId === 'number') ||
-    (message.mode === 'push' && !!message.fragment);
+    (message.mode === 'push' && !!message.fragment) ||
+    typeof message.line === 'number';
   return { top: 0, anchored: !wasAskedForTarget };
 }
 
+/**
+ * The block that renders `line` of the source.
+ *
+ * `data-line` sits on block-level tokens only, so a line inside a paragraph resolves to
+ * the paragraph: the last block that starts at or before it. That is the same
+ * granularity VS Code's own Markdown preview syncs at.
+ */
+function blockForLine(line: number): Element | undefined {
+  let match: Element | undefined;
+  for (const block of Array.from(content.querySelectorAll<HTMLElement>('[data-line]'))) {
+    const start = Number(block.dataset.line);
+    if (!Number.isFinite(start) || start > line) {
+      break;
+    }
+    match = block;
+  }
+  return match ?? content.querySelector('[data-line]') ?? undefined;
+}
+
+/** The source line the reader is looking at: their selection, else the top of the view. */
+function currentLine(): number | undefined {
+  const selection = window.getSelection();
+  if (selection && selection.rangeCount > 0) {
+    const node = selection.getRangeAt(0).startContainer;
+    const element = node.nodeType === Node.ELEMENT_NODE ? (node as Element) : node.parentElement;
+    const block = element?.closest<HTMLElement>('[data-line]');
+    // A collapsed selection is just a caret the reader left behind by clicking, which is
+    // still a better answer than the top of the viewport only when it is on screen.
+    if (block && (!selection.isCollapsed || isOnScreen(block))) {
+      const line = Number(block.dataset.line);
+      if (Number.isFinite(line)) {
+        return line;
+      }
+    }
+  }
+
+  for (const block of Array.from(content.querySelectorAll<HTMLElement>('[data-line]'))) {
+    if (block.getBoundingClientRect().bottom > config.scrollOffset) {
+      const line = Number(block.dataset.line);
+      return Number.isFinite(line) ? line : undefined;
+    }
+  }
+  return undefined;
+}
+
+function isOnScreen(element: Element): boolean {
+  const rect = element.getBoundingClientRect();
+  return rect.bottom > 0 && rect.top < window.innerHeight;
+}
+
+let positionTimer = 0;
+/**
+ * Report where the reader is, so switching to the editor can land on the same passage.
+ * Debounced: this rides the scroll event, and the host only ever needs the latest value.
+ */
+function reportPosition(): void {
+  if (positionTimer) {
+    return;
+  }
+  positionTimer = window.setTimeout(() => {
+    positionTimer = 0;
+    const line = currentLine();
+    if (currentUri && typeof line === 'number') {
+      post({ type: 'position', uri: currentUri, line });
+    }
+  }, 120);
+}
+
+window.addEventListener('scroll', reportPosition, { passive: true });
+document.addEventListener('selectionchange', reportPosition);
+
 function offsetTopOf(element: Element): number {
   return Math.max(0, element.getBoundingClientRect().top + window.scrollY - config.scrollOffset);
+}
+
+/**
+ * Put an element in the middle of the window rather than at the top.
+ *
+ * This is for the passage the cursor was on when the reader switched over from the
+ * editor: what they want to see is the paragraph *and its surroundings*, the way the
+ * editor shows it. A block taller than the window falls back to the top, since there is
+ * no middle to put it in.
+ */
+function centerOf(element: Element): number {
+  const rect = element.getBoundingClientRect();
+  const top = rect.top + window.scrollY;
+  const slack = Math.max(config.scrollOffset, (window.innerHeight - rect.height) / 2);
+  return Math.max(0, top - slack);
 }
 
 /**
@@ -155,7 +253,7 @@ function offsetTopOf(element: Element): number {
  */
 function settleScroll(
   token: number,
-  message: Extract<ToWebview, { type: 'render' }>,
+  message: { uri: string; mode: NavMode },
   computeTarget: () => { top: number; anchored: boolean }
 ): void {
   let cancelled = false;
@@ -209,6 +307,7 @@ function settleScroll(
       window.removeEventListener(name, cancel);
     }
     report(true);
+    reportPosition();
     cancelled = true;
   }, 1200);
 }
@@ -411,6 +510,12 @@ window.addEventListener('message', (event: MessageEvent<ToWebview>) => {
     void render(message);
   } else if (message.type === 'config') {
     config = message.config;
+  } else if (message.type === 'revealLine') {
+    const line = message.line;
+    settleScroll(renderToken, { uri: currentUri, mode: currentMode }, () => {
+      const block = blockForLine(line);
+      return block ? { top: centerOf(block), anchored: true } : { top: 0, anchored: false };
+    });
   }
 });
 
