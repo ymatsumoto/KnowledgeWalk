@@ -15,6 +15,11 @@
 | [CSV ファイル](data/table.csv) | 通常のテキストエディタで開く（プレビューにはならない） |
 | [外部サイト](https://code.visualstudio.com/api) | 既定のブラウザで開く |
 
+## OKF の wiki
+
+[サンプル研究 Wiki](okf/research/wiki/index.md) は OKF v0.2 の front matter（カード表示、出典、
+脚注、検証状態、廃止・期限切れの帯）を確かめるための小さなバンドルです。
+
 ## wiki link
 
 Obsidian 形式のリンクも使えます。
