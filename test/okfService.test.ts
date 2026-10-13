@@ -64,3 +64,24 @@ test('indexed files exist without a stat; others are checked on disk once', asyn
     __setStatPaths([]);
   }
 });
+
+test('the wiki root .mdexplorer.yaml is layered over the settings, then byType', async () => {
+  const problem = await prepare('problems/p1.md');
+  assert.equal(problem.display.fields.severity?.as, 'badge');
+  assert.equal(problem.display.fields.severity?.colors?.high, 'red');
+  assert.deepEqual(problem.display.header, ['type', 'status', 'trust', 'generated', 'severity', 'stage']);
+
+  const file = path.join(BUNDLE, 'problems', 'p1.md');
+  const withUser = await service.prepare(Uri.file(file), fs.readFileSync(file, 'utf8'), {
+    fields: { maturity: { as: 'badge' }, severity: { as: 'text' } },
+  });
+  assert.equal(withUser.display.fields.maturity?.as, 'badge');
+  // The wiki's own file wins over the user's setting.
+  assert.equal(withUser.display.fields.severity?.as, 'badge');
+});
+
+test('a document outside a configured wiki gets the defaults', async () => {
+  const file = path.join(SAMPLES, 'guide.md');
+  const prepared = await service.prepare(Uri.file(file), fs.readFileSync(file, 'utf8'));
+  assert.equal(prepared.display.fields.severity, undefined);
+});

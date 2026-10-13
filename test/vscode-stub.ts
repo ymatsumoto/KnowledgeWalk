@@ -101,6 +101,20 @@ export class Disposable {
   }
 }
 
+export class EventEmitter<T> {
+  private listeners: ((value: T) => void)[] = [];
+  readonly event = (listener: (value: T) => void) => {
+    this.listeners.push(listener);
+    return { dispose: () => (this.listeners = this.listeners.filter((l) => l !== listener)) };
+  };
+  fire(value: T): void {
+    this.listeners.forEach((listener) => listener(value));
+  }
+  dispose(): void {
+    this.listeners = [];
+  }
+}
+
 export interface LogOutputChannel {
   info(message: string, ...args: unknown[]): void;
   warn(message: string, ...args: unknown[]): void;

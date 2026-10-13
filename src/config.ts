@@ -10,6 +10,8 @@ export interface MdxConfig {
   math: boolean;
   allowRawHtml: boolean;
   frontMatter: FrontMatterMode;
+  /** `mdExplorer.frontMatterDisplay`: the user layer of the card layout. */
+  frontMatterDisplay: unknown;
   wikiLinks: boolean;
   wikiRootMarkers: string[];
   wikiLinkFallback: WikiLinkFallback;
@@ -27,7 +29,8 @@ export function readConfig(scope?: vscode.Uri): MdxConfig {
     mermaid: c.get<boolean>('mermaid.enabled', true),
     math: c.get<boolean>('math.enabled', true),
     allowRawHtml: c.get<boolean>('allowRawHtml', true),
-    frontMatter: c.get<FrontMatterMode>('frontMatter', 'hide'),
+    frontMatter: c.get<FrontMatterMode>('frontMatter', 'auto'),
+    frontMatterDisplay: c.get<unknown>('frontMatterDisplay', {}),
     wikiLinks: c.get<boolean>('wikiLinks', true),
     wikiRootMarkers: c.get<string[]>('wikiRootMarkers', ['.obsidian']),
     wikiLinkFallback: c.get<WikiLinkFallback>('wikiLinkFallback', 'unique'),

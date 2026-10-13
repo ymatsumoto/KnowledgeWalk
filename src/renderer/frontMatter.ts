@@ -1,7 +1,7 @@
 import * as yaml from 'js-yaml';
 import { escapeHtml } from './highlight';
 
-export type FrontMatterMode = 'hide' | 'table' | 'source';
+export type FrontMatterMode = 'auto' | 'table' | 'hide' | 'source';
 
 const URL_PATTERN = /^https?:\/\/\S+$/i;
 /**

@@ -4,6 +4,10 @@ import { log } from '../log';
 import { readDocumentText } from '../documentText';
 import type { WikiLinkIndex } from '../wikiIndex';
 import { looksLikePath, resolveRef, type RefContext } from './pathResolver';
+import { displayForType, mergeDisplay, type DisplayConfig } from './displayConfig';
+
+/** Per-wiki display settings live in this file at the wiki root. */
+export const LOCAL_CONFIG_FILE = '.mdexplorer.yaml';
 
 /** The two roots a document's references are resolved against. */
 export interface DocRoots {
@@ -31,6 +35,8 @@ export interface PreparedDocument {
   exists(p: string): boolean;
   /** The context `resolveRef` needs for this document. */
   refContext: RefContext;
+  /** Card layout for this document: defaults, settings, `.mdexplorer.yaml`, `byType`. */
+  display: DisplayConfig;
 }
 
 /** More than enough for any real page; a guard against a pathological document. */
@@ -54,20 +60,42 @@ function collectStrings(value: unknown, into: string[]): void {
 export class OkfService implements vscode.Disposable {
   /** Directory -> `okf_version` of its `index.md`, or null when it is not a bundle root. */
   private readonly bundleDirs = new Map<string, string | null>();
+  /** Wiki root -> the `frontMatter:` section of its `.mdexplorer.yaml`, if any. */
+  private readonly localDisplay = new Map<string, Promise<unknown>>();
+  /** Configuration problems already reported, so each is logged once. */
+  private readonly reported = new Set<string>();
+  private readonly displayChanged = new vscode.EventEmitter<void>();
+  /** Fires when a `.mdexplorer.yaml` changes, so open previews can re-render. */
+  readonly onDidChangeDisplay = this.displayChanged.event;
   private readonly disposables: vscode.Disposable[] = [];
 
   constructor(private readonly index: WikiLinkIndex) {
-    const watcher = vscode.workspace.createFileSystemWatcher('**/index.md');
-    const invalidate = () => this.bundleDirs.clear();
+    const indexWatcher = vscode.workspace.createFileSystemWatcher('**/index.md');
+    const invalidateBundles = () => this.bundleDirs.clear();
+    const configWatcher = vscode.workspace.createFileSystemWatcher(`**/${LOCAL_CONFIG_FILE}`);
+    const invalidateDisplay = () => {
+      this.localDisplay.clear();
+      this.reported.clear();
+      this.displayChanged.fire();
+    };
     this.disposables.push(
-      watcher,
-      watcher.onDidCreate(invalidate),
-      watcher.onDidChange(invalidate),
-      watcher.onDidDelete(invalidate)
+      indexWatcher,
+      indexWatcher.onDidCreate(invalidateBundles),
+      indexWatcher.onDidChange(invalidateBundles),
+      indexWatcher.onDidDelete(invalidateBundles),
+      configWatcher,
+      configWatcher.onDidCreate(invalidateDisplay),
+      configWatcher.onDidChange(invalidateDisplay),
+      configWatcher.onDidDelete(invalidateDisplay),
+      this.displayChanged
     );
   }
 
-  async prepare(uri: vscode.Uri, text: string): Promise<PreparedDocument> {
+  /**
+   * @param userDisplay the `mdExplorer.frontMatterDisplay` setting, layered between the
+   *   built-in defaults and the wiki's own `.mdexplorer.yaml`.
+   */
+  async prepare(uri: vscode.Uri, text: string, userDisplay?: unknown): Promise<PreparedDocument> {
     await this.index.ensure();
     const { readFrontMatter } = await import('../renderer/frontMatter');
     const frontMatter = readFrontMatter(text);
@@ -118,12 +146,70 @@ export class OkfService implements vscode.Disposable {
       })
     );
 
+    const local = await this.loadLocalDisplay(roots.wikiRoot);
+    const merged = mergeDisplay(userDisplay, local);
+    const type = typeof frontMatter?.type === 'string' ? frontMatter.type : undefined;
+    const forType = displayForType(merged.config, type);
+    this.report(roots.wikiRoot, [...merged.warnings, ...forType.warnings]);
+
     return {
       roots,
       frontMatter,
       refContext,
+      display: forType.config,
       exists: (p: string) => onDisk.has(p) || this.index.has(uri.with({ path: p })),
     };
+  }
+
+  /**
+   * The `frontMatter:` section of `<wikiRoot>/.mdexplorer.yaml`. Read even in an
+   * untrusted workspace: it only changes layout, and template output is escaped text.
+   */
+  private loadLocalDisplay(wikiRoot: vscode.Uri): Promise<unknown> {
+    const key = wikiRoot.toString();
+    let pending = this.localDisplay.get(key);
+    if (!pending) {
+      pending = this.readLocalDisplay(wikiRoot);
+      this.localDisplay.set(key, pending);
+    }
+    return pending;
+  }
+
+  private async readLocalDisplay(wikiRoot: vscode.Uri): Promise<unknown> {
+    const file = wikiRoot.with({ path: path.posix.join(wikiRoot.path, LOCAL_CONFIG_FILE) });
+    let text: string;
+    try {
+      text = new TextDecoder('utf-8').decode(await vscode.workspace.fs.readFile(file));
+    } catch {
+      return undefined;
+    }
+    try {
+      const yaml = await import('js-yaml');
+      const { YAML_OPTIONS } = await import('../renderer/frontMatter');
+      const data = yaml.load(text, YAML_OPTIONS);
+      if (data === undefined || data === null) {
+        return undefined;
+      }
+      if (typeof data !== 'object' || Array.isArray(data)) {
+        log.warn(`${file.path}: expected a mapping with a frontMatter: section`);
+        return undefined;
+      }
+      log.info(`display settings loaded from ${file.path}`);
+      return (data as Record<string, unknown>).frontMatter;
+    } catch (error) {
+      log.warn(`${file.path}: could not parse`, error);
+      return undefined;
+    }
+  }
+
+  private report(wikiRoot: vscode.Uri, warnings: string[]): void {
+    for (const warning of warnings) {
+      const key = `${wikiRoot.path}\n${warning}`;
+      if (!this.reported.has(key)) {
+        this.reported.add(key);
+        log.warn(`front matter display (${wikiRoot.path}): ${warning}`);
+      }
+    }
   }
 
   async rootsFor(uri: vscode.Uri, declaredRoot?: unknown): Promise<DocRoots> {
