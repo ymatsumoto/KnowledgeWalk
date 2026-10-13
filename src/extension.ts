@@ -9,6 +9,7 @@ import { registerWatchers } from './watcher';
 import { EditModeTracker } from './editModeTracker';
 import { registerReclaim } from './reclaim';
 import { WikiLinkIndex } from './wikiIndex';
+import { OkfService } from './okf/service';
 import { resetRenderer } from './renderer/markdown';
 import { initLog, log } from './log';
 
@@ -23,10 +24,12 @@ export function activate(context: vscode.ExtensionContext): MdExplorerApi {
 
   const editing = new EditModeTracker(context);
   const wikiIndex = new WikiLinkIndex();
-  const manager = new PreviewManager(context.extensionUri, editing, wikiIndex);
+  const okf = new OkfService(wikiIndex);
+  const manager = new PreviewManager(context.extensionUri, editing, wikiIndex, okf);
 
   context.subscriptions.push(
     manager,
+    okf,
     wikiIndex,
 
     vscode.window.registerCustomEditorProvider(
@@ -75,6 +78,8 @@ export function activate(context: vscode.ExtensionContext): MdExplorerApi {
       manager.open(uri, column ?? vscode.ViewColumn.Active);
     },
     followLink: (href, linkId, newTab) => manager.active?.followLink(href, linkId, newTab),
+    clickRenderedLink: (linkId, newTab) => manager.active?.clickRenderedLink(linkId, newTab) ?? false,
+    renderedHtml: () => manager.active?.renderedHtml(),
     editGesture: (line) => manager.active?.editGesture(line),
     goBack: () => manager.active?.goBack(),
     goForward: () => manager.active?.goForward(),

@@ -40,20 +40,36 @@ function isMarkdown(uri: vscode.Uri): boolean {
   return MARKDOWN_EXTENSIONS.has(path.posix.extname(uri.path).toLowerCase());
 }
 
+/** What resolving a `/`-prefixed link needs to know beyond the document itself. */
+export interface RootLinkContext {
+  /** OKF bundle root, which OKF makes the base of a leading `/`. */
+  bundleRoot: vscode.Uri;
+  exists(p: string): boolean;
+}
+
 /**
  * Resolve a relative or root-relative href against the document that contains it.
- * Root-relative paths (`/docs/a.md`) are resolved against the workspace folder when
- * there is one, and against the document's own folder otherwise.
+ *
+ * A root-relative path (`/docs/a.md`) is tried, in order, against the OKF bundle root,
+ * the workspace folder and the filesystem root, and the first that exists wins. Without
+ * a bundle context, or when none exists, it is the first of those that applies.
  */
-export function resolveRelative(base: vscode.Uri, relative: string): vscode.Uri {
+export function resolveRelative(
+  base: vscode.Uri,
+  relative: string,
+  roots?: RootLinkContext
+): vscode.Uri {
   if (relative.startsWith('/')) {
     const folder = vscode.workspace.getWorkspaceFolder(base);
-    const root = folder ? folder.uri : base.with({ path: path.posix.dirname(base.path) });
-    return root.with({
-      path: path.posix.join(root.path, relative),
-      query: '',
-      fragment: '',
-    });
+    const fallback = folder ? folder.uri : base.with({ path: path.posix.dirname(base.path) });
+    const candidates = [
+      ...(roots ? [roots.bundleRoot] : []),
+      fallback,
+      ...(roots ? [base.with({ path: '/' })] : []),
+    ].map((root) =>
+      root.with({ path: path.posix.join(root.path, relative), query: '', fragment: '' })
+    );
+    return candidates.find((candidate) => roots?.exists(candidate.path)) ?? candidates[0];
   }
   const dir = path.posix.dirname(base.path);
   return base.with({
@@ -64,7 +80,11 @@ export function resolveRelative(base: vscode.Uri, relative: string): vscode.Uri 
 }
 
 /** Decide what clicking a link in the preview should do. */
-export function classifyLink(href: string, base: vscode.Uri): ClassifiedLink {
+export function classifyLink(
+  href: string,
+  base: vscode.Uri,
+  roots?: RootLinkContext
+): ClassifiedLink {
   const raw = href.trim();
   if (!raw) {
     return { kind: 'unknown' };
@@ -100,7 +120,7 @@ export function classifyLink(href: string, base: vscode.Uri): ClassifiedLink {
     return { kind: 'anchor', target: base, fragment };
   }
 
-  const target = resolveRelative(base, safeDecode(pathPart.split('?')[0]));
+  const target = resolveRelative(base, safeDecode(pathPart.split('?')[0]), roots);
   return { kind: isMarkdown(target) ? 'markdown' : 'file', target, fragment };
 }
 
@@ -108,7 +128,11 @@ export function classifyLink(href: string, base: vscode.Uri): ClassifiedLink {
  * Resolve an `<img src>` to a URI the webview may load.
  * Returns undefined when the source should be left untouched (remote or inline data).
  */
-export function resolveResource(src: string, base: vscode.Uri): vscode.Uri | undefined {
+export function resolveResource(
+  src: string,
+  base: vscode.Uri,
+  roots?: RootLinkContext
+): vscode.Uri | undefined {
   const raw = src.trim();
   if (!raw) {
     return undefined;
@@ -120,5 +144,5 @@ export function resolveResource(src: string, base: vscode.Uri): vscode.Uri | und
     }
     return undefined;
   }
-  return resolveRelative(base, safeDecode(raw.split('#')[0].split('?')[0]));
+  return resolveRelative(base, safeDecode(raw.split('#')[0].split('?')[0]), roots);
 }

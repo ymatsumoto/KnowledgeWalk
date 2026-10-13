@@ -1,0 +1,200 @@
+import * as vscode from 'vscode';
+import * as path from 'path';
+import { log } from '../log';
+import { readDocumentText } from '../documentText';
+import type { WikiLinkIndex } from '../wikiIndex';
+import { looksLikePath, resolveRef, type RefContext } from './pathResolver';
+
+/** The two roots a document's references are resolved against. */
+export interface DocRoots {
+  /**
+   * `root:` in front matter, a root marker, the workspace folder, or the document's own
+   * directory — see WikiLinkIndex.rootFor. Scope of `[[wiki links]]`.
+   */
+  wikiRoot: vscode.Uri;
+  /**
+   * The nearest directory at or below the wiki root holding an `index.md` that declares
+   * `okf_version`; the wiki root itself when there is none. Base of OKF Concept IDs and
+   * of `/`-prefixed links.
+   */
+  bundleRoot: vscode.Uri;
+  /** `okf_version` from the bundle's `index.md`, when the document is in a bundle. */
+  okfVersion?: string;
+}
+
+/** Everything about a document that has to be looked up before it can be rendered. */
+export interface PreparedDocument {
+  roots: DocRoots;
+  /** Parsed front matter, when the document has a usable block. */
+  frontMatter?: Record<string, unknown>;
+  /** Synchronous existence check for a path on the document's filesystem. */
+  exists(p: string): boolean;
+  /** The context `resolveRef` needs for this document. */
+  refContext: RefContext;
+}
+
+/** More than enough for any real page; a guard against a pathological document. */
+const MAX_STATS = 200;
+const BODY_ROOT_LINK = /\]\((\/[^)\s]+)/g;
+
+function collectStrings(value: unknown, into: string[]): void {
+  if (typeof value === 'string') {
+    into.push(value);
+  } else if (Array.isArray(value)) {
+    value.forEach((item) => collectStrings(item, into));
+  } else if (value && typeof value === 'object' && !(value instanceof Date)) {
+    Object.values(value as Record<string, unknown>).forEach((item) => collectStrings(item, into));
+  }
+}
+
+/**
+ * Per-workspace knowledge about OKF bundles: where they start, and which of the files a
+ * document mentions actually exist.
+ */
+export class OkfService implements vscode.Disposable {
+  /** Directory -> `okf_version` of its `index.md`, or null when it is not a bundle root. */
+  private readonly bundleDirs = new Map<string, string | null>();
+  private readonly disposables: vscode.Disposable[] = [];
+
+  constructor(private readonly index: WikiLinkIndex) {
+    const watcher = vscode.workspace.createFileSystemWatcher('**/index.md');
+    const invalidate = () => this.bundleDirs.clear();
+    this.disposables.push(
+      watcher,
+      watcher.onDidCreate(invalidate),
+      watcher.onDidChange(invalidate),
+      watcher.onDidDelete(invalidate)
+    );
+  }
+
+  async prepare(uri: vscode.Uri, text: string): Promise<PreparedDocument> {
+    await this.index.ensure();
+    const { readFrontMatter } = await import('../renderer/frontMatter');
+    const frontMatter = readFrontMatter(text);
+    const roots = await this.rootsFor(uri, frontMatter?.root);
+    const refContext: RefContext = {
+      docDir: path.posix.dirname(uri.path),
+      bundleRoot: roots.bundleRoot.path,
+      wikiRoot: roots.wikiRoot.path,
+    };
+
+    // Everything the index cannot answer — files outside the workspace, extensions it
+    // does not track — is checked on disk now, so rendering can stay synchronous.
+    const unknown = new Set<string>();
+    const probe = (p: string) => {
+      if (this.index.has(uri.with({ path: p }))) {
+        return true;
+      }
+      unknown.add(p);
+      return false;
+    };
+    const values: string[] = [];
+    collectStrings(frontMatter, values);
+    for (const value of values) {
+      if (looksLikePath(value)) {
+        resolveRef(value, refContext, probe);
+      }
+    }
+    // A body link may also mean the workspace folder, as it did before bundles, or the
+    // filesystem root; see resolveRelative.
+    const folder = vscode.workspace.getWorkspaceFolder(uri)?.uri.path;
+    for (const match of text.matchAll(BODY_ROOT_LINK)) {
+      const target = match[1].split(/[?#]/)[0];
+      for (const base of [refContext.bundleRoot, folder, '/']) {
+        if (base) {
+          probe(path.posix.join(base, target));
+        }
+      }
+    }
+    const onDisk = new Set<string>();
+    await Promise.all(
+      [...unknown].slice(0, MAX_STATS).map(async (p) => {
+        try {
+          await vscode.workspace.fs.stat(uri.with({ path: p, query: '', fragment: '' }));
+          onDisk.add(p);
+        } catch {
+          // Does not exist; nothing to record.
+        }
+      })
+    );
+
+    return {
+      roots,
+      frontMatter,
+      refContext,
+      exists: (p: string) => onDisk.has(p) || this.index.has(uri.with({ path: p })),
+    };
+  }
+
+  async rootsFor(uri: vscode.Uri, declaredRoot?: unknown): Promise<DocRoots> {
+    const docDir = uri.with({ path: path.posix.dirname(uri.path), query: '', fragment: '' });
+    const wikiRoot = (await this.index.rootFor(uri, declaredRoot)) ?? docDir;
+    try {
+      const bundle = await this.findBundle(uri, wikiRoot);
+      if (bundle) {
+        return { wikiRoot, bundleRoot: bundle.root, okfVersion: bundle.version };
+      }
+    } catch (error) {
+      log.warn(`could not look for an OKF bundle above ${uri.path}`, error);
+    }
+    return { wikiRoot, bundleRoot: wikiRoot };
+  }
+
+  /**
+   * Walk up from the document to the wiki root (inclusive) looking for an `index.md`
+   * that declares `okf_version`. The wiki root caps the walk because `root:` is the
+   * author's statement of where the wiki ends; a bundle above it is someone else's.
+   */
+  private async findBundle(
+    uri: vscode.Uri,
+    wikiRoot: vscode.Uri
+  ): Promise<{ root: vscode.Uri; version: string } | undefined> {
+    const stopAt = wikiRoot.path;
+    const underRoot = uri.path.startsWith(`${stopAt}/`);
+    const folder = vscode.workspace.getWorkspaceFolder(uri)?.uri.path;
+    let directory = path.posix.dirname(uri.path);
+    for (let depth = 0; depth < 64; depth++) {
+      const version = await this.bundleVersion(uri, directory);
+      if (version !== null) {
+        return { root: uri.with({ path: directory, query: '', fragment: '' }), version };
+      }
+      if ((underRoot && directory === stopAt) || (!underRoot && directory === folder)) {
+        return undefined;
+      }
+      const parent = path.posix.dirname(directory);
+      if (parent === directory) {
+        return undefined;
+      }
+      directory = parent;
+    }
+    return undefined;
+  }
+
+  private async bundleVersion(uri: vscode.Uri, directory: string): Promise<string | null> {
+    const cached = this.bundleDirs.get(directory);
+    if (cached !== undefined) {
+      return cached;
+    }
+    let version: string | null = null;
+    const indexUri = uri.with({ path: path.posix.join(directory, 'index.md'), query: '', fragment: '' });
+    if (this.index.has(indexUri)) {
+      try {
+        const { readFrontMatter } = await import('../renderer/frontMatter');
+        const declared = readFrontMatter(await readDocumentText(indexUri))?.okf_version;
+        if (typeof declared === 'string' || typeof declared === 'number') {
+          version = String(declared);
+        }
+      } catch (error) {
+        log.debug(`could not read ${indexUri.path}`, error);
+      }
+    }
+    this.bundleDirs.set(directory, version);
+    return version;
+  }
+
+  dispose(): void {
+    for (const disposable of this.disposables.splice(0)) {
+      disposable.dispose();
+    }
+  }
+}

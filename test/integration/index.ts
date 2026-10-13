@@ -7,6 +7,7 @@ import './navigation.test';
 import './editMode.test';
 import './scroll.test';
 import './sync.test';
+import './okf.test';
 import './stress.test';
 
 /** Entry point VS Code calls inside the extension host. */
