@@ -3,6 +3,7 @@ import type { PreviewState } from './protocol';
 import { PreviewPanel, type PreviewHost } from './previewPanel';
 import type { EditModeTracker } from './editModeTracker';
 import type { WikiLinkIndex } from './wikiIndex';
+import type { OkfService } from './okf/service';
 
 /**
  * Owns every open preview tab, decides whether a request opens a new tab or reveals an
@@ -18,7 +19,8 @@ export class PreviewManager implements vscode.Disposable, PreviewHost {
   constructor(
     private readonly extensionUri: vscode.Uri,
     private readonly editing: EditModeTracker,
-    readonly wikiIndex: WikiLinkIndex
+    readonly wikiIndex: WikiLinkIndex,
+    readonly okf: OkfService
   ) {
     this.disposables.push(
       vscode.window.onDidChangeActiveTextEditor(() => this.syncActive()),

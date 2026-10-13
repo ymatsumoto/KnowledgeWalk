@@ -77,6 +77,14 @@ export class WikiLinkIndex implements vscode.Disposable {
     await this.building;
   }
 
+  /**
+   * Whether `uri` is a file the index knows about: Markdown or a common asset. Answers
+   * only once `ensure()` has finished; anything else needs a `stat`.
+   */
+  has(uri: vscode.Uri): boolean {
+    return this.byPath.has(uri.path.toLowerCase());
+  }
+
   private invalidate(): void {
     this.building = undefined;
     this.rootCache.clear();

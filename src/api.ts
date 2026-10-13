@@ -46,6 +46,13 @@ export interface MdExplorerApi {
    * `newTab` mirrors a ctrl-click or middle-click.
    */
   followLink(href: string, linkId?: number, newTab?: boolean): void;
+  /**
+   * Click the link the focused preview rendered as `data-mdx-link="linkId"`, using the
+   * target the renderer resolved. Returns false when there is no such link.
+   */
+  clickRenderedLink(linkId: number, newTab?: boolean): boolean;
+  /** The focused preview's HTML as last rendered in the extension host. */
+  renderedHtml(): string | undefined;
   /** Double-click the page, as a reader switching to the editor would. */
   editGesture(line?: number): void;
   goBack(): void;

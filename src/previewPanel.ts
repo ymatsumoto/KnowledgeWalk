@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import type { FromWebview, NavMode, PreviewState, ToWebview } from './protocol';
+import type { FromWebview, LinkKind, NavMode, PreviewState, ToWebview } from './protocol';
 import type { PreviewSnapshot } from './api';
 import { NavigationHistory } from './history';
 import { readConfig, toWebviewConfig } from './config';
@@ -10,6 +10,7 @@ import { escapeHtml } from './renderer/highlight';
 import { buildPreviewHtml } from './webviewHtml';
 import { log } from './log';
 import type { WikiLinkIndex } from './wikiIndex';
+import type { OkfService } from './okf/service';
 
 /**
  * One Alt+Left can reach us twice: VS Code resolves the contributed keybinding, and the
@@ -47,6 +48,8 @@ export interface PreviewHost {
   openInNewTab(uri: vscode.Uri, column: vscode.ViewColumn, fragment?: string): void;
   /** Workspace file index, needed to resolve `[[wiki links]]` by name. */
   readonly wikiIndex: WikiLinkIndex;
+  /** Bundle roots and file existence for front matter and `/` links. */
+  readonly okf: OkfService;
   /** Record that the reader wants this file in a text editor, not a preview. */
   markEditing(uri: vscode.Uri): void;
 }
@@ -70,6 +73,8 @@ export class PreviewPanel {
     | { mode: NavMode; scrollTop: number; anchored: boolean; final: boolean; at: number }
     | undefined;
   private renderCount = 0;
+  /** The HTML most recently sent to the page; exposed through the API for tests. */
+  private lastHtml: string | undefined;
   /** Latest reading position reported by the page; see the `position` message. */
   private lastPosition: { uri: string; line: number } | undefined;
   /** Source line the next render should aim at, set when the reader came from a cursor. */
@@ -229,6 +234,37 @@ export class PreviewPanel {
    * Follow a link from the document on screen, taking the same path a click in the
    * preview takes. Exposed through the extension API.
    */
+  /** The page's current HTML, as rendered in the extension host. */
+  renderedHtml(): string | undefined {
+    return this.lastHtml;
+  }
+
+  /**
+   * Follow the link the page rendered with `data-mdx-link="linkId"`, exactly as a click
+   * on it would: with the target the renderer resolved, not one recomputed here.
+   */
+  clickRenderedLink(linkId: number, newTab = false): boolean {
+    const html = this.lastHtml ?? '';
+    const tag = new RegExp(`<a\\b[^>]*\\bdata-mdx-link="${linkId}"[^>]*>`).exec(html)?.[0];
+    if (!tag) {
+      return false;
+    }
+    const attr = (name: string) => {
+      const value = new RegExp(`\\b${name}="([^"]*)"`).exec(tag)?.[1];
+      return value === undefined ? undefined : decodeEntities(value);
+    };
+    this.handleNavigate({
+      type: 'navigate',
+      kind: (attr('data-mdx-kind') ?? 'unknown') as LinkKind,
+      target: attr('data-mdx-target'),
+      href: attr('data-mdx-href'),
+      fragment: attr('data-mdx-fragment'),
+      linkId,
+      newTab,
+    });
+    return true;
+  }
+
   followLink(href: string, linkId = 0, newTab = false): void {
     const base = this.currentUri;
     if (!base) {
@@ -404,9 +440,8 @@ export class PreviewPanel {
         // Loaded on demand: markdown-it, highlight.js and KaTeX together are the bulk of
         // the extension bundle, and activation should not pay for them.
         import('./renderer/markdown'),
-        // Wiki links name a note rather than a path, so the file index has to be warm
-        // before the document is rendered.
-        cfg.wikiLinks ? this.host.wikiIndex.ensure() : Promise.resolve(),
+        // Warmed alongside the read; prepare() below needs it, and so do wiki links.
+        this.host.wikiIndex.ensure(),
       ]);
       // The reader can close the tab, or switch to the editor, while we are reading.
       // Touching the panel after that throws, so bail at every await boundary — this is
@@ -414,9 +449,9 @@ export class PreviewPanel {
       if (this.disposed) {
         return;
       }
-      const wikiRoot = cfg.wikiLinks
-        ? await this.host.wikiIndex.rootFor(uri, renderer.readFrontMatter(text)?.root)
-        : undefined;
+      // Roots, front matter and every file the document mentions are looked up now, so
+      // the render itself can stay synchronous.
+      const prepared = await this.host.okf.prepare(uri, text);
       if (this.disposed) {
         return;
       }
@@ -424,7 +459,8 @@ export class PreviewPanel {
         docUri: uri,
         webview: this.panel.webview,
         wikiIndex: this.host.wikiIndex,
-        wikiRoot,
+        wikiRoot: prepared.roots.wikiRoot,
+        prepared,
       });
     } catch (error) {
       if (this.disposed) {
@@ -452,6 +488,7 @@ export class PreviewPanel {
       line: this.pendingLine,
     };
     this.renderCount += 1;
+    this.lastHtml = html;
     // Aiming at a line is a one-off: a refresh or a link followed later must not drag
     // the reader back to where they entered the document.
     this.pendingLine = undefined;
@@ -564,4 +601,13 @@ export class PreviewPanel {
     }
     this.panel.dispose();
   }
+}
+
+function decodeEntities(value: string): string {
+  return value
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&amp;/g, '&');
 }

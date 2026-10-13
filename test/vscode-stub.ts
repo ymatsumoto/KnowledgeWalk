@@ -155,6 +155,16 @@ export function __setFiles(paths: string[]): void {
   files = paths.map((p) => Uri.file(p));
 }
 
+let statPaths = new Set<string>();
+
+/**
+ * Test helper: paths `workspace.fs.stat` should report as existing. Everything else is
+ * missing, so root-marker lookups stay predictable.
+ */
+export function __setStatPaths(paths: string[]): void {
+  statPaths = new Set(paths);
+}
+
 let settings: Record<string, unknown> = {};
 
 /** Test helper: define the settings `readConfig` should see. */
@@ -184,9 +194,18 @@ export const workspace = {
   onDidChangeWorkspaceFolders(_listener: () => void) {
     return { dispose() {} };
   },
+  textDocuments: [] as { uri: Uri; getText(): string }[],
   fs: {
-    async stat(_uri: Uri): Promise<{ type: number }> {
+    async stat(uri: Uri): Promise<{ type: number }> {
+      if (statPaths.has(uri.path)) {
+        return { type: 1 };
+      }
       throw new Error('not found');
+    },
+    /** Reads the real file, so tests can point at the samples on disk. */
+    async readFile(uri: Uri): Promise<Uint8Array> {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      return require('node:fs').readFileSync(uri.path);
     },
   },
   getConfiguration(_section?: string | null, _scope?: unknown) {

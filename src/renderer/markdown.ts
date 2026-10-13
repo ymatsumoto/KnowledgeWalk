@@ -14,6 +14,8 @@ import { escapeHtml, highlightCode } from './highlight';
 import { renderFrontMatter, readFrontMatter } from './frontMatter';
 import { wikiLinkPlugin } from './wikiLink';
 import type { WikiLinkIndex } from '../wikiIndex';
+import type { PreparedDocument } from '../okf/service';
+import type { RootLinkContext } from './linkRewrite';
 
 /**
  * How aggressively plain text is turned into links.
@@ -31,11 +33,15 @@ export interface RenderContext {
   wikiIndex: WikiLinkIndex;
   /** Subtree that `[[wiki links]]` are resolved within; see WikiLinkIndex.rootFor. */
   wikiRoot?: vscode.Uri;
+  /** Roots, front matter and file existence looked up before rendering; see OkfService. */
+  prepared?: PreparedDocument;
 }
 
 interface RenderEnv extends RenderContext {
   /** Running counter that gives every anchor in the document a stable id. */
   linkCount: number;
+  /** Base for `/`-prefixed links, derived from `prepared`. */
+  rootLinks?: RootLinkContext;
 }
 
 /**
@@ -114,7 +120,7 @@ function createMarkdownIt(cfg: MdxConfig): MarkdownIt {
 
     const href = token.attrGet('href');
     if (href) {
-      const link = classifyLink(href, renderEnv.docUri);
+      const link = classifyLink(href, renderEnv.docUri, renderEnv.rootLinks);
       token.attrSet('data-mdx-kind', link.kind);
       if (link.target) {
         token.attrSet('data-mdx-target', link.target.toString());
@@ -137,7 +143,7 @@ function createMarkdownIt(cfg: MdxConfig): MarkdownIt {
     const renderEnv = env as RenderEnv;
     const src = token.attrGet('src');
     if (src) {
-      const resolved = resolveResource(src, renderEnv.docUri);
+      const resolved = resolveResource(src, renderEnv.docUri, renderEnv.rootLinks);
       if (resolved) {
         token.attrSet('src', renderEnv.webview.asWebviewUri(resolved).toString());
       }
@@ -181,7 +187,14 @@ function getMarkdownIt(cfg: MdxConfig): MarkdownIt {
 }
 
 export function renderMarkdown(text: string, cfg: MdxConfig, context: RenderContext): string {
-  const env: RenderEnv = { ...context, linkCount: 0 };
+  const { prepared } = context;
+  const env: RenderEnv = {
+    ...context,
+    linkCount: 0,
+    rootLinks: prepared
+      ? { bundleRoot: prepared.roots.bundleRoot, exists: prepared.exists }
+      : undefined,
+  };
   const html = getMarkdownIt(cfg).render(text, env);
   // markdown-it-task-lists emits `checked=""type="checkbox"` without a separating
   // space. Parsers recover from it, but there is no reason to ship invalid markup.
