@@ -22,6 +22,7 @@ const CONFIG: MdxConfig = {
   allowRawHtml: true,
   linkify: 'urls',
   frontMatter: 'hide',
+  frontMatterDisplay: {},
   maxHistoryLength: 50,
   scrollOffset: 8,
   wikiLinks: true,

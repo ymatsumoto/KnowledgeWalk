@@ -30,6 +30,7 @@ export function activate(context: vscode.ExtensionContext): MdExplorerApi {
   context.subscriptions.push(
     manager,
     okf,
+    okf.onDidChangeDisplay(() => manager.refreshAll()),
     wikiIndex,
 
     vscode.window.registerCustomEditorProvider(

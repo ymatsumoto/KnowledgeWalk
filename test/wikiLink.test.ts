@@ -48,6 +48,7 @@ const CONFIG: MdxConfig = {
   allowRawHtml: true,
   linkify: 'urls',
   frontMatter: 'hide',
+  frontMatterDisplay: {},
   wikiLinks: true,
   wikiRootMarkers: ['.obsidian'],
   wikiLinkFallback: 'unique',

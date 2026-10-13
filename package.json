@@ -240,17 +240,24 @@
         "mdExplorer.frontMatter": {
           "type": "string",
           "enum": [
-            "hide",
+            "auto",
             "table",
+            "hide",
             "source"
           ],
-          "default": "hide",
+          "default": "auto",
           "enumDescriptions": [
+            "Show a metadata card for documents whose front matter has a `type` (OKF and most generated wikis); leave it out otherwise.",
+            "Always show the metadata card.",
             "Leave YAML front matter out of the preview.",
-            "Show it as a compact metadata card above the document.",
             "Show the raw YAML in a code block."
           ],
-          "description": "How to present the YAML front matter at the top of a document."
+          "markdownDescription": "How to present the YAML front matter at the top of a document. The card's layout is set by `#mdExplorer.frontMatterDisplay#` and by a `.mdexplorer.yaml` at the wiki root."
+        },
+        "mdExplorer.frontMatterDisplay": {
+          "type": "object",
+          "default": {},
+          "markdownDescription": "How front matter keys are laid out on the metadata card: `header`, `lead`, `hidden`, `details`, `fields` (per key, e.g. `{ \"stage\": { \"as\": \"badge\" } }`) and `byType`. Layered over the built-in OKF defaults; a `frontMatter:` section in `.mdexplorer.yaml` at the wiki root is layered over this. See the README."
         },
         "mdExplorer.wikiLinks": {
           "type": "boolean",
