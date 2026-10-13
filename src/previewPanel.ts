@@ -70,6 +70,10 @@ export class PreviewPanel {
     | { mode: NavMode; scrollTop: number; anchored: boolean; final: boolean; at: number }
     | undefined;
   private renderCount = 0;
+  /** Latest reading position reported by the page; see the `position` message. */
+  private lastPosition: { uri: string; line: number } | undefined;
+  /** Source line the next render should aim at, set when the reader came from a cursor. */
+  private pendingLine: number | undefined;
   private disposed = false;
   private readonly disposables: vscode.Disposable[] = [];
 
@@ -120,7 +124,8 @@ export class PreviewPanel {
     uri: vscode.Uri,
     column: vscode.ViewColumn,
     fragment?: string,
-    preserveFocus = false
+    preserveFocus = false,
+    line?: number
   ): PreviewPanel {
     const panel = vscode.window.createWebviewPanel(
       PreviewPanel.viewType,
@@ -140,6 +145,7 @@ export class PreviewPanel {
 
     const preview = new PreviewPanel(panel, extensionUri, host, history);
     preview.pendingMode = 'push';
+    preview.pendingLine = line;
     return preview;
   }
 
@@ -202,6 +208,7 @@ export class PreviewPanel {
       lastScroll: this.lastScroll,
       renderCount: this.renderCount,
       findWidget: this.panel.options.enableFindWidget === true,
+      line: this.positionInCurrentDocument(),
     };
   }
 
@@ -280,19 +287,50 @@ export class PreviewPanel {
     if (!uri) {
       return;
     }
+    // A double-click names its own line; every other route — the title-bar button, the
+    // context menu, the command palette — inherits wherever the reader had got to.
+    const target = typeof line === 'number' ? line : this.positionInCurrentDocument();
     const options: vscode.TextDocumentShowOptions = {
       viewColumn: this.panel.viewColumn ?? vscode.ViewColumn.Active,
       preview: false,
     };
-    if (typeof line === 'number' && Number.isFinite(line) && line >= 0) {
-      options.selection = new vscode.Range(line, 0, line, 0);
+    if (typeof target === 'number' && Number.isFinite(target) && target >= 0) {
+      options.selection = new vscode.Range(target, 0, target, 0);
     }
     // Claim the file for editing before opening it, so the reclaim safety net leaves
     // this editor alone. 'default' is VS Code's built-in text editor, so this also
     // bypasses the custom editor that owns *.md.
     this.host.markEditing(uri);
     await vscode.commands.executeCommand('vscode.openWith', uri, 'default', options);
+    // `selection` only promises the line will be somewhere on screen — usually scrolled
+    // to an edge. Centring it puts the passage back under the reader's eyes.
+    const editor = vscode.window.activeTextEditor;
+    if (options.selection && editor?.document.uri.toString() === uri.toString()) {
+      editor.revealRange(options.selection, vscode.TextEditorRevealType.InCenter);
+    }
     this.dispose();
+  }
+
+  /**
+   * Scroll a tab that is already open to a source line — the reader pressed Open Preview
+   * from an editor whose document this tab is showing.
+   */
+  revealLine(line: number): void {
+    if (!Number.isFinite(line) || line < 0) {
+      return;
+    }
+    if (!this.ready) {
+      this.pendingLine = line;
+      return;
+    }
+    const message: ToWebview = { type: 'revealLine', line };
+    void this.panel.webview.postMessage(message);
+  }
+
+  /** Where the reader is in the document on screen, if the page has reported it yet. */
+  private positionInCurrentDocument(): number | undefined {
+    const uri = this.currentUri?.toString();
+    return uri !== undefined && this.lastPosition?.uri === uri ? this.lastPosition.line : undefined;
   }
 
   /** True when this request is the second half of a single keypress. */
@@ -411,8 +449,12 @@ export class PreviewPanel {
       canGoForward: this.canGoForward,
       config: toWebviewConfig(cfg),
       state: this.history.snapshot(),
+      line: this.pendingLine,
     };
     this.renderCount += 1;
+    // Aiming at a line is a one-off: a refresh or a link followed later must not drag
+    // the reader back to where they entered the document.
+    this.pendingLine = undefined;
     await this.panel.webview.postMessage(message);
     this.onDidChangeStateEmitter.fire();
   }
@@ -454,6 +496,9 @@ export class PreviewPanel {
         return;
       case 'navigate':
         this.handleNavigate(message);
+        return;
+      case 'position':
+        this.lastPosition = { uri: message.uri, line: message.line };
         return;
       case 'settled':
         this.lastScroll = {

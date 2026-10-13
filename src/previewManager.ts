@@ -39,15 +39,25 @@ export class PreviewManager implements vscode.Disposable, PreviewHost {
    * so re-opening a file never leaves duplicate tabs behind; anything else gets a tab
    * of its own.
    */
-  open(uri: vscode.Uri, column: vscode.ViewColumn, fragment?: string): PreviewPanel {
+  open(
+    uri: vscode.Uri,
+    column: vscode.ViewColumn,
+    fragment?: string,
+    line?: number
+  ): PreviewPanel {
     // Opening a preview means the reader is no longer editing this file.
     this.editing.unmark(uri);
     const existing = this.find(uri);
     if (existing) {
       existing.reveal(column);
+      if (typeof line === 'number') {
+        existing.revealLine(line);
+      }
       return existing;
     }
-    return this.track(PreviewPanel.create(this.extensionUri, this, uri, column, fragment));
+    return this.track(
+      PreviewPanel.create(this.extensionUri, this, uri, column, fragment, false, line)
+    );
   }
 
   markEditing(uri: vscode.Uri): void {
@@ -69,13 +79,26 @@ export class PreviewManager implements vscode.Disposable, PreviewHost {
     this.track(PreviewPanel.create(this.extensionUri, this, uri, column, fragment, true));
   }
 
-  openBeside(uri: vscode.Uri, fragment?: string): void {
+  openBeside(uri: vscode.Uri, fragment?: string, line?: number): void {
     const existing = this.find(uri);
     if (existing) {
       existing.reveal();
+      if (typeof line === 'number') {
+        existing.revealLine(line);
+      }
       return;
     }
-    this.track(PreviewPanel.create(this.extensionUri, this, uri, vscode.ViewColumn.Beside, fragment));
+    this.track(
+      PreviewPanel.create(
+        this.extensionUri,
+        this,
+        uri,
+        vscode.ViewColumn.Beside,
+        fragment,
+        false,
+        line
+      )
+    );
   }
 
   restore(panel: vscode.WebviewPanel, state: PreviewState | undefined): void {

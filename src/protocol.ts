@@ -47,8 +47,12 @@ export type ToWebview =
       canGoForward: boolean;
       config: WebviewConfig;
       state: PreviewState;
+      /** Source line to open at, when the reader came from a cursor in the editor. */
+      line?: number;
     }
-  | { type: 'config'; config: WebviewConfig };
+  | { type: 'config'; config: WebviewConfig }
+  /** Scroll an already-rendered page to a source line; the tab was reused. */
+  | { type: 'revealLine'; line: number };
 
 /** Webview -> host. */
 export type FromWebview =
@@ -66,6 +70,16 @@ export type FromWebview =
       newTab?: boolean;
     }
   | { type: 'switchToEditor'; line?: number }
+  | {
+      /**
+       * Where the reader is in the document, as a source line: the block holding the
+       * selection, or the one at the top of the viewport. Reported as they read, so a
+       * switch to the editor can land on the same passage without a round trip.
+       */
+      type: 'position';
+      uri: string;
+      line: number;
+    }
   | { type: 'pageError'; message: string; stack?: string }
   | { type: 'back' }
   | { type: 'forward' }

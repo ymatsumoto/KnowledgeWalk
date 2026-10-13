@@ -16,6 +16,18 @@ function targetUri(argument?: vscode.Uri): vscode.Uri | undefined {
   return undefined;
 }
 
+/**
+ * The line the reader is on in `uri`'s text editor, so a preview opened from an editor
+ * lands on the passage they were editing rather than at the top of the file.
+ */
+function cursorLine(uri: vscode.Uri): number | undefined {
+  const key = uri.toString();
+  const editor = vscode.window.visibleTextEditors.find(
+    (candidate) => candidate.document.uri.toString() === key
+  );
+  return editor?.selection.active.line;
+}
+
 /** Close the text editor tab showing `uri`, if there is one. */
 async function closeTextEditorTab(uri: vscode.Uri): Promise<void> {
   const key = uri.toString();
@@ -55,7 +67,7 @@ export function registerCommands(
 
     // Mirror of switchToEditor: open the preview first so it inherits the tab slot,
     // then close the text editor that was there.
-    manager.open(uri, column);
+    manager.open(uri, column, undefined, cursorLine(uri));
     if (isActiveDocument) {
       await closeTextEditorTab(uri);
     }
@@ -65,7 +77,7 @@ export function registerCommands(
     const uri = targetUri(argument);
     if (uri) {
       // The editor stays open next to the preview, so it keeps its edit-mode claim.
-      manager.openBeside(uri);
+      manager.openBeside(uri, undefined, cursorLine(uri));
       editing.mark(uri);
     }
   });

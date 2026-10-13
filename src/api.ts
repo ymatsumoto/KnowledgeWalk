@@ -23,6 +23,8 @@ export interface PreviewSnapshot {
   renderCount: number;
   /** Whether Ctrl+F opens VS Code's find widget over this tab. */
   findWidget: boolean;
+  /** Source line the reader is on, as last reported by the page. */
+  line?: number;
 }
 
 /**
