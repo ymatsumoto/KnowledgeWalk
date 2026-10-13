@@ -4,6 +4,13 @@ import { escapeHtml } from './highlight';
 export type FrontMatterMode = 'hide' | 'table' | 'source';
 
 const URL_PATTERN = /^https?:\/\/\S+$/i;
+/**
+ * YAML 1.2 core schema: no implicit timestamps. js-yaml's default schema turns
+ * `2026-08-07T10:00:00+09:00` into a Date in UTC, which loses the date as it was written
+ * (it becomes the 6th) — dates are kept as the strings their authors wrote.
+ */
+export const YAML_OPTIONS = { schema: yaml.CORE_SCHEMA };
+
 const FRONT_MATTER_PATTERN = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
 
 /**
@@ -18,7 +25,7 @@ export function readFrontMatter(text: string): Record<string, unknown> | undefin
     return undefined;
   }
   try {
-    const data = yaml.load(match[1]);
+    const data = yaml.load(match[1], YAML_OPTIONS);
     return data && typeof data === 'object' && !Array.isArray(data)
       ? (data as Record<string, unknown>)
       : undefined;
@@ -99,7 +106,7 @@ export function renderFrontMatter(raw: string, mode: FrontMatterMode): string {
 
   let data: unknown;
   try {
-    data = yaml.load(raw);
+    data = yaml.load(raw, YAML_OPTIONS);
   } catch {
     // Malformed YAML is still worth showing, just not as a table.
     return sourceBlock(raw);
