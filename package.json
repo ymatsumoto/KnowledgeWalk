@@ -3,7 +3,7 @@
   "displayName": "mdExplorer",
   "description": "Read Markdown like a web browser, built for model-written wikis: preview by default, in-tab link navigation with back/forward history, and front matter (OKF v0.2) shown as a metadata card.",
   "version": "0.4.0",
-  "publisher": "local",
+  "publisher": "ymatsumoto43",
   "license": "MIT",
   "repository": {
     "type": "git",
