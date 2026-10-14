@@ -605,7 +605,7 @@ const peek = (() => {
       add('mdx-peek-title', answer.title ?? decodeURIComponent(target.split('/').pop() ?? target));
       add('mdx-peek-desc', answer.description);
     } else {
-      add('mdx-peek-missing', 'This page does not exist.');
+      add('mdx-peek-missing', answer.notFound ?? 'This page does not exist.');
     }
     tip.hidden = false;
     const rect = anchor.getBoundingClientRect();

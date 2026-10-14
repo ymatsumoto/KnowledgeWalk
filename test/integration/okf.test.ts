@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import { assert, getApi, test, waitFor } from './harness';
 import { allTabs, closeEverything, describeTabs, openThroughResolver, sample } from './shared';
 
@@ -98,4 +99,15 @@ test('OKF: Back to a link inside the Details fold reopens the fold and lands on 
     return current?.uri.endsWith('/decisions/read-replicas.md') && scroll?.mode === 'back' && scroll.final ? scroll : undefined;
   }, 10000);
   assert.equal(settled.anchored, true, 'the link was found with a box to scroll to');
+});
+
+test('OKF: card labels follow the display language', async () => {
+  const html = await openOkf('incidents', 'db-outage.md');
+  if (vscode.env.language.startsWith('ja')) {
+    assert.match(html, />未検証</);
+    assert.match(html, /<div class="mdx-card-section">出典<\/div>/);
+  } else {
+    assert.match(html, />unverified</);
+    assert.match(html, /<div class="mdx-card-section">Sources<\/div>/);
+  }
 });

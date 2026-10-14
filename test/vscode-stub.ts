@@ -137,6 +137,15 @@ export interface ExtensionContext {
 
 const noop = () => undefined;
 
+/** English, with `{0}`-style placeholders filled, like the real l10n.t with no bundle. */
+export const l10n = {
+  t(message: string, ...args: unknown[]): string {
+    return message.replace(/\{(\d+)\}/g, (whole, index) =>
+      Number(index) < args.length ? String(args[Number(index)]) : whole
+    );
+  },
+};
+
 export const window = {
   createOutputChannel(_name: string, _options?: { log: boolean }): LogOutputChannel {
     return { info: noop, warn: noop, error: noop, debug: noop, show: noop, dispose: noop };

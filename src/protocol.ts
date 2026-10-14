@@ -67,6 +67,8 @@ export type ToWebview =
       description?: string;
       docType?: string;
       status?: string;
+      /** Shown when nothing was found, in the user's language. */
+      notFound?: string;
     };
 
 /** Webview -> host. */
