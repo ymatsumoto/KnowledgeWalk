@@ -16,7 +16,7 @@
   "This page does not exist.": "このページは存在しません。",
   "Verified by {0}": "検証: {0}",
   "human-reviewed": "人間が確認",
-  "machine-checked": "機械が確認",
+  "machine-confirmed": "機械が確認",
   "modified {0}": "{0} 更新",
   "unverified": "未検証",
   "{0} was modified after this page was generated ({1}).": "{0} はこのページの生成（{1}）より後に更新されています。",

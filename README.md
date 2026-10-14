@@ -28,7 +28,7 @@ who checked it — into a card you can take in at a glance.
 ![The metadata card in light and dark themes](images/card.png)
 
 - **Badges** for the page's `type` and `status`, its **trust tier** — *unverified*,
-  *machine-checked*, or *human-reviewed* once a `human:` actor appears in `verified` — and
+  *machine-confirmed*, or *human-reviewed* once a `human:` actor appears in `verified` — and
   who generated it, and when.
 - **Sources**, each linked and labelled with the linked page's own title. `[^id]` citations
   in the body become numbered links to them.
