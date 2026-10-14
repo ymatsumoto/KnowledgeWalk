@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- KnowledgeWalk icon: an open book whose pages form the sole of a footprint.
+       Source of media/icon.png (128x128). -->
+  <circle cx="64" cy="64" r="64" fill="#165E83"/>
+  <g fill="#FFFFFF" transform="translate(0.5 -1)">
+    <path d="M61,58 C54,53 42,52 32,54 V100 C42,98 54,99 61,104 Z"/>
+    <path d="M67,58 C74,53 86,52 96,54 V100 C86,98 74,99 67,104 Z"/>
+    <ellipse cx="41" cy="38" rx="9" ry="10.5" transform="rotate(-12 41 38)"/>
+    <circle cx="60" cy="32" r="6.5"/>
+    <circle cx="75" cy="33" r="6"/>
+    <circle cx="88" cy="38" r="5.5"/>
+    <circle cx="98" cy="46" r="4.5"/>
+  </g>
+</svg>
