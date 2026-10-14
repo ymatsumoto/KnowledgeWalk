@@ -101,3 +101,36 @@ test('the key naming the wiki root is configurable, and hidden from the card', a
   assert.equal(standard.roots.wikiRoot.path, SAMPLES);
   assert.ok(standard.display.hidden.includes('root'));
 });
+
+test('without okf_version, the bundle root is the top of the run of index.md files', async () => {
+  // Shaped like the bundles OKF ships: an index.md in every directory, none declaring
+  // okf_version.
+  const ws = '/virtual/okf';
+  const files = [
+    `${ws}/README.md`,
+    `${ws}/bundles/acme/index.md`,
+    `${ws}/bundles/acme/computations/index.md`,
+    `${ws}/bundles/acme/computations/margin.md`,
+    `${ws}/bundles/acme/policies/index.md`,
+    `${ws}/bundles/acme/policies/standard.md`,
+    `${ws}/bundles/acme/notes/loose.md`,
+  ];
+  __setWorkspaceFolders([ws]);
+  __setFiles(files);
+  try {
+    const virtualService = new OkfService(new WikiLinkIndex());
+    const text = '---\ntype: Attested Computation\nsources:\n  - { id: std, resource: policies/standard.md }\n---\n';
+    const prepared = await virtualService.prepare(Uri.file(`${ws}/bundles/acme/computations/margin.md`), text);
+    // `bundles/` has no index.md, so the run stops at `acme/`.
+    assert.equal(prepared.roots.bundleRoot.path, `${ws}/bundles/acme`);
+    assert.equal(prepared.roots.okfVersion, undefined);
+    assert.equal(prepared.exists(`${ws}/bundles/acme/policies/standard.md`), true);
+
+    // A directory without an index.md breaks the run at once: no bundle is inferred.
+    const loose = await virtualService.prepare(Uri.file(`${ws}/bundles/acme/notes/loose.md`), '# x\n');
+    assert.equal(loose.roots.bundleRoot.path, ws);
+  } finally {
+    __setWorkspaceFolders([SAMPLES]);
+    __setFiles(ALL);
+  }
+});

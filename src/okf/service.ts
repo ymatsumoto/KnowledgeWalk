@@ -303,33 +303,50 @@ export class OkfService implements vscode.Disposable {
   }
 
   /**
-   * Walk up from the document to the wiki root (inclusive) looking for an `index.md`
-   * that declares `okf_version`. The wiki root caps the walk because `root:` is the
-   * author's statement of where the wiki ends; a bundle above it is someone else's.
+   * Walk up from the document to the wiki root (inclusive) looking for the bundle root.
+   *
+   * An `index.md` that declares `okf_version` settles it. Declaring it is optional,
+   * though, and the bundles OKF itself ships do not, so failing that the bundle root is
+   * the top of the unbroken run of directories holding an `index.md` — OKF's convention
+   * of an index in every directory — counted from the document's own directory up.
+   *
+   * The wiki root caps the walk because `root:` is the author's statement of where the
+   * wiki ends; a bundle above it is someone else's.
    */
   private async findBundle(
     uri: vscode.Uri,
     wikiRoot: vscode.Uri
-  ): Promise<{ root: vscode.Uri; version: string } | undefined> {
+  ): Promise<{ root: vscode.Uri; version?: string } | undefined> {
     const stopAt = wikiRoot.path;
     const underRoot = uri.path.startsWith(`${stopAt}/`);
     const folder = vscode.workspace.getWorkspaceFolder(uri)?.uri.path;
+    const at = (directory: string) => uri.with({ path: directory, query: '', fragment: '' });
     let directory = path.posix.dirname(uri.path);
+    /** Top of the run of indexed directories, while the run is unbroken. */
+    let indexed: string | undefined;
+    let runBroken = false;
     for (let depth = 0; depth < 64; depth++) {
       const version = await this.bundleVersion(uri, directory);
       if (version !== null) {
-        return { root: uri.with({ path: directory, query: '', fragment: '' }), version };
+        return { root: at(directory), version };
+      }
+      if (!runBroken) {
+        if (this.index.has(at(path.posix.join(directory, 'index.md')))) {
+          indexed = directory;
+        } else {
+          runBroken = true;
+        }
       }
       if ((underRoot && directory === stopAt) || (!underRoot && directory === folder)) {
-        return undefined;
+        break;
       }
       const parent = path.posix.dirname(directory);
       if (parent === directory) {
-        return undefined;
+        break;
       }
       directory = parent;
     }
-    return undefined;
+    return indexed ? { root: at(indexed) } : undefined;
   }
 
   private async bundleVersion(uri: vscode.Uri, directory: string): Promise<string | null> {
