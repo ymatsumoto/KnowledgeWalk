@@ -1,9 +1,9 @@
 import * as yaml from 'js-yaml';
 import { escapeHtml } from './highlight';
+import { renderCard, wantsCard, type CardEnv } from './card';
 
 export type FrontMatterMode = 'auto' | 'table' | 'hide' | 'source';
 
-const URL_PATTERN = /^https?:\/\/\S+$/i;
 /**
  * YAML 1.2 core schema: no implicit timestamps. js-yaml's default schema turns
  * `2026-08-07T10:00:00+09:00` into a Date in UTC, which loses the date as it was written
@@ -34,59 +34,9 @@ export function readFrontMatter(text: string): Record<string, unknown> | undefin
   }
 }
 
-function asText(value: unknown): string {
-  if (value instanceof Date) {
-    return value.toISOString().slice(0, 10);
-  }
-  return String(value);
-}
-
-/** A scalar, rendered as a link when the whole value is one. */
-function formatScalar(value: unknown): string {
-  const text = asText(value);
-  if (typeof value === 'string' && URL_PATTERN.test(value)) {
-    // data-mdx-kind is what the preview's click handler looks for; without a
-    // data-mdx-link these never take part in the back/forward scroll bookkeeping.
-    return `<a data-mdx-kind="external" data-mdx-href="${escapeHtml(value)}" href="${escapeHtml(
-      value
-    )}">${escapeHtml(text)}</a>`;
-  }
-  return escapeHtml(text);
-}
-
-function formatValue(value: unknown): string {
-  if (value === null || value === undefined || value === '') {
-    return '<span class="mdx-fm-empty">—</span>';
-  }
-  if (Array.isArray(value)) {
-    if (value.length === 0) {
-      return '<span class="mdx-fm-empty">—</span>';
-    }
-    return value
-      .map((item) =>
-        item !== null && typeof item === 'object' && !(item instanceof Date)
-          ? `<span class="mdx-fm-chip">${escapeHtml(JSON.stringify(item))}</span>`
-          : `<span class="mdx-fm-chip">${formatScalar(item)}</span>`
-      )
-      .join('');
-  }
-  if (value instanceof Date) {
-    return escapeHtml(asText(value));
-  }
-  if (typeof value === 'object') {
-    const entries = Object.entries(value as Record<string, unknown>);
-    if (entries.length === 0) {
-      return '<span class="mdx-fm-empty">—</span>';
-    }
-    return `<ul class="mdx-fm-nested">${entries
-      .map(([key, nested]) => `<li><b>${escapeHtml(key)}</b> ${formatValue(nested)}</li>`)
-      .join('')}</ul>`;
-  }
-  return formatScalar(value);
-}
-
-function sourceBlock(raw: string): string {
-  return `<pre class="mdx-frontmatter-source"><code>${escapeHtml(raw)}</code></pre>\n`;
+function sourceBlock(raw: string, note?: string): string {
+  const caption = note ? `<div class="mdx-frontmatter-note">${escapeHtml(note)}</div>` : '';
+  return `<pre class="mdx-frontmatter-source" data-line="0">${caption}<code>${escapeHtml(raw)}</code></pre>\n`;
 }
 
 /**
@@ -94,9 +44,13 @@ function sourceBlock(raw: string): string {
  *
  * Left to markdown-it, `---` delimited front matter parses as a setext heading followed
  * by a paragraph, which is why it shows up as a wall of bold text at the top of the page.
- * The default is to drop it; `table` turns it into a compact metadata card instead.
+ *
+ *  - `auto`    a metadata card when the front matter has a `type`, nothing otherwise
+ *  - `table`   always the card
+ *  - `hide`    nothing
+ *  - `source`  the YAML as written
  */
-export function renderFrontMatter(raw: string, mode: FrontMatterMode): string {
+export function renderFrontMatter(raw: string, mode: FrontMatterMode, env: CardEnv): string {
   if (mode === 'hide') {
     return '';
   }
@@ -108,19 +62,18 @@ export function renderFrontMatter(raw: string, mode: FrontMatterMode): string {
   try {
     data = yaml.load(raw, YAML_OPTIONS);
   } catch {
-    // Malformed YAML is still worth showing, just not as a table.
-    return sourceBlock(raw);
+    // Malformed YAML is still worth showing, just not as a card.
+    return sourceBlock(raw, 'This front matter is not valid YAML.');
   }
-  if (data === null || typeof data !== 'object' || Array.isArray(data)) {
-    return data === null || data === undefined ? '' : sourceBlock(raw);
-  }
-
-  const rows = Object.entries(data as Record<string, unknown>).map(
-    ([key, value]) =>
-      `<div class="mdx-fm-row"><dt>${escapeHtml(key)}</dt><dd>${formatValue(value)}</dd></div>`
-  );
-  if (rows.length === 0) {
+  if (data === null || data === undefined) {
     return '';
   }
-  return `<dl class="mdx-frontmatter">${rows.join('')}</dl>\n`;
+  if (typeof data !== 'object' || Array.isArray(data)) {
+    return sourceBlock(raw);
+  }
+  const record = data as Record<string, unknown>;
+  if (mode === 'auto' && !wantsCard(record)) {
+    return '';
+  }
+  return renderCard(record, env);
 }

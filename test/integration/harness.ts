@@ -53,7 +53,9 @@ export async function waitFor<T>(
 
 export async function runCases(): Promise<void> {
   const failures: string[] = [];
-  for (const { name, fn } of cases) {
+  // MDX_ONLY=<text> runs just the cases whose name contains it.
+  const only = process.env.MDX_ONLY;
+  for (const { name, fn } of cases.filter((c) => !only || c.name.includes(only))) {
     try {
       await fn();
       console.log(`ok   ${name}`);
@@ -63,7 +65,8 @@ export async function runCases(): Promise<void> {
       failures.push(name);
     }
   }
-  console.log(`\n${cases.length - failures.length}/${cases.length} passed`);
+  const ran = cases.filter((c) => !only || c.name.includes(only)).length;
+  console.log(`\n${ran - failures.length}/${ran} passed`);
   if (failures.length > 0) {
     throw new Error(`${failures.length} integration test(s) failed:\n  - ${failures.join('\n  - ')}`);
   }
