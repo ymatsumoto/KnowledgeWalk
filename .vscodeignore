@@ -1,10 +1,10 @@
-.vscode/**
-node_modules/**
-src/**
-webview/**
-test/**
-samples/**
-esbuild.mjs
-tsconfig.json
-.gitignore
+# Ship only what the extension runs on; everything else stays out of the .vsix.
+**
+!dist/**
+!media/**
+!l10n/**
+!package.json
+!README.md
+!CHANGELOG.md
+!LICENSE
 **/*.map
