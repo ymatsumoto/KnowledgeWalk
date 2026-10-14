@@ -2,8 +2,8 @@
  * How front matter keys are displayed.
  *
  * Three layers, later ones winning: the built-in defaults below, which know the OKF core
- * keys; the `mdExplorer.frontMatter.display` setting; and the `frontMatter:` section of a
- * `.mdexplorer.yaml` at the wiki root, which is where a wiki describes its own extension
+ * keys; the `knowledgeWalk.frontMatter.display` setting; and the `frontMatter:` section of a
+ * `.knowledgewalk.yaml` at the wiki root, which is where a wiki describes its own extension
  * keys. Objects merge key by key, arrays replace. `byType[type]` is applied last, by the
  * same rule, for the document's `type`.
  *

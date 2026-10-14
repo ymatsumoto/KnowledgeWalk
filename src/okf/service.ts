@@ -8,7 +8,7 @@ import { defaultDisplay, displayForType, mergeDisplayOver, type DisplayConfig } 
 import { MetaCache, type TargetMeta } from './metaCache';
 
 /** Per-wiki display settings live in this file at the wiki root. */
-export const LOCAL_CONFIG_FILE = '.mdexplorer.yaml';
+export const LOCAL_CONFIG_FILE = '.knowledgewalk.yaml';
 
 /** The two roots a document's references are resolved against. */
 export interface DocRoots {
@@ -38,7 +38,7 @@ export interface PreparedDocument {
   isDirectory(p: string): boolean;
   /** The context `resolveRef` needs for this document. */
   refContext: RefContext;
-  /** Card layout for this document: defaults, settings, `.mdexplorer.yaml`, `byType`. */
+  /** Card layout for this document: defaults, settings, `.knowledgewalk.yaml`, `byType`. */
   display: DisplayConfig;
   /** Summaries of the Markdown pages front matter links to, keyed by path. */
   targets: Map<string, TargetMeta>;
@@ -46,13 +46,13 @@ export interface PreparedDocument {
 
 export interface PrepareOptions {
   /**
-   * The `mdExplorer.frontMatterDisplay` setting, layered between the built-in defaults
-   * and the wiki's own `.mdexplorer.yaml`.
+   * The `knowledgeWalk.frontMatterDisplay` setting, layered between the built-in defaults
+   * and the wiki's own `.knowledgewalk.yaml`.
    */
   display?: unknown;
-  /** Front matter key naming the wiki root (`mdExplorer.wikiRootKey`, default `root`). */
+  /** Front matter key naming the wiki root (`knowledgeWalk.wikiRootKey`, default `root`). */
   rootKey?: string;
-  /** `mdExplorer.knownFileExtensions`. */
+  /** `knowledgeWalk.knownFileExtensions`. */
   fileExtensions?: string[];
 }
 
@@ -85,12 +85,12 @@ function collectStrings(value: unknown, into: string[]): void {
 export class OkfService implements vscode.Disposable {
   /** Directory -> `okf_version` of its `index.md`, or null when it is not a bundle root. */
   private readonly bundleDirs = new Map<string, string | null>();
-  /** Wiki root -> the `frontMatter:` section of its `.mdexplorer.yaml`, if any. */
+  /** Wiki root -> the `frontMatter:` section of its `.knowledgewalk.yaml`, if any. */
   private readonly localDisplay = new Map<string, Promise<unknown>>();
   /** Configuration problems already reported, so each is logged once. */
   private readonly reported = new Set<string>();
   private readonly displayChanged = new vscode.EventEmitter<void>();
-  /** Fires when a `.mdexplorer.yaml` changes, so open previews can re-render. */
+  /** Fires when a `.knowledgewalk.yaml` changes, so open previews can re-render. */
   readonly onDidChangeDisplay = this.displayChanged.event;
   private readonly disposables: vscode.Disposable[] = [];
   readonly meta = new MetaCache();
@@ -238,7 +238,7 @@ export class OkfService implements vscode.Disposable {
   }
 
   /**
-   * The `frontMatter:` section of `<wikiRoot>/.mdexplorer.yaml`. Read even in an
+   * The `frontMatter:` section of `<wikiRoot>/.knowledgewalk.yaml`. Read even in an
    * untrusted workspace: it only changes layout, and template output is escaped text.
    */
   private loadLocalDisplay(wikiRoot: vscode.Uri): Promise<unknown> {

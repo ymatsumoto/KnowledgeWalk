@@ -22,7 +22,7 @@ function describeTab(tab: vscode.Tab | undefined): string {
   return `${tab.label} [${input?.constructor?.name}${input?.viewType ? ` ${input.viewType}` : ''}]`;
 }
 
-test('opening a .md file lands in the mdExplorer preview, not a text editor', async () => {
+test('opening a .md file lands in the KnowledgeWalk preview, not a text editor', async () => {
   await closeEverything();
   await vscode.commands.executeCommand('vscode.open', indexMd);
 
@@ -31,14 +31,14 @@ test('opening a .md file lands in the mdExplorer preview, not a text editor', as
     tab.input instanceof vscode.TabInputWebview,
     `expected a webview tab, got ${describeTab(tab)}`
   );
-  assert.match((tab.input as vscode.TabInputWebview).viewType, /mdExplorer\.preview/);
+  assert.match((tab.input as vscode.TabInputWebview).viewType, /knowledgeWalk\.preview/);
   assert.equal(tab.label, 'index.md');
 });
 
 test('the relay tab does not linger', async () => {
   const tabs = vscode.window.tabGroups.all.flatMap((group) => group.tabs);
   const relays = tabs.filter(
-    (tab) => tab.input instanceof vscode.TabInputCustom && tab.input.viewType.includes('mdExplorer.redirect')
+    (tab) => tab.input instanceof vscode.TabInputCustom && tab.input.viewType.includes('knowledgeWalk.redirect')
   );
   assert.equal(relays.length, 0, `relay tabs left open: ${relays.map(describeTab).join(', ')}`);
   assert.equal(tabs.length, 1, `expected exactly one tab, got: ${tabs.map(describeTab).join(', ')}`);

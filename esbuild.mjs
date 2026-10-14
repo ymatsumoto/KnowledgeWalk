@@ -17,25 +17,25 @@ function copyKatexAssets() {
 }
 
 /**
- * Write media/mdexplorer.schema.json, the schema of `.mdexplorer.yaml`, from the schema
- * of the `mdExplorer.frontMatterDisplay` setting in package.json — one definition for
+ * Write media/knowledgewalk.schema.json, the schema of `.knowledgewalk.yaml`, from the schema
+ * of the `knowledgeWalk.frontMatterDisplay` setting in package.json — one definition for
  * both, so the YAML file and settings.json always accept the same thing. The Red Hat
  * YAML extension picks it up through `contributes.yamlValidation`.
  */
 function writeConfigSchema() {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   const { default: _default, ...display } =
-    manifest.contributes.configuration.properties['mdExplorer.frontMatterDisplay'];
+    manifest.contributes.configuration.properties['knowledgeWalk.frontMatterDisplay'];
   const schema = {
     $schema: 'http://json-schema.org/draft-07/schema#',
-    title: '.mdexplorer.yaml',
-    description: 'Per-wiki mdExplorer settings, placed at the wiki root.',
+    title: '.knowledgewalk.yaml',
+    description: 'Per-wiki KnowledgeWalk settings, placed at the wiki root.',
     type: 'object',
     additionalProperties: false,
     properties: { frontMatter: display },
   };
   fs.mkdirSync(path.join(root, 'media'), { recursive: true });
-  fs.writeFileSync(path.join(root, 'media', 'mdexplorer.schema.json'), `${JSON.stringify(schema, null, 2)}\n`);
+  fs.writeFileSync(path.join(root, 'media', 'knowledgewalk.schema.json'), `${JSON.stringify(schema, null, 2)}\n`);
 }
 
 const shared = {

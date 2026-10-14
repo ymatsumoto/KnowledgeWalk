@@ -49,14 +49,14 @@ export function registerCommands(
   const register = (id: string, handler: (...args: any[]) => unknown) =>
     context.subscriptions.push(vscode.commands.registerCommand(id, handler));
 
-  register('mdExplorer.goBack', () => manager.active?.goBack());
-  register('mdExplorer.goForward', () => manager.active?.goForward());
-  register('mdExplorer.refresh', () => manager.active?.refresh());
-  register('mdExplorer.switchToEditor', () => manager.active?.switchToEditor());
+  register('knowledgeWalk.goBack', () => manager.active?.goBack());
+  register('knowledgeWalk.goForward', () => manager.active?.goForward());
+  register('knowledgeWalk.refresh', () => manager.active?.refresh());
+  register('knowledgeWalk.switchToEditor', () => manager.active?.switchToEditor());
 
-  register('mdExplorer.showLog', () => showLog());
+  register('knowledgeWalk.showLog', () => showLog());
 
-  register('mdExplorer.showPreview', async (argument?: vscode.Uri) => {
+  register('knowledgeWalk.showPreview', async (argument?: vscode.Uri) => {
     const uri = targetUri(argument);
     if (!uri) {
       return;
@@ -73,7 +73,7 @@ export function registerCommands(
     }
   });
 
-  register('mdExplorer.showPreviewToSide', (argument?: vscode.Uri) => {
+  register('knowledgeWalk.showPreviewToSide', (argument?: vscode.Uri) => {
     const uri = targetUri(argument);
     if (uri) {
       // The editor stays open next to the preview, so it keeps its edit-mode claim.

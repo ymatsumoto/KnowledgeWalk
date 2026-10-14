@@ -1,18 +1,18 @@
 {
-  "name": "mdexplorer",
-  "displayName": "mdExplorer",
+  "name": "knowledgewalk",
+  "displayName": "KnowledgeWalk",
   "description": "Read Markdown like a web browser, built for model-written wikis: preview by default, in-tab link navigation with back/forward history, and front matter (OKF v0.2) shown as a metadata card.",
   "version": "0.4.0",
   "publisher": "ymatsumoto43",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ymatsumoto/mdexplorer.git"
+    "url": "https://github.com/ymatsumoto/KnowledgeWalk.git"
   },
   "bugs": {
-    "url": "https://github.com/ymatsumoto/mdexplorer/issues"
+    "url": "https://github.com/ymatsumoto/KnowledgeWalk/issues"
   },
-  "homepage": "https://github.com/ymatsumoto/mdexplorer#readme",
+  "homepage": "https://github.com/ymatsumoto/KnowledgeWalk#readme",
   "icon": "media/icon.png",
   "galleryBanner": {
     "color": "#1E3A8A",
@@ -29,14 +29,14 @@
   "l10n": "./l10n",
   "activationEvents": [
     "onStartupFinished",
-    "onWebviewPanel:mdExplorer.preview",
+    "onWebviewPanel:knowledgeWalk.preview",
     "onLanguage:markdown"
   ],
   "contributes": {
     "customEditors": [
       {
-        "viewType": "mdExplorer.redirect",
-        "displayName": "mdExplorer Preview",
+        "viewType": "knowledgeWalk.redirect",
+        "displayName": "KnowledgeWalk Preview",
         "selector": [
           {
             "filenamePattern": "*.md"
@@ -50,172 +50,172 @@
     ],
     "commands": [
       {
-        "command": "mdExplorer.goBack",
+        "command": "knowledgeWalk.goBack",
         "title": "Back",
-        "category": "mdExplorer",
+        "category": "KnowledgeWalk",
         "icon": "$(arrow-left)",
-        "enablement": "mdExplorer.canGoBack"
+        "enablement": "knowledgeWalk.canGoBack"
       },
       {
-        "command": "mdExplorer.goForward",
+        "command": "knowledgeWalk.goForward",
         "title": "Forward",
-        "category": "mdExplorer",
+        "category": "KnowledgeWalk",
         "icon": "$(arrow-right)",
-        "enablement": "mdExplorer.canGoForward"
+        "enablement": "knowledgeWalk.canGoForward"
       },
       {
-        "command": "mdExplorer.switchToEditor",
+        "command": "knowledgeWalk.switchToEditor",
         "title": "Open in Editor",
-        "category": "mdExplorer",
+        "category": "KnowledgeWalk",
         "icon": "$(edit)"
       },
       {
-        "command": "mdExplorer.showPreview",
+        "command": "knowledgeWalk.showPreview",
         "title": "Open Preview",
-        "category": "mdExplorer",
+        "category": "KnowledgeWalk",
         "icon": "$(preview)"
       },
       {
-        "command": "mdExplorer.showPreviewToSide",
+        "command": "knowledgeWalk.showPreviewToSide",
         "title": "Open Preview to the Side",
-        "category": "mdExplorer",
+        "category": "KnowledgeWalk",
         "icon": "$(open-preview)"
       },
       {
-        "command": "mdExplorer.refresh",
+        "command": "knowledgeWalk.refresh",
         "title": "Refresh Preview",
-        "category": "mdExplorer",
+        "category": "KnowledgeWalk",
         "icon": "$(refresh)"
       },
       {
-        "command": "mdExplorer.showLog",
+        "command": "knowledgeWalk.showLog",
         "title": "Show Log",
-        "category": "mdExplorer",
+        "category": "KnowledgeWalk",
         "icon": "$(output)"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "command": "mdExplorer.goBack",
+          "command": "knowledgeWalk.goBack",
           "group": "navigation@1",
-          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+          "when": "activeWebviewPanelId == 'knowledgeWalk.preview'"
         },
         {
-          "command": "mdExplorer.goForward",
+          "command": "knowledgeWalk.goForward",
           "group": "navigation@2",
-          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+          "when": "activeWebviewPanelId == 'knowledgeWalk.preview'"
         },
         {
-          "command": "mdExplorer.switchToEditor",
+          "command": "knowledgeWalk.switchToEditor",
           "group": "navigation@3",
-          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+          "when": "activeWebviewPanelId == 'knowledgeWalk.preview'"
         },
         {
-          "command": "mdExplorer.showPreview",
+          "command": "knowledgeWalk.showPreview",
           "group": "navigation@1",
           "when": "editorLangId == markdown"
         }
       ],
       "editor/context": [
         {
-          "command": "mdExplorer.showPreview",
+          "command": "knowledgeWalk.showPreview",
           "group": "navigation@1",
           "when": "editorLangId == markdown"
         }
       ],
       "explorer/context": [
         {
-          "command": "mdExplorer.showPreviewToSide",
-          "group": "1_mdexplorer",
+          "command": "knowledgeWalk.showPreviewToSide",
+          "group": "1_knowledgewalk",
           "when": "resourceExtname =~ /^\\.(md|markdown)$/"
         }
       ],
       "webview/context": [
         {
-          "command": "mdExplorer.switchToEditor",
+          "command": "knowledgeWalk.switchToEditor",
           "group": "1_edit@1",
-          "when": "webviewId == 'mdExplorer.preview'"
+          "when": "webviewId == 'knowledgeWalk.preview'"
         },
         {
-          "command": "mdExplorer.goBack",
+          "command": "knowledgeWalk.goBack",
           "group": "2_nav@1",
-          "when": "webviewId == 'mdExplorer.preview' && mdxCanGoBack"
+          "when": "webviewId == 'knowledgeWalk.preview' && mdxCanGoBack"
         },
         {
-          "command": "mdExplorer.goForward",
+          "command": "knowledgeWalk.goForward",
           "group": "2_nav@2",
-          "when": "webviewId == 'mdExplorer.preview' && mdxCanGoForward"
+          "when": "webviewId == 'knowledgeWalk.preview' && mdxCanGoForward"
         },
         {
-          "command": "mdExplorer.refresh",
+          "command": "knowledgeWalk.refresh",
           "group": "2_nav@3",
-          "when": "webviewId == 'mdExplorer.preview'"
+          "when": "webviewId == 'knowledgeWalk.preview'"
         }
       ],
       "commandPalette": [
         {
-          "command": "mdExplorer.goBack",
-          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+          "command": "knowledgeWalk.goBack",
+          "when": "activeWebviewPanelId == 'knowledgeWalk.preview'"
         },
         {
-          "command": "mdExplorer.goForward",
-          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+          "command": "knowledgeWalk.goForward",
+          "when": "activeWebviewPanelId == 'knowledgeWalk.preview'"
         },
         {
-          "command": "mdExplorer.switchToEditor",
-          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+          "command": "knowledgeWalk.switchToEditor",
+          "when": "activeWebviewPanelId == 'knowledgeWalk.preview'"
         },
         {
-          "command": "mdExplorer.refresh",
-          "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+          "command": "knowledgeWalk.refresh",
+          "when": "activeWebviewPanelId == 'knowledgeWalk.preview'"
         },
         {
-          "command": "mdExplorer.showPreview",
+          "command": "knowledgeWalk.showPreview",
           "when": "editorLangId == markdown"
         },
         {
-          "command": "mdExplorer.showPreviewToSide",
+          "command": "knowledgeWalk.showPreviewToSide",
           "when": "editorLangId == markdown"
         }
       ]
     },
     "keybindings": [
       {
-        "command": "mdExplorer.goBack",
+        "command": "knowledgeWalk.goBack",
         "key": "alt+left",
-        "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+        "when": "activeWebviewPanelId == 'knowledgeWalk.preview'"
       },
       {
-        "command": "mdExplorer.goForward",
+        "command": "knowledgeWalk.goForward",
         "key": "alt+right",
-        "when": "activeWebviewPanelId == 'mdExplorer.preview'"
+        "when": "activeWebviewPanelId == 'knowledgeWalk.preview'"
       }
     ],
     "configuration": {
-      "title": "mdExplorer",
+      "title": "KnowledgeWalk",
       "properties": {
-        "mdExplorer.doubleClickToEdit": {
+        "knowledgeWalk.doubleClickToEdit": {
           "type": "boolean",
           "default": true,
           "description": "Double-clicking the preview body closes the preview and opens the file in a text editor at the corresponding line. Disable this if it conflicts with selecting text by double-click."
         },
-        "mdExplorer.mermaid.enabled": {
+        "knowledgeWalk.mermaid.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Render ```mermaid fenced code blocks as diagrams."
         },
-        "mdExplorer.math.enabled": {
+        "knowledgeWalk.math.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Render $...$ and $$...$$ math with KaTeX."
         },
-        "mdExplorer.allowRawHtml": {
+        "knowledgeWalk.allowRawHtml": {
           "type": "boolean",
           "default": true,
           "description": "Allow raw HTML embedded in Markdown. Output is always sanitized before it is displayed."
         },
-        "mdExplorer.linkify": {
+        "knowledgeWalk.linkify": {
           "type": "string",
           "enum": [
             "off",
@@ -230,29 +230,29 @@
           ],
           "description": "Which plain text in a document is turned into links."
         },
-        "mdExplorer.maxHistoryLength": {
+        "knowledgeWalk.maxHistoryLength": {
           "type": "number",
           "default": 50,
           "minimum": 2,
           "description": "Maximum number of entries kept in a tab's back/forward history."
         },
-        "mdExplorer.scrollOffset": {
+        "knowledgeWalk.scrollOffset": {
           "type": "number",
           "default": 8,
           "minimum": 0,
           "description": "Pixels of breathing room left above an element when it is scrolled to the top of the preview."
         },
-        "mdExplorer.reclaimTextEditors": {
+        "knowledgeWalk.reclaimTextEditors": {
           "type": "boolean",
           "default": true,
-          "markdownDescription": "Turn a Markdown file that opened in a plain text editor into a preview. This covers tabs restored from before mdExplorer was installed, and setups where `#workbench.editorAssociations#` overrides the preview. Files you opened with **mdExplorer: Open in Editor** are left alone."
+          "markdownDescription": "Turn a Markdown file that opened in a plain text editor into a preview. This covers tabs restored from before KnowledgeWalk was installed, and setups where `#workbench.editorAssociations#` overrides the preview. Files you opened with **KnowledgeWalk: Open in Editor** are left alone."
         },
-        "mdExplorer.retainHiddenPreviews": {
+        "knowledgeWalk.retainHiddenPreviews": {
           "type": "boolean",
           "default": true,
           "description": "Keep a preview loaded while its tab is hidden, so switching back to it is instant. Turn this off to save memory when many previews are open; hidden tabs are then re-rendered on return, and keep their scroll position."
         },
-        "mdExplorer.frontMatter": {
+        "knowledgeWalk.frontMatter": {
           "type": "string",
           "enum": [
             "auto",
@@ -267,12 +267,12 @@
             "Leave YAML front matter out of the preview.",
             "Show the raw YAML in a code block."
           ],
-          "markdownDescription": "How to present the YAML front matter at the top of a document. The card's layout is set by `#mdExplorer.frontMatterDisplay#` and by a `.mdexplorer.yaml` at the wiki root."
+          "markdownDescription": "How to present the YAML front matter at the top of a document. The card's layout is set by `#knowledgeWalk.frontMatterDisplay#` and by a `.knowledgewalk.yaml` at the wiki root."
         },
-        "mdExplorer.frontMatterDisplay": {
+        "knowledgeWalk.frontMatterDisplay": {
           "type": "object",
           "default": {},
-          "markdownDescription": "How front matter keys are laid out on the metadata card: `header`, `lead`, `hidden`, `details`, `fields` (per key, e.g. `{ \"priority\": { \"as\": \"badge\" } }`) and `byType`. Layered over the built-in OKF defaults; a `frontMatter:` section in `.mdexplorer.yaml` at the wiki root is layered over this. See the README.",
+          "markdownDescription": "How front matter keys are laid out on the metadata card: `header`, `lead`, `hidden`, `details`, `fields` (per key, e.g. `{ \"priority\": { \"as\": \"badge\" } }`) and `byType`. Layered over the built-in OKF defaults; a `frontMatter:` section in `.knowledgewalk.yaml` at the wiki root is layered over this. See the README.",
           "additionalProperties": false,
           "properties": {
             "header": {
@@ -673,7 +673,7 @@
             }
           }
         },
-        "mdExplorer.knownFileExtensions": {
+        "knowledgeWalk.knownFileExtensions": {
           "type": "array",
           "default": [],
           "items": {
@@ -682,12 +682,12 @@
           },
           "markdownDescription": "Extra file extensions, such as `.fasta` or `.drawio`, that mark a front matter value as a file. A value with one of these (or a common extension like `.md`, `.pdf`, `.csv`) that resolves nowhere is flagged as a broken reference; a value with an unfamiliar extension is assumed to be a name."
         },
-        "mdExplorer.wikiLinks": {
+        "knowledgeWalk.wikiLinks": {
           "type": "boolean",
           "default": true,
           "markdownDescription": "Resolve Obsidian-style `[[wiki links]]`, including `[[note|label]]`, `[[note#heading]]` and `![[image.png]]`. A bare name is looked up across the workspace, not just next to the document."
         },
-        "mdExplorer.wikiRootMarkers": {
+        "knowledgeWalk.wikiRootMarkers": {
           "type": "array",
           "items": {
             "type": "string"
@@ -697,13 +697,13 @@
           ],
           "markdownDescription": "Files or directories whose presence marks a wiki root, used to resolve `[[wiki links]]` when a document has no `root:` in its front matter. Searched upwards from the document."
         },
-        "mdExplorer.wikiRootKey": {
+        "knowledgeWalk.wikiRootKey": {
           "type": "string",
           "default": "root",
           "minLength": 1,
           "markdownDescription": "The front matter key a document uses to name its wiki root, e.g. `root: handbook`. Change it if `root` already means something else in your documents. The key is hidden from the metadata card."
         },
-        "mdExplorer.wikiLinkFallback": {
+        "knowledgeWalk.wikiLinkFallback": {
           "type": "string",
           "enum": [
             "unique",
@@ -720,8 +720,8 @@
     },
     "yamlValidation": [
       {
-        "fileMatch": ".mdexplorer.yaml",
-        "url": "./media/mdexplorer.schema.json"
+        "fileMatch": ".knowledgewalk.yaml",
+        "url": "./media/knowledgewalk.schema.json"
       }
     ]
   },

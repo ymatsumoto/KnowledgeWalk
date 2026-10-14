@@ -1,6 +1,6 @@
-# mdExplorer samples: index
+# KnowledgeWalk samples: index
 
-This folder is for trying mdExplorer's behaviour by hand.
+This folder is for trying KnowledgeWalk's behaviour by hand.
 
 ![Sample image](assets/logo.png)
 

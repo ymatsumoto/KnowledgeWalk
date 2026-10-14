@@ -37,7 +37,7 @@ test('Open in Editor from a fresh preview still opens the file', async () => {
   await vscode.commands.executeCommand('vscode.open', scrollMd);
   await waitFor('the preview page to load', () => getApi().activePreview?.isReady, 15000);
 
-  await vscode.commands.executeCommand('mdExplorer.switchToEditor');
+  await vscode.commands.executeCommand('knowledgeWalk.switchToEditor');
   const editor = await textEditorFor(scrollMd);
 
   // Nothing has been read yet, so there is no position to restore: the top is right.
@@ -49,7 +49,7 @@ test('Open Preview opens at the cursor rather than the top of the file', async (
   editor.selection = new vscode.Selection(CURSOR_LINE, 0, CURSOR_LINE, 0);
 
   const since = Date.now();
-  await vscode.commands.executeCommand('mdExplorer.showPreview');
+  await vscode.commands.executeCommand('knowledgeWalk.showPreview');
   await waitFor('the preview page to load', () => getApi().activePreview?.isReady, 15000);
 
   const scroll = await settled(since);
@@ -77,7 +77,7 @@ test('Open in Editor comes back to the passage that was on screen', async () => 
   const reported = preview()?.line;
   assert.equal(typeof reported, 'number', 'the page must have reported a position first');
 
-  await vscode.commands.executeCommand('mdExplorer.switchToEditor');
+  await vscode.commands.executeCommand('knowledgeWalk.switchToEditor');
   const editor = await textEditorFor(scrollMd);
 
   assert.equal(editor.selection.active.line, reported);

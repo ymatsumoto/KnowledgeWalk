@@ -96,7 +96,7 @@ export class WikiLinkIndex implements vscode.Disposable {
    * In order of precedence:
    *
    *  1. a `root:` key in the document's own YAML front matter;
-   *  2. the nearest ancestor holding one of `mdExplorer.wikiRootMarkers` — `.obsidian`
+   *  2. the nearest ancestor holding one of `knowledgeWalk.wikiRootMarkers` — `.obsidian`
    *     by default, i.e. an actual Obsidian vault;
    *  3. the workspace folder holding the document;
    *  4. the document's own directory.

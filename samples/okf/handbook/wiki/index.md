@@ -4,7 +4,7 @@ okf_version: "0.2"
 
 # Sample handbook
 
-A small OKF v0.2 bundle for trying how mdExplorer shows front matter. This root
+A small OKF v0.2 bundle for trying how KnowledgeWalk shows front matter. This root
 `index.md` carries only `okf_version`, so it shows no card.
 
 ## Incidents

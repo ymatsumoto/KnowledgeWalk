@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-const STORAGE_KEY = 'mdExplorer.editing';
+const STORAGE_KEY = 'knowledgeWalk.editing';
 
 /**
  * Remembers which Markdown files the reader deliberately wants in a text editor.

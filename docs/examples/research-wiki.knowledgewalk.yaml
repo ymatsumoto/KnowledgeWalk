@@ -1,4 +1,4 @@
-# .mdexplorer.yaml for a research wiki: literature notes, open problems and ideas.
+# .knowledgewalk.yaml for a research wiki: literature notes, open problems and ideas.
 #
 # Page types: source (a paper or note read), concept, method, entity, topic, problem
 # (an open question) and idea (an attempt at one). Each type tracks its own `stage`.

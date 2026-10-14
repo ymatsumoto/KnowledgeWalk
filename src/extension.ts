@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import type { PreviewState } from './protocol';
-import type { MdExplorerApi } from './api';
+import type { KnowledgeWalkApi } from './api';
 import { PreviewManager } from './previewManager';
 import { PreviewPanel, renderErrorCount } from './previewPanel';
 import { RedirectEditorProvider } from './redirectEditorProvider';
@@ -13,9 +13,9 @@ import { OkfService } from './okf/service';
 import { resetRenderer } from './renderer/markdown';
 import { initLog, log } from './log';
 
-export function activate(context: vscode.ExtensionContext): MdExplorerApi {
+export function activate(context: vscode.ExtensionContext): KnowledgeWalkApi {
   initLog(context);
-  log.info('mdExplorer activated');
+  log.info('KnowledgeWalk activated');
 
   // Tells the built-in Markdown extension that something else owns the preview, which is
   // how it knows to withdraw its own "Open Preview" menu entries and title-bar buttons
@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext): MdExplorerApi {
     }),
 
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('mdExplorer')) {
+      if (event.affectsConfiguration('knowledgeWalk')) {
         resetRenderer();
         manager.refreshAll();
       }

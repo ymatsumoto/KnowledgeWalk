@@ -1,8 +1,8 @@
-# .mdexplorer.yaml for an Obsidian-style notes vault.
+# .knowledgewalk.yaml for an Obsidian-style notes vault.
 #
 # Typical front matter: tags, aliases, created/updated dates, a `status` such as
 # `seedling | budding | evergreen`, and `up:` / `related:` links between notes. Pages may
-# have no `type`; set mdExplorer.frontMatter to `table` to show a card on every note.
+# have no `type`; set knowledgeWalk.frontMatter to `table` to show a card on every note.
 
 frontMatter:
   header: [status, tags, created, updated]

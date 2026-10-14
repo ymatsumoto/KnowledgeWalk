@@ -2,7 +2,7 @@
  * Drop the freshly packaged .vsix into a dev container's extensions folder, replacing any
  * older build, so the next attach installs it. See docs/devcontainer.md.
  *
- * The folder is MDX_DEPLOY_DIR, or `../.devcontainer/extensions` next to this repository
+ * The folder is KW_DEPLOY_DIR, or `../.devcontainer/extensions` next to this repository
  * when that exists — the layout where the extension is developed inside the workspace the
  * container mounts.
  */
@@ -13,8 +13,8 @@ import { fileURLToPath } from 'node:url';
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const vsix = path.join(root, `${manifest.name}-${manifest.version}.vsix`);
-const target = process.env.MDX_DEPLOY_DIR
-  ? path.resolve(process.env.MDX_DEPLOY_DIR)
+const target = process.env.KW_DEPLOY_DIR
+  ? path.resolve(process.env.KW_DEPLOY_DIR)
   : path.join(path.dirname(root), '.devcontainer', 'extensions');
 
 if (!fs.existsSync(vsix)) {
@@ -22,7 +22,7 @@ if (!fs.existsSync(vsix)) {
 }
 if (!fs.existsSync(target)) {
   throw new Error(
-    `${target} does not exist. Set MDX_DEPLOY_DIR to the dev container's extensions folder.`
+    `${target} does not exist. Set KW_DEPLOY_DIR to the dev container's extensions folder.`
   );
 }
 

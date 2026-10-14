@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 let channel: vscode.LogOutputChannel | undefined;
 
 export function initLog(context: vscode.ExtensionContext): vscode.LogOutputChannel {
-  channel = vscode.window.createOutputChannel('mdExplorer', { log: true });
+  channel = vscode.window.createOutputChannel('KnowledgeWalk', { log: true });
   context.subscriptions.push(channel);
   return channel;
 }

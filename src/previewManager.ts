@@ -7,7 +7,7 @@ import type { OkfService } from './okf/service';
 
 /**
  * Owns every open preview tab, decides whether a request opens a new tab or reveals an
- * existing one, and keeps the `mdExplorer.canGoBack` / `canGoForward` context keys in
+ * existing one, and keeps the `knowledgeWalk.canGoBack` / `canGoForward` context keys in
  * sync with whichever preview is focused.
  */
 export class PreviewManager implements vscode.Disposable, PreviewHost {
@@ -181,10 +181,10 @@ export class PreviewManager implements vscode.Disposable, PreviewHost {
         ? this.lastFocused
         : undefined);
     this.activePanel = active;
-    void vscode.commands.executeCommand('setContext', 'mdExplorer.canGoBack', !!active?.canGoBack);
+    void vscode.commands.executeCommand('setContext', 'knowledgeWalk.canGoBack', !!active?.canGoBack);
     void vscode.commands.executeCommand(
       'setContext',
-      'mdExplorer.canGoForward',
+      'knowledgeWalk.canGoForward',
       !!active?.canGoForward
     );
   }
