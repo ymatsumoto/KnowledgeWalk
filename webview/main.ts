@@ -30,10 +30,65 @@ let currentMode: NavMode = 'push';
 /** The first render after a page load restores the offset instead of jumping to the top. */
 let isFirstRender = true;
 
+/**
+ * Folds the reader opened, per document. Kept across navigations so that a fold opened
+ * to follow a link inside it is still open on the way back — otherwise the page would
+ * come back shorter than it was left and Back would land in the wrong place.
+ */
+const folds = new Map<string, number[]>(Object.entries(persisted?.folds ?? {}));
+const MAX_FOLD_DOCUMENTS = 200;
+
 function persist(state: PreviewState): void {
-  persisted = { ...state, scrollTop: Math.round(window.scrollY) };
+  persisted = { ...state, scrollTop: Math.round(window.scrollY), folds: Object.fromEntries(folds) };
   vscodeApi.setState(persisted);
 }
+
+function recordFolds(): void {
+  if (!currentUri) {
+    return;
+  }
+  const open = Array.from(content.querySelectorAll('details'))
+    .map((fold, index) => (fold.open ? index : -1))
+    .filter((index) => index >= 0);
+  folds.delete(currentUri);
+  if (open.length) {
+    folds.set(currentUri, open);
+    if (folds.size > MAX_FOLD_DOCUMENTS) {
+      folds.delete(folds.keys().next().value as string);
+    }
+  }
+  if (persisted) {
+    persisted.folds = Object.fromEntries(folds);
+    vscodeApi.setState(persisted);
+  }
+}
+
+function restoreFolds(): void {
+  const all = content.querySelectorAll('details');
+  for (const index of folds.get(currentUri) ?? []) {
+    const fold = all[index];
+    if (fold) {
+      fold.open = true;
+    }
+  }
+}
+
+function isRendered(element: Element): boolean {
+  const check = (element as Element & { checkVisibility?: () => boolean }).checkVisibility;
+  return check ? check.call(element) : element.getClientRects().length > 0;
+}
+
+/** Open every fold around `element`, so it has a position to scroll to. */
+function unfoldAround(element: Element): void {
+  for (let fold = element.closest('details'); fold; fold = fold.parentElement?.closest('details') ?? null) {
+    if (!fold.open) {
+      fold.open = true;
+    }
+  }
+}
+
+// `toggle` does not bubble; listen in the capture phase.
+content.addEventListener('toggle', recordFolds, true);
 
 let scrollPersistTimer = 0;
 window.addEventListener(
@@ -103,6 +158,15 @@ async function render(message: Extract<ToWebview, { type: 'render' }>): Promise<
 
   const previousScroll = isFirstRender ? (persisted?.scrollTop ?? 0) : window.scrollY;
   content.innerHTML = sanitize(message.html);
+  restoreFolds();
+  if (message.mode === 'back' && typeof message.linkId === 'number') {
+    // The link followed out of this page may sit inside a fold; it has to be open for
+    // the link to have a position at all.
+    const link = content.querySelector(`[data-mdx-link="${message.linkId}"]`);
+    if (link) {
+      unfoldAround(link);
+    }
+  }
   ensureKatexStyles();
   persist(message.state);
   isFirstRender = false;
@@ -138,7 +202,9 @@ function resolveScrollTarget(
   }
   if (message.mode === 'back' && typeof message.linkId === 'number') {
     const link = content.querySelector(`[data-mdx-link="${message.linkId}"]`);
-    if (link) {
+    // Inside a closed fold a link is not rendered, and has no position worth scrolling
+    // to. (Chromium still reports client rects for it; checkVisibility does not.)
+    if (link && isRendered(link)) {
       return { top: offsetTopOf(link), anchored: true };
     }
   }

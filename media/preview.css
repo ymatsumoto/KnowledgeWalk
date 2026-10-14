@@ -273,7 +273,8 @@ a.mdx-wikilink-external::after {
 }
 
 .mdx-badge-key {
-  color: var(--vscode-descriptionForeground, inherit);
+  color: inherit;
+  opacity: 0.75;
   font-size: 0.9em;
 }
 
@@ -393,13 +394,18 @@ a.mdx-ref-nonportable::after {
   overflow-wrap: anywhere;
 }
 
+/* Chips hold links as often as plain values, so they stay neutral: a faint tint of the
+   text colour and a hairline border. The theme's badge colours would be the obvious
+   choice, but some themes paint badges in the link colour itself — in Light 2026 both are
+   #0069CC — which makes a link inside a chip invisible. */
 .mdx-fm-chip {
   display: inline-block;
   margin: 0 0.3em 0.25em 0;
-  padding: 0.05em 0.5em;
+  padding: 0 0.5em;
+  border: 1px solid var(--mdx-border);
   border-radius: 10px;
-  background: var(--vscode-badge-background, rgba(128, 128, 128, 0.2));
-  color: var(--vscode-badge-foreground, inherit);
+  background: color-mix(in srgb, var(--vscode-editor-foreground, #888) 7%, transparent);
+  color: var(--vscode-editor-foreground, inherit);
   font-size: 0.9em;
 }
 

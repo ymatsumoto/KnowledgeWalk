@@ -77,3 +77,25 @@ test('OKF: hovering a link asks for the linked page\'s title and description', a
   const missing = await getApi().peek(target.replace('p1.md', 'nope.md'));
   assert.equal(missing?.found, false);
 });
+
+test('OKF: Back to a link inside the Details fold reopens the fold and lands on the link', async () => {
+  await closeEverything();
+  const html = await openOkf('ideas', 'i1.md');
+  // `paper: raw/papers/paper.pdf` is not on the header line, so it sits inside the fold;
+  // `see_also`-style keys likewise. Take the first card link under <details>.
+  const fold = /<details class="mdx-card-details"[\s\S]*?<\/details>/.exec(html)?.[0] ?? '';
+  const inFold = [...fold.matchAll(/<a data-mdx-link="(\d+)" data-mdx-kind="markdown"/g)].map((m) => Number(m[1]));
+  assert.ok(inFold.length > 0, 'a markdown link inside the fold');
+
+  assert.ok(getApi().clickRenderedLink(inFold[0]));
+  await waitFor('the preview to leave i1.md', () => !getApi().activePreview?.uri.endsWith('/ideas/i1.md'));
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  getApi().goBack();
+
+  const settled = await waitFor('Back to settle on i1.md', () => {
+    const current = getApi().activePreview;
+    const scroll = current?.lastScroll;
+    return current?.uri.endsWith('/ideas/i1.md') && scroll?.mode === 'back' && scroll.final ? scroll : undefined;
+  }, 10000);
+  assert.equal(settled.anchored, true, 'the link was found with a box to scroll to');
+});
