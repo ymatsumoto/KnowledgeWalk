@@ -52,7 +52,17 @@ export type ToWebview =
     }
   | { type: 'config'; config: WebviewConfig }
   /** Scroll an already-rendered page to a source line; the tab was reused. */
-  | { type: 'revealLine'; line: number };
+  | { type: 'revealLine'; line: number }
+  /** Answer to a `peek`: what the linked page says about itself. */
+  | {
+      type: 'peekResult';
+      target: string;
+      found: boolean;
+      title?: string;
+      description?: string;
+      docType?: string;
+      status?: string;
+    };
 
 /** Webview -> host. */
 export type FromWebview =
@@ -81,6 +91,8 @@ export type FromWebview =
       line: number;
     }
   | { type: 'pageError'; message: string; stack?: string }
+  /** The reader is hovering a link to a Markdown page; asks for its summary. */
+  | { type: 'peek'; target: string }
   | { type: 'back' }
   | { type: 'forward' }
   | {

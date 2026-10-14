@@ -51,6 +51,8 @@ export interface MdExplorerApi {
    * target the renderer resolved. Returns false when there is no such link.
    */
   clickRenderedLink(linkId: number, newTab?: boolean): boolean;
+  /** What hovering a link to `target` (a serialised URI) shows in the focused preview. */
+  peek(target: string): Promise<{ found: boolean; title?: string; description?: string } | undefined>;
   /** The focused preview's HTML as last rendered in the extension host. */
   renderedHtml(): string | undefined;
   /** Double-click the page, as a reader switching to the editor would. */
