@@ -174,11 +174,19 @@ frontMatter:
 | `sources` | The source list (the default for `sources`). |
 | `hidden` | Not shown. |
 
+Both places are checked as you type. The setting carries a JSON schema, so in
+`settings.json` VS Code completes the setting names, every `as` kind and colour, and
+underlines anything it would not accept. The same schema is offered for
+`.mdexplorer.yaml` through the [YAML extension][yaml-ext] (`redhat.vscode-yaml`), when it
+is installed.
+
 An invalid entry is reported once in the log (*mdExplorer: Show Log*) and that key falls
 back to `auto`. Changes to `.mdexplorer.yaml` re-render open previews. The file is read in
 untrusted workspaces too: it only changes layout, and nothing in it can produce markup.
 
 `docs/research-wiki.mdexplorer.yaml` is a fuller example for a research wiki.
+
+[yaml-ext]: https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
 
 ## How it is put together
 

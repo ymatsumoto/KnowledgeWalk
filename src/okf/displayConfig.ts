@@ -170,7 +170,8 @@ function validField(key: string, value: unknown, warnings: string[]): FieldSpec 
   return result;
 }
 
-const TOP_LEVEL = new Set(['header', 'lead', 'hidden', 'hideTitleWhenSameAsH1', 'details', 'fields', 'byType']);
+/** Every setting the configuration accepts; mirrored by the JSON schema in package.json. */
+export const TOP_LEVEL = new Set(['header', 'lead', 'hidden', 'hideTitleWhenSameAsH1', 'details', 'fields', 'byType']);
 
 /** Turn a merged, untyped configuration into a DisplayConfig, reporting what was dropped. */
 function validate(merged: Record<string, unknown>, warnings: string[], where = ''): DisplayConfig {

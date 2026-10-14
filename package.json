@@ -2,7 +2,7 @@
   "name": "mdexplorer",
   "displayName": "mdExplorer",
   "description": "Read Markdown in VS Code like a web browser: preview by default, in-tab link navigation, and back/forward history.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "publisher": "local",
   "license": "MIT",
   "engines": {
@@ -257,7 +257,414 @@
         "mdExplorer.frontMatterDisplay": {
           "type": "object",
           "default": {},
-          "markdownDescription": "How front matter keys are laid out on the metadata card: `header`, `lead`, `hidden`, `details`, `fields` (per key, e.g. `{ \"stage\": { \"as\": \"badge\" } }`) and `byType`. Layered over the built-in OKF defaults; a `frontMatter:` section in `.mdexplorer.yaml` at the wiki root is layered over this. See the README."
+          "markdownDescription": "How front matter keys are laid out on the metadata card: `header`, `lead`, `hidden`, `details`, `fields` (per key, e.g. `{ \"stage\": { \"as\": \"badge\" } }`) and `byType`. Layered over the built-in OKF defaults; a `frontMatter:` section in `.mdexplorer.yaml` at the wiki root is layered over this. See the README.",
+          "additionalProperties": false,
+          "properties": {
+            "header": {
+              "type": "array",
+              "markdownDescription": "Keys shown on the card's first line, in order. `trust` is the verification tier derived from `verified`.",
+              "items": {
+                "type": "string",
+                "examples": [
+                  "type",
+                  "status",
+                  "trust",
+                  "generated",
+                  "tags",
+                  "description",
+                  "stage",
+                  "severity"
+                ]
+              }
+            },
+            "lead": {
+              "type": "string",
+              "markdownDescription": "Key shown as the lead paragraph (default `description`)."
+            },
+            "hidden": {
+              "type": "array",
+              "markdownDescription": "Keys never shown.",
+              "items": {
+                "type": "string",
+                "examples": [
+                  "type",
+                  "status",
+                  "trust",
+                  "generated",
+                  "tags",
+                  "description",
+                  "stage",
+                  "severity"
+                ]
+              }
+            },
+            "hideTitleWhenSameAsH1": {
+              "type": "boolean",
+              "markdownDescription": "Omit `title` when the body's first heading already says the same thing."
+            },
+            "details": {
+              "type": "string",
+              "enum": [
+                "collapsed",
+                "expanded",
+                "hidden"
+              ],
+              "markdownEnumDescriptions": [
+                "Remaining keys under a closed *Details* fold.",
+                "Remaining keys under an open *Details* fold.",
+                "Do not show remaining keys."
+              ]
+            },
+            "fields": {
+              "type": "object",
+              "markdownDescription": "Display per front matter key, e.g. `{ \"stage\": { \"as\": \"badge\" } }`.",
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "as": {
+                        "type": "string",
+                        "enum": [
+                          "auto",
+                          "text",
+                          "badge",
+                          "chips",
+                          "date",
+                          "link",
+                          "links",
+                          "table",
+                          "template",
+                          "sources",
+                          "hidden"
+                        ],
+                        "markdownEnumDescriptions": [
+                          "Default for unconfigured keys: a URL or a resolvable path becomes a link, a list becomes chips (or a table when it holds mappings), a mapping a nested list, anything else text.",
+                          "Plain text.",
+                          "One badge per value, coloured by `colors`; values listed in `hideValues` are skipped.",
+                          "One chip per list item.",
+                          "The `YYYY-MM-DD` part of a date, as written (no time-zone conversion).",
+                          "A link to the path or URL; Markdown targets are labelled with their title.",
+                          "A link for each path in a list.",
+                          "A table with one row per mapping in a list.",
+                          "Fill `template` from the value: `{key}`, `{key.sub}`, `{key|date}`. The result is plain text.",
+                          "The OKF source list (the default for `sources`).",
+                          "Not shown."
+                        ],
+                        "markdownDescription": "Display kind."
+                      },
+                      "colors": {
+                        "type": "object",
+                        "markdownDescription": "Badge colour per value, e.g. `{ \"high\": \"red\" }`.",
+                        "additionalProperties": {
+                          "type": "string",
+                          "enum": [
+                            "red",
+                            "orange",
+                            "yellow",
+                            "green",
+                            "blue",
+                            "purple",
+                            "gray",
+                            "none"
+                          ]
+                        }
+                      },
+                      "hideValues": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "markdownDescription": "Values not worth a badge, such as the default `stable`."
+                      },
+                      "template": {
+                        "type": "string",
+                        "markdownDescription": "For `as: template`: `{key}`, `{key.sub}` and `{key|date}` placeholders. Markup is escaped, never interpreted."
+                      },
+                      "label": {
+                        "type": "string",
+                        "enum": [
+                          "title",
+                          "path"
+                        ],
+                        "markdownEnumDescriptions": [
+                          "Label links to Markdown pages with the page's title.",
+                          "Show the path as written."
+                        ]
+                      }
+                    }
+                  },
+                  {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "text",
+                      "badge",
+                      "chips",
+                      "date",
+                      "link",
+                      "links",
+                      "table",
+                      "template",
+                      "sources",
+                      "hidden"
+                    ]
+                  }
+                ],
+                "markdownDescription": "How this key's value is drawn. A bare string such as `\"badge\"` is shorthand for `{ \"as\": \"badge\" }`.",
+                "defaultSnippets": [
+                  {
+                    "label": "badge",
+                    "body": {
+                      "as": "badge",
+                      "colors": {
+                        "${1:value}": "${2|red,orange,yellow,green,blue,purple,gray,none|}"
+                      }
+                    }
+                  },
+                  {
+                    "label": "chips",
+                    "body": {
+                      "as": "chips"
+                    }
+                  },
+                  {
+                    "label": "links",
+                    "body": {
+                      "as": "links"
+                    }
+                  },
+                  {
+                    "label": "date",
+                    "body": {
+                      "as": "date"
+                    }
+                  },
+                  {
+                    "label": "template",
+                    "body": {
+                      "as": "template",
+                      "template": "$1"
+                    }
+                  },
+                  {
+                    "label": "hidden",
+                    "body": {
+                      "as": "hidden"
+                    }
+                  }
+                ]
+              }
+            },
+            "byType": {
+              "type": "object",
+              "markdownDescription": "Overrides for documents of one `type`, layered last, e.g. `{ \"problem\": { \"header\": [\"type\", \"severity\"] } }`.",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "header": {
+                    "type": "array",
+                    "markdownDescription": "Keys shown on the card's first line, in order. `trust` is the verification tier derived from `verified`.",
+                    "items": {
+                      "type": "string",
+                      "examples": [
+                        "type",
+                        "status",
+                        "trust",
+                        "generated",
+                        "tags",
+                        "description",
+                        "stage",
+                        "severity"
+                      ]
+                    }
+                  },
+                  "lead": {
+                    "type": "string",
+                    "markdownDescription": "Key shown as the lead paragraph (default `description`)."
+                  },
+                  "hidden": {
+                    "type": "array",
+                    "markdownDescription": "Keys never shown.",
+                    "items": {
+                      "type": "string",
+                      "examples": [
+                        "type",
+                        "status",
+                        "trust",
+                        "generated",
+                        "tags",
+                        "description",
+                        "stage",
+                        "severity"
+                      ]
+                    }
+                  },
+                  "hideTitleWhenSameAsH1": {
+                    "type": "boolean",
+                    "markdownDescription": "Omit `title` when the body's first heading already says the same thing."
+                  },
+                  "details": {
+                    "type": "string",
+                    "enum": [
+                      "collapsed",
+                      "expanded",
+                      "hidden"
+                    ],
+                    "markdownEnumDescriptions": [
+                      "Remaining keys under a closed *Details* fold.",
+                      "Remaining keys under an open *Details* fold.",
+                      "Do not show remaining keys."
+                    ]
+                  },
+                  "fields": {
+                    "type": "object",
+                    "markdownDescription": "Display per front matter key, e.g. `{ \"stage\": { \"as\": \"badge\" } }`.",
+                    "additionalProperties": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "properties": {
+                            "as": {
+                              "type": "string",
+                              "enum": [
+                                "auto",
+                                "text",
+                                "badge",
+                                "chips",
+                                "date",
+                                "link",
+                                "links",
+                                "table",
+                                "template",
+                                "sources",
+                                "hidden"
+                              ],
+                              "markdownEnumDescriptions": [
+                                "Default for unconfigured keys: a URL or a resolvable path becomes a link, a list becomes chips (or a table when it holds mappings), a mapping a nested list, anything else text.",
+                                "Plain text.",
+                                "One badge per value, coloured by `colors`; values listed in `hideValues` are skipped.",
+                                "One chip per list item.",
+                                "The `YYYY-MM-DD` part of a date, as written (no time-zone conversion).",
+                                "A link to the path or URL; Markdown targets are labelled with their title.",
+                                "A link for each path in a list.",
+                                "A table with one row per mapping in a list.",
+                                "Fill `template` from the value: `{key}`, `{key.sub}`, `{key|date}`. The result is plain text.",
+                                "The OKF source list (the default for `sources`).",
+                                "Not shown."
+                              ],
+                              "markdownDescription": "Display kind."
+                            },
+                            "colors": {
+                              "type": "object",
+                              "markdownDescription": "Badge colour per value, e.g. `{ \"high\": \"red\" }`.",
+                              "additionalProperties": {
+                                "type": "string",
+                                "enum": [
+                                  "red",
+                                  "orange",
+                                  "yellow",
+                                  "green",
+                                  "blue",
+                                  "purple",
+                                  "gray",
+                                  "none"
+                                ]
+                              }
+                            },
+                            "hideValues": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              },
+                              "markdownDescription": "Values not worth a badge, such as the default `stable`."
+                            },
+                            "template": {
+                              "type": "string",
+                              "markdownDescription": "For `as: template`: `{key}`, `{key.sub}` and `{key|date}` placeholders. Markup is escaped, never interpreted."
+                            },
+                            "label": {
+                              "type": "string",
+                              "enum": [
+                                "title",
+                                "path"
+                              ],
+                              "markdownEnumDescriptions": [
+                                "Label links to Markdown pages with the page's title.",
+                                "Show the path as written."
+                              ]
+                            }
+                          }
+                        },
+                        {
+                          "type": "string",
+                          "enum": [
+                            "auto",
+                            "text",
+                            "badge",
+                            "chips",
+                            "date",
+                            "link",
+                            "links",
+                            "table",
+                            "template",
+                            "sources",
+                            "hidden"
+                          ]
+                        }
+                      ],
+                      "markdownDescription": "How this key's value is drawn. A bare string such as `\"badge\"` is shorthand for `{ \"as\": \"badge\" }`.",
+                      "defaultSnippets": [
+                        {
+                          "label": "badge",
+                          "body": {
+                            "as": "badge",
+                            "colors": {
+                              "${1:value}": "${2|red,orange,yellow,green,blue,purple,gray,none|}"
+                            }
+                          }
+                        },
+                        {
+                          "label": "chips",
+                          "body": {
+                            "as": "chips"
+                          }
+                        },
+                        {
+                          "label": "links",
+                          "body": {
+                            "as": "links"
+                          }
+                        },
+                        {
+                          "label": "date",
+                          "body": {
+                            "as": "date"
+                          }
+                        },
+                        {
+                          "label": "template",
+                          "body": {
+                            "as": "template",
+                            "template": "$1"
+                          }
+                        },
+                        {
+                          "label": "hidden",
+                          "body": {
+                            "as": "hidden"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
         "mdExplorer.wikiLinks": {
           "type": "boolean",
@@ -288,7 +695,13 @@
           "markdownDescription": "What to do when a `[[wiki link]]` names a note that is not inside the document\u2019s own wiki \u2014 for instance a project that grew links into a neighbouring wiki later."
         }
       }
-    }
+    },
+    "yamlValidation": [
+      {
+        "fileMatch": ".mdexplorer.yaml",
+        "url": "./media/mdexplorer.schema.json"
+      }
+    ]
   },
   "scripts": {
     "build": "node esbuild.mjs",

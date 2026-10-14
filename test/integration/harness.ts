@@ -31,14 +31,14 @@ export { assert };
 /** Poll until `predicate` holds, so tests do not race the workbench's own async work. */
 export async function waitFor<T>(
   describe: string,
-  predicate: () => T | undefined | false,
+  predicate: () => T | undefined | false | Promise<T | undefined | false>,
   timeoutMs = 5000
 ): Promise<T> {
   const deadline = Date.now() + timeoutMs;
   let last: unknown;
   while (Date.now() < deadline) {
     try {
-      const value = predicate();
+      const value = await predicate();
       if (value) {
         return value as T;
       }
