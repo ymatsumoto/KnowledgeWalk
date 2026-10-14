@@ -17,6 +17,9 @@ This folder is for trying KnowledgeWalk's behaviour by hand.
 
 ## An OKF wiki
 
+[The LLM wiki sample](llm-wiki/wiki/index.md) is a small agent-maintained knowledge base, as a
+reader would meet one.
+
 [The sample handbook](okf/handbook/wiki/index.md) is a small OKF v0.2 bundle for checking front matter (the card, sources,
 citations, verification, deprecated and stale banners).
 
