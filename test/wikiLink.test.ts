@@ -49,6 +49,8 @@ const CONFIG: MdxConfig = {
   linkify: 'urls',
   frontMatter: 'hide',
   frontMatterDisplay: {},
+  wikiRootKey: 'root',
+  knownFileExtensions: [],
   wikiLinks: true,
   wikiRootMarkers: ['.obsidian'],
   wikiLinkFallback: 'unique',

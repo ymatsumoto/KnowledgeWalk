@@ -112,3 +112,10 @@ test('a bare name with an unfamiliar extension is not reported missing', () => {
   const pathy = resolveRef('data/nope.prod', ctx, exists);
   assert.equal(pathy.kind === 'missing' && pathy.strong, true);
 });
+
+test('extra file extensions make a missing value worth reporting', () => {
+  const plain = resolveRef('reads.fasta', ctx, exists);
+  assert.equal(plain.kind === 'missing' && plain.strong, false);
+  const configured = resolveRef('reads.fasta', { ...ctx, fileExtensions: new Set(['.fasta']) }, exists);
+  assert.equal(configured.kind === 'missing' && configured.strong, true);
+});

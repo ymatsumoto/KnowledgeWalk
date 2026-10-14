@@ -4,7 +4,7 @@ import { log } from '../log';
 import { readDocumentText } from '../documentText';
 import type { WikiLinkIndex } from '../wikiIndex';
 import { looksLikePath, resolveRef, type RefContext } from './pathResolver';
-import { displayForType, mergeDisplay, type DisplayConfig } from './displayConfig';
+import { defaultDisplay, displayForType, mergeDisplayOver, type DisplayConfig } from './displayConfig';
 import { MetaCache, type TargetMeta } from './metaCache';
 
 /** Per-wiki display settings live in this file at the wiki root. */
@@ -42,6 +42,18 @@ export interface PreparedDocument {
   display: DisplayConfig;
   /** Summaries of the Markdown pages front matter links to, keyed by path. */
   targets: Map<string, TargetMeta>;
+}
+
+export interface PrepareOptions {
+  /**
+   * The `mdExplorer.frontMatterDisplay` setting, layered between the built-in defaults
+   * and the wiki's own `.mdexplorer.yaml`.
+   */
+  display?: unknown;
+  /** Front matter key naming the wiki root (`mdExplorer.wikiRootKey`, default `root`). */
+  rootKey?: string;
+  /** `mdExplorer.knownFileExtensions`. */
+  fileExtensions?: string[];
 }
 
 /**
@@ -106,19 +118,17 @@ export class OkfService implements vscode.Disposable {
     );
   }
 
-  /**
-   * @param userDisplay the `mdExplorer.frontMatterDisplay` setting, layered between the
-   *   built-in defaults and the wiki's own `.mdexplorer.yaml`.
-   */
-  async prepare(uri: vscode.Uri, text: string, userDisplay?: unknown): Promise<PreparedDocument> {
+  async prepare(uri: vscode.Uri, text: string, options: PrepareOptions = {}): Promise<PreparedDocument> {
+    const rootKey = options.rootKey ?? 'root';
     await this.index.ensure();
     const { readFrontMatter } = await import('../renderer/frontMatter');
     const frontMatter = readFrontMatter(text);
-    const roots = await this.rootsFor(uri, frontMatter?.root);
+    const roots = await this.rootsFor(uri, frontMatter?.[rootKey]);
     const refContext: RefContext = {
       docDir: path.posix.dirname(uri.path),
       bundleRoot: roots.bundleRoot.path,
       wikiRoot: roots.wikiRoot.path,
+      fileExtensions: options.fileExtensions?.length ? new Set(options.fileExtensions) : undefined,
     };
 
     // Everything the index cannot answer — files outside the workspace, extensions it
@@ -172,7 +182,7 @@ export class OkfService implements vscode.Disposable {
     const targets = await this.targetsOf(uri, values, refContext, exists);
 
     const local = await this.loadLocalDisplay(roots.wikiRoot);
-    const merged = mergeDisplay(userDisplay, local);
+    const merged = mergeDisplayOver(defaultDisplay(rootKey), options.display, local);
     const type = typeof frontMatter?.type === 'string' ? frontMatter.type : undefined;
     const forType = displayForType(merged.config, type);
     this.report(roots.wikiRoot, [...merged.warnings, ...forType.warnings]);

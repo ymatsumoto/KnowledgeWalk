@@ -215,10 +215,20 @@ export interface MergedDisplay {
   warnings: string[];
 }
 
+/** The built-in layer, hiding whichever key names the wiki root. */
+export function defaultDisplay(rootKey = 'root'): DisplayConfig {
+  return { ...DEFAULT_DISPLAY, hidden: ['okf_version', rootKey] };
+}
+
 /** Layer configurations over the built-in defaults; undefined layers are skipped. */
 export function mergeDisplay(...layers: unknown[]): MergedDisplay {
+  return mergeDisplayOver(DEFAULT_DISPLAY, ...layers);
+}
+
+/** Layer configurations over `base`; undefined layers are skipped. */
+export function mergeDisplayOver(base: DisplayConfig, ...layers: unknown[]): MergedDisplay {
   const warnings: string[] = [];
-  let merged: unknown = DEFAULT_DISPLAY;
+  let merged: unknown = base;
   for (const layer of layers) {
     if (layer === undefined || layer === null) {
       continue;

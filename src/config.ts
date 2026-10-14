@@ -12,6 +12,10 @@ export interface MdxConfig {
   frontMatter: FrontMatterMode;
   /** `mdExplorer.frontMatterDisplay`: the user layer of the card layout. */
   frontMatterDisplay: unknown;
+  /** Front matter key that names a document's wiki root. */
+  wikiRootKey: string;
+  /** Extra extensions that mark a front matter value as a file, normalised to `.ext`. */
+  knownFileExtensions: string[];
   wikiLinks: boolean;
   wikiRootMarkers: string[];
   wikiLinkFallback: WikiLinkFallback;
@@ -31,6 +35,8 @@ export function readConfig(scope?: vscode.Uri): MdxConfig {
     allowRawHtml: c.get<boolean>('allowRawHtml', true),
     frontMatter: c.get<FrontMatterMode>('frontMatter', 'auto'),
     frontMatterDisplay: c.get<unknown>('frontMatterDisplay', {}),
+    wikiRootKey: rootKey(c.get<unknown>('wikiRootKey', 'root')),
+    knownFileExtensions: extensions(c.get<unknown>('knownFileExtensions', [])),
     wikiLinks: c.get<boolean>('wikiLinks', true),
     wikiRootMarkers: c.get<string[]>('wikiRootMarkers', ['.obsidian']),
     wikiLinkFallback: c.get<WikiLinkFallback>('wikiLinkFallback', 'unique'),
@@ -40,6 +46,22 @@ export function readConfig(scope?: vscode.Uri): MdxConfig {
     scrollOffset: Math.max(0, c.get<number>('scrollOffset', 8)),
     retainHiddenPreviews: c.get<boolean>('retainHiddenPreviews', true),
   };
+}
+
+function rootKey(value: unknown): string {
+  return typeof value === 'string' && value.trim() ? value.trim() : 'root';
+}
+
+function extensions(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .filter((item): item is string => typeof item === 'string' && item.trim() !== '')
+    .map((item) => {
+      const ext = item.trim().toLowerCase();
+      return ext.startsWith('.') ? ext : `.${ext}`;
+    });
 }
 
 export function toWebviewConfig(cfg: MdxConfig): WebviewConfig {

@@ -37,6 +37,8 @@ const CONFIG: MdxConfig = {
   linkify: 'urls',
   frontMatter: 'auto',
   frontMatterDisplay: {},
+  wikiRootKey: 'root',
+  knownFileExtensions: [],
   maxHistoryLength: 50,
   scrollOffset: 8,
   wikiLinks: true,

@@ -73,7 +73,7 @@ test('the wiki root .mdexplorer.yaml is layered over the settings, then byType',
 
   const file = path.join(BUNDLE, 'incidents', 'db-outage.md');
   const withUser = await service.prepare(Uri.file(file), fs.readFileSync(file, 'utf8'), {
-    fields: { impact: { as: 'badge' }, priority: { as: 'text' } },
+    display: { fields: { impact: { as: 'badge' }, priority: { as: 'text' } } },
   });
   assert.equal(withUser.display.fields.impact?.as, 'badge');
   // The wiki's own file wins over the user's setting.
@@ -84,4 +84,20 @@ test('a document outside a configured wiki gets the defaults', async () => {
   const file = path.join(SAMPLES, 'guide.md');
   const prepared = await service.prepare(Uri.file(file), fs.readFileSync(file, 'utf8'));
   assert.equal(prepared.display.fields.priority, undefined);
+});
+
+test('the key naming the wiki root is configurable, and hidden from the card', async () => {
+  const file = path.join(BUNDLE, 'notes', 'custom-root.md');
+  const text = '---\ntype: note\nwiki_root: handbook\nroot: not-a-directory\n---\n\n# x\n';
+  const custom = await service.prepare(Uri.file(file), text, { rootKey: 'wiki_root' });
+  assert.equal(custom.roots.wikiRoot.path, HANDBOOK);
+  assert.ok(custom.display.hidden.includes('wiki_root'));
+  // `root` is ordinary data under another key name.
+  assert.ok(!custom.display.hidden.includes('root'));
+
+  const standard = await service.prepare(Uri.file(file), text);
+  // `root: not-a-directory` names no ancestor, so the default key falls back to the
+  // workspace folder.
+  assert.equal(standard.roots.wikiRoot.path, SAMPLES);
+  assert.ok(standard.display.hidden.includes('root'));
 });

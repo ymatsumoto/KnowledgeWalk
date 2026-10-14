@@ -86,9 +86,11 @@ reopened (see [If a .md file still opens as text](#if-a-md-file-still-opens-as-t
 | `mdExplorer.math.enabled` | `true` | Render `$…$` and `$$…$$` with KaTeX. |
 | `mdExplorer.allowRawHtml` | `true` | Allow raw HTML in Markdown. Output is sanitized either way. |
 | `mdExplorer.frontMatter` | `auto` | `auto` (a card when the front matter has a `type`), `table` (always a card), `hide` or `source` (raw YAML). |
+| `mdExplorer.knownFileExtensions` | `[]` | Extra extensions (`.fasta`, `.drawio`, …) that mark a front matter value as a file, so a broken one is flagged. |
 | `mdExplorer.frontMatterDisplay` | `{}` | Layout of the card; see [The metadata card](#the-metadata-card). A wiki's own `.mdexplorer.yaml` is layered over it. |
 | `mdExplorer.wikiLinks` | `true` | Resolve `[[wiki links]]`. |
 | `mdExplorer.wikiRootMarkers` | `[".obsidian"]` | Files or directories that mark a wiki root. |
+| `mdExplorer.wikiRootKey` | `root` | The front matter key that names a document's wiki root. Change it if `root` already means something else in your documents. |
 | `mdExplorer.wikiLinkFallback` | `unique` | `unique` resolves a name outside the wiki when exactly one file matches; `none` keeps wikis hermetic. |
 | `mdExplorer.linkify` | `urls` | `urls` (text with a scheme), `all` (also bare hostnames) or `off`. |
 | `mdExplorer.retainHiddenPreviews` | `true` | Keep hidden previews loaded so returning to a tab is instant. Off trades memory for a re-render. |
@@ -277,7 +279,8 @@ re-render on return, and scroll position is preserved either way.
 A bare `[[Note]]` only means something relative to a wiki, so the extension has to decide
 which subtree that is. In order of precedence:
 
-1. **`root:` in the document's own YAML front matter.**
+1. **`root:` in the document's own YAML front matter** (the key name is
+   `mdExplorer.wikiRootKey`).
 2. **The nearest ancestor holding a root marker** — `.obsidian` by default, configurable
    through `mdExplorer.wikiRootMarkers`.
 3. **The workspace folder** holding the document.
@@ -318,7 +321,9 @@ A value without an extension is also tried with `.md`. For the last row, the val
 a link **only when exactly one candidate exists**. If it names a file under two bases —
 `notes/dup.md` both in the bundle and beside it — it is shown with a `?` and the
 candidates on hover, rather than guessed at. A value with an extension that resolves
-nowhere is marked as missing; one without (`my-agent/1.4`) is just text.
+nowhere is marked as missing — if the extension is a common file type or listed in
+`mdExplorer.knownFileExtensions`. Anything else (`my-agent/1.4`, `db.prod`) may well be a
+name rather than a file, and is just text.
 
 ### Which form should `root:` take?
 
