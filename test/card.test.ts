@@ -152,3 +152,27 @@ test('card links and body links share one sequence of ids', async () => {
   const ids = [...html.matchAll(/data-mdx-link="(\d+)"/g)].map((m) => Number(m[1]));
   assert.deepEqual(ids, ids.map((_, i) => i));
 });
+
+test('[^id] naming a source becomes a numbered citation linking to the source list', async () => {
+  const html = await render('ideas/i1.md');
+  assert.match(html, /<sup class="mdx-cite"><a href="#mdx-src-krause2008" data-mdx-cite="krause2008" title="Near-optimal sensor placements — raw\/papers\/paper\.pdf">\[1\]<\/a><\/sup>/);
+  assert.match(html, /<a href="#mdx-src-progress1" data-mdx-cite="progress1" [^>]*>\[2\]<\/a>/);
+  // Neither a source nor a footnote defined in the body.
+  assert.match(html, /<sup class="mdx-cite mdx-cite-missing" title="No source with id &quot;nosuch&quot; in front matter">\[nosuch\?\]<\/sup>/);
+  // An ordinary footnote defined in the body is left to markdown-it-footnote.
+  assert.match(html, /<sup class="footnote-ref"><a href="#fn1" id="fnref1">\[1\]<\/a><\/sup>/);
+  assert.doesNotMatch(html, /\[\^/);
+});
+
+test('citations are numbered in order of first use', async () => {
+  const html = await render('problems/p1.md');
+  assert.match(html, /data-mdx-cite="lee2025"[^>]*>\[1\]/);
+  assert.match(html, /data-mdx-cite="progress1"[^>]*>\[2\]/);
+});
+
+test('a document without sources leaves [^x] alone', async () => {
+  resetRenderer();
+  const uri = Uri.file(path.join(BUNDLE, 'notes', 'x.md'));
+  const html = renderMarkdown('Text[^x].\n', CONFIG, { docUri: uri, webview, wikiIndex: index });
+  assert.match(html, /Text\[\^x\]\./);
+});

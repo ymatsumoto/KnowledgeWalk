@@ -466,6 +466,11 @@ content.addEventListener('click', (event) => {
       const target = findAnchor(href.slice(1));
       if (target) {
         window.scrollTo(0, offsetTopOf(target));
+        // A citation lands on one line of the card's source list; make it findable.
+        if (anchor.dataset.mdxCite) {
+          target.classList.add('mdx-flash');
+          window.setTimeout(() => target.classList.remove('mdx-flash'), 1600);
+        }
       }
     }
     return;
