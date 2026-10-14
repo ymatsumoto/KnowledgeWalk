@@ -534,6 +534,9 @@ export class PreviewPanel {
       case 'navigate':
         this.handleNavigate(message);
         return;
+      case 'peek':
+        void this.answerPeek(message.target);
+        return;
       case 'position':
         this.lastPosition = { uri: message.uri, line: message.line };
         return;
@@ -547,6 +550,34 @@ export class PreviewPanel {
         };
         this.onDidChangeStateEmitter.fire();
         return;
+    }
+  }
+
+  /** Hover summary for a linked page, from the front matter cache. */
+  async peek(target: string): Promise<Extract<ToWebview, { type: 'peekResult' }>> {
+    try {
+      const meta = await this.host.okf.meta.get(vscode.Uri.parse(target));
+      if (meta) {
+        return {
+          type: 'peekResult',
+          target,
+          found: true,
+          title: meta.title,
+          description: meta.description,
+          docType: meta.type,
+          status: meta.status,
+        };
+      }
+    } catch (error) {
+      log.debug(`peek failed for ${target}`, error);
+    }
+    return { type: 'peekResult', target, found: false };
+  }
+
+  private async answerPeek(target: string): Promise<void> {
+    const reply = await this.peek(target);
+    if (!this.disposed) {
+      void this.panel.webview.postMessage(reply);
     }
   }
 

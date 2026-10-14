@@ -449,6 +449,39 @@ a.mdx-ref-nonportable::after {
   font-family: var(--vscode-font-family, sans-serif);
 }
 
+/* ------------------------------------------------------------- link peek */
+
+.mdx-peek {
+  position: fixed;
+  z-index: 10;
+  padding: 0.5em 0.75em;
+  border: 1px solid var(--vscode-editorHoverWidget-border, var(--mdx-border));
+  border-radius: 4px;
+  background: var(--vscode-editorHoverWidget-background, var(--vscode-editor-background));
+  color: var(--vscode-editorHoverWidget-foreground, inherit);
+  box-shadow: 0 2px 8px var(--vscode-widget-shadow, rgba(0, 0, 0, 0.3));
+  font-size: 0.9em;
+  line-height: 1.45;
+  pointer-events: none;
+}
+
+.mdx-peek-meta {
+  color: var(--vscode-descriptionForeground, inherit);
+  font-size: 0.85em;
+}
+
+.mdx-peek-title {
+  font-weight: 600;
+}
+
+.mdx-peek-desc {
+  margin-top: 0.25em;
+}
+
+.mdx-peek-missing {
+  color: var(--vscode-errorForeground, #e5534b);
+}
+
 /* ------------------------------------------------------------- footnotes */
 
 .footnotes {

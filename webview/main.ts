@@ -93,6 +93,7 @@ function updateContextMenu(): void {
 
 async function render(message: Extract<ToWebview, { type: 'render' }>): Promise<void> {
   const token = ++renderToken;
+  peek.reset();
   config = message.config;
   currentUri = message.uri;
   currentMode = message.mode;
@@ -489,6 +490,133 @@ document.addEventListener('dblclick', (event) => {
   post({ type: 'switchToEditor', line: Number.isFinite(line) ? line : undefined });
 });
 
+// ------------------------------------------------------------- link peek
+
+/**
+ * Hovering (or focusing) a link to a Markdown page shows what that page says about
+ * itself — its title and description — so a reader can tell where a link goes before
+ * following it. Summaries come from the host, which caches front matter per file.
+ */
+const peek = (() => {
+  const DELAY_MS = 300;
+  const tip = document.createElement('div');
+  tip.className = 'mdx-peek';
+  tip.setAttribute('role', 'tooltip');
+  tip.hidden = true;
+  document.body.appendChild(tip);
+
+  const answers = new Map<string, Extract<ToWebview, { type: 'peekResult' }>>();
+  let anchor: HTMLAnchorElement | undefined;
+  let timer = 0;
+
+  function show(): void {
+    if (!anchor) {
+      return;
+    }
+    const target = anchor.dataset.mdxTarget ?? '';
+    const answer = answers.get(target);
+    if (!answer) {
+      return;
+    }
+    tip.replaceChildren();
+    const add = (cls: string, text: string | undefined) => {
+      if (text) {
+        const el = document.createElement('div');
+        el.className = cls;
+        el.textContent = text;
+        tip.appendChild(el);
+      }
+    };
+    if (answer.found) {
+      add('mdx-peek-meta', [answer.docType, answer.status && answer.status !== 'stable' ? answer.status : undefined]
+        .filter(Boolean)
+        .join(' · '));
+      add('mdx-peek-title', answer.title ?? decodeURIComponent(target.split('/').pop() ?? target));
+      add('mdx-peek-desc', answer.description);
+    } else {
+      add('mdx-peek-missing', 'This page does not exist.');
+    }
+    tip.hidden = false;
+    const rect = anchor.getBoundingClientRect();
+    const width = Math.min(420, window.innerWidth - 16);
+    tip.style.maxWidth = `${width}px`;
+    const left = Math.max(8, Math.min(rect.left, window.innerWidth - tip.offsetWidth - 8));
+    const below = rect.bottom + 6;
+    const top = below + tip.offsetHeight > window.innerHeight ? rect.top - tip.offsetHeight - 6 : below;
+    tip.style.left = `${left}px`;
+    tip.style.top = `${Math.max(4, top)}px`;
+  }
+
+  function hide(): void {
+    window.clearTimeout(timer);
+    anchor = undefined;
+    tip.hidden = true;
+  }
+
+  function begin(next: HTMLAnchorElement): void {
+    if (next === anchor) {
+      return;
+    }
+    hide();
+    anchor = next;
+    // The native tooltip would show the path on top of ours; keep it for when ours
+    // has nothing to say.
+    if (next.title && !next.dataset.mdxTitle) {
+      next.dataset.mdxTitle = next.title;
+      next.removeAttribute('title');
+    }
+    const target = next.dataset.mdxTarget ?? '';
+    timer = window.setTimeout(() => {
+      if (answers.has(target)) {
+        show();
+      } else {
+        post({ type: 'peek', target });
+      }
+    }, DELAY_MS);
+  }
+
+  const markdownLink = (node: EventTarget | null) =>
+    (node as HTMLElement | null)?.closest?.<HTMLAnchorElement>('a[data-mdx-kind="markdown"][data-mdx-target]') ?? undefined;
+
+  content.addEventListener('mouseover', (event) => {
+    const link = markdownLink(event.target);
+    if (link) {
+      begin(link);
+    } else if (anchor && !anchor.contains(event.target as Node)) {
+      hide();
+    }
+  });
+  content.addEventListener('mouseleave', hide);
+  content.addEventListener('focusin', (event) => {
+    const link = markdownLink(event.target);
+    if (link) {
+      begin(link);
+    }
+  });
+  content.addEventListener('focusout', hide);
+  window.addEventListener('scroll', hide, { passive: true });
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      hide();
+    }
+  });
+  content.addEventListener('mousedown', hide);
+
+  return {
+    answer(message: Extract<ToWebview, { type: 'peekResult' }>): void {
+      answers.set(message.target, message);
+      if (anchor?.dataset.mdxTarget === message.target) {
+        show();
+      }
+    },
+    /** A new document: forget summaries, which may have changed on disk. */
+    reset(): void {
+      hide();
+      answers.clear();
+    },
+  };
+})();
+
 // VS Code resolves the contributed alt+left / alt+right keybindings for events that
 // originate inside a webview, but handling them here too means navigation still works if
 // that ever changes. The host debounces so a doubled event cannot skip an entry.
@@ -511,6 +639,8 @@ window.addEventListener('message', (event: MessageEvent<ToWebview>) => {
     void render(message);
   } else if (message.type === 'config') {
     config = message.config;
+  } else if (message.type === 'peekResult') {
+    peek.answer(message);
   } else if (message.type === 'revealLine') {
     const line = message.line;
     settleScroll(renderToken, { uri: currentUri, mode: currentMode }, () => {

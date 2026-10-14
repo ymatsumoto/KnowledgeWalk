@@ -81,6 +81,7 @@ export function activate(context: vscode.ExtensionContext): MdExplorerApi {
     followLink: (href, linkId, newTab) => manager.active?.followLink(href, linkId, newTab),
     clickRenderedLink: (linkId, newTab) => manager.active?.clickRenderedLink(linkId, newTab) ?? false,
     renderedHtml: () => manager.active?.renderedHtml(),
+    peek: async (target) => manager.active?.peek(target),
     editGesture: (line) => manager.active?.editGesture(line),
     goBack: () => manager.active?.goBack(),
     goForward: () => manager.active?.goForward(),

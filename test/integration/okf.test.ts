@@ -64,3 +64,16 @@ test('OKF: a link on the metadata card navigates in the tab, and Back returns', 
   });
   assert.equal(back.departureLinkId, ids[0], 'Back remembers the card link that was followed');
 });
+
+test('OKF: hovering a link asks for the linked page\'s title and description', async () => {
+  const html = await openOkf('ideas', 'i1.md');
+  const target = /data-mdx-target="([^"]*\/wiki\/problems\/p1\.md)"/.exec(html)?.[1];
+  assert.ok(target, 'the page links to problems/p1.md');
+  const answer = await getApi().peek(target.replace(/&amp;/g, '&'));
+  assert.equal(answer?.found, true);
+  assert.equal(answer?.title, '単一座位の天井');
+  assert.match(answer?.description ?? '', /^どの 1 座位を足しても/);
+
+  const missing = await getApi().peek(target.replace('p1.md', 'nope.md'));
+  assert.equal(missing?.found, false);
+});
