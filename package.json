@@ -1,14 +1,20 @@
 {
   "name": "mdexplorer",
   "displayName": "mdExplorer",
-  "description": "Read Markdown in VS Code like a web browser: preview by default, in-tab link navigation, and back/forward history.",
-  "version": "0.3.2",
+  "description": "Read Markdown like a web browser, built for model-written wikis: preview by default, in-tab link navigation with back/forward history, and front matter (OKF v0.2) shown as a metadata card.",
+  "version": "0.4.0",
   "publisher": "local",
   "license": "MIT",
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#1E3A8A",
+    "theme": "dark"
+  },
   "engines": {
     "vscode": "^1.75.0"
   },
   "categories": [
+    "Visualization",
     "Other"
   ],
   "main": "./dist/extension.js",
@@ -717,10 +723,12 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
     "vscode:prepublish": "node esbuild.mjs --production",
     "test": "node test/build.mjs && for f in test/dist/*.test.cjs; do node \"$f\" || exit 1; done",
-    "package": "node esbuild.mjs --production && node scripts/package-vsix.mjs",
+    "package": "vsce package --no-dependencies",
+    "package:local": "node esbuild.mjs --production && node scripts/package-vsix.mjs",
+    "publish": "vsce publish --no-dependencies",
     "test:integration": "node esbuild.mjs && node test/build-integration.mjs && node test/integration/runTest.mjs",
     "test:all": "npm run typecheck && npm test && npm run test:integration",
-    "deploy:devcontainer": "npm run package && node scripts/deploy-devcontainer.mjs"
+    "deploy:devcontainer": "npm run package:local && node scripts/deploy-devcontainer.mjs"
   },
   "dependencies": {
     "@vscode/markdown-it-katex": "1.1.2",
@@ -749,7 +757,16 @@
     "markdown",
     "preview",
     "wiki",
+    "wikilinks",
     "obsidian",
+    "front matter",
+    "yaml",
+    "knowledge base",
+    "okf",
+    "open knowledge format",
+    "back",
+    "forward",
+    "history",
     "documentation"
   ]
 }

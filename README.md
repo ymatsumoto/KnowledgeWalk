@@ -461,23 +461,34 @@ to the preview that had focus last, for as long as it is still on screen.
 ```bash
 npm install
 npm run build            # or: npm run watch
-npm test                 # history, link resolution, rendering
+npm test                 # unit tests
 npm run test:integration # drives a real VS Code instance
 npm run test:all
 npm run typecheck
-npm run package          # -> mdexplorer-<version>.vsix
+npm run package          # -> mdexplorer-<version>.vsix, through vsce
 ```
 
 The integration suite launches VS Code, so on a headless machine run it under a virtual
 display: `xvfb-run -a npm run test:integration`. It covers the parts unit tests cannot
 reach — that `.md` resolves to the preview at all, that a link keeps you in one tab and
-renames it, that Back and Forward walk the history, and that switching to the editor and
-back replaces the tab rather than piling up new ones.
+renames it, that Back and Forward walk the history, that switching to the editor and
+back replaces the tab rather than piling up new ones, and that the settings schema drives
+completion in `settings.json`. Set `MDX_ONLY=<text>` to run only the cases whose name
+contains it.
 
-`npm run package` builds the `.vsix` directly rather than through `@vscode/vsce`, so it
-runs on any Node that can run esbuild. Install the result with
-`code --install-extension mdexplorer-<version>.vsix`. To install a local build into a dev
-container, see [docs/devcontainer.md](docs/devcontainer.md).
+`npm run package` packages with `@vscode/vsce`, which needs the `repository` field in
+`package.json` to rewrite the README's relative links. `npm run package:local` builds a
+`.vsix` without it, for local installs; to put one into a dev container, see
+[docs/devcontainer.md](docs/devcontainer.md).
+
+### Releasing
+
+1. Update `CHANGELOG.md` and the `version` in `package.json`.
+2. `npm run test:all`.
+3. Visual Studio Marketplace: `npx vsce publish` (needs a publisher and a personal access
+   token, `vsce login <publisher>`).
+4. Open VSX, for VSCodium, Gitpod and other editors that do not read the Marketplace:
+   `npx ovsx publish mdexplorer-<version>.vsix -p <token>`.
 
 Press <kbd>F5</kbd> to launch an Extension Development Host on `samples/`, or:
 
