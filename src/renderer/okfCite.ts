@@ -20,6 +20,7 @@ export interface CiteEnv {
   /** Citation numbers in order of first use. */
   okfCiteNumbers?: Map<string, number>;
   footnotes?: { refs?: Record<string, number> };
+  okfWarn?(message: string): void;
 }
 
 function okfCite(state: StateInline, silent: boolean): boolean {
@@ -53,6 +54,9 @@ function okfCite(state: StateInline, silent: boolean): boolean {
   }
   if (!silent) {
     const source = sources.get(label);
+    if (!source) {
+      env.okfWarn?.(`[^${label}] names no source in front matter and no footnote in the body`);
+    }
     const token = state.push(source ? 'okf_cite' : 'okf_cite_missing', '', 0);
     token.meta = { id: label };
     if (source) {

@@ -13,6 +13,7 @@ import {
   formatDate,
   isStale,
   parseOkf,
+  parseTime,
   sourcesNewerThanPage,
   type OkfMeta,
   type SourceEntry,
@@ -94,6 +95,14 @@ class Card {
 
   private banners(): string {
     const banners: string[] = [];
+    for (const [key, value] of [
+      ['stale_after', this.meta.staleAfter],
+      ['generated.at', this.meta.generated?.at],
+    ] as const) {
+      if (value && parseTime(value) === undefined) {
+        this.env.warn(`${key} "${value}" is not an ISO 8601 date; it is shown as written`);
+      }
+    }
     if (this.meta.status === 'deprecated' && this.visible('status')) {
       banners.push(
         this.banner('gray', 'Deprecated', 'Kept so links and history still work; no longer current.')
@@ -396,12 +405,17 @@ class Card {
       case 'ambiguous':
         this.env.warn(`"${value}" matches more than one file: ${result.candidates.join(', ')}`);
         return `<span class="mdx-ref-ambiguous" title="${escapeHtml(`Ambiguous: ${result.candidates.join(' | ')}`)}">${escapeHtml(label ?? value)}</span>`;
-      case 'missing':
+      case 'missing': {
+        const directory = result.tried.find((p) => this.env.prepared?.isDirectory(p));
+        if (directory) {
+          return `<span class="mdx-ref-directory" title="${escapeHtml(`Directory: ${directory}`)}">${escapeHtml(label ?? value)}</span>`;
+        }
         if (result.strong) {
           this.env.warn(`"${value}" does not resolve to a file`);
           return `<span class="mdx-ref-missing" title="${escapeHtml(`Not found: ${result.tried.join(' | ')}`)}">${escapeHtml(label ?? value)}</span>`;
         }
         return escapeHtml(label ?? value);
+      }
       default:
         return escapeHtml(label ?? value);
     }

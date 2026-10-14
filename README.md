@@ -63,10 +63,12 @@ your colour theme, and the preview re-renders as you edit the file in a split ed
 widget over the preview. The editor's own find cannot reach inside a webview, so a panel
 has to ask for the webview find widget explicitly — it is off by default.
 
-**Front matter stays out of the way.** A `---` delimited YAML block at the top of a file
+**Front matter becomes a card.** A `---` delimited YAML block at the top of a file
 parses as a setext heading in plain Markdown, which is why it usually shows up as a wall
-of bold text. It is dropped from the preview instead; set `mdExplorer.frontMatter` to
-`table` to get a compact metadata card, or `source` for the raw YAML.
+of bold text. When the front matter has a `type` — every [OKF](#generated-wikis-and-okf-v02)
+page does, and most generated wikis follow suit — it is drawn as a metadata card above the
+document; otherwise it is dropped. `mdExplorer.frontMatter` switches this: `table` for a
+card on every document, `hide` for none, `source` for the raw YAML.
 
 ## Settings
 
@@ -76,8 +78,8 @@ of bold text. It is dropped from the preview instead; set `mdExplorer.frontMatte
 | `mdExplorer.mermaid.enabled` | `true` | Render ` ```mermaid ` blocks as diagrams. |
 | `mdExplorer.math.enabled` | `true` | Render `$…$` and `$$…$$` with KaTeX. |
 | `mdExplorer.allowRawHtml` | `true` | Allow raw HTML in Markdown. Output is sanitized either way. |
-| `mdExplorer.frontMatter` | `hide` | `hide`, `table` (metadata card) or `source` (raw YAML). |
-| `mdExplorer.doubleClickToEdit` | `true` | See the note below on why this needs a guard. |
+| `mdExplorer.frontMatter` | `auto` | `auto` (a card when the front matter has a `type`), `table` (always a card), `hide` or `source` (raw YAML). |
+| `mdExplorer.frontMatterDisplay` | `{}` | Layout of the card; see [The metadata card](#the-metadata-card). A wiki's own `.mdexplorer.yaml` is layered over it. |
 | `mdExplorer.wikiLinks` | `true` | Resolve `[[wiki links]]`. |
 | `mdExplorer.wikiRootMarkers` | `[".obsidian"]` | Files or directories that mark a wiki root. |
 | `mdExplorer.wikiLinkFallback` | `unique` | `unique` resolves a name outside the wiki when exactly one file matches; `none` keeps wikis hermetic. |
@@ -86,6 +88,97 @@ of bold text. It is dropped from the preview instead; set `mdExplorer.frontMatte
 | `mdExplorer.reclaimTextEditors` | `true` | Turn a Markdown file that landed in a plain text editor into a preview. Files opened with **Open in Editor** are left alone. |
 | `mdExplorer.maxHistoryLength` | `50` | Entries kept per tab. |
 | `mdExplorer.scrollOffset` | `8` | Breathing room above an element scrolled to the top. |
+
+## Generated wikis and OKF v0.2
+
+mdExplorer is tuned for reading Markdown that a model wrote and maintains — in
+particular wikis following the [Open Knowledge Format v0.2][okf], where every page carries
+YAML front matter with a `type`, a `description`, the `sources` it was derived from, who
+`generated` it and who has `verified` it.
+
+**The card.** Front matter is drawn as a card rather than hidden:
+
+- **Banners** for a `status: deprecated` page (the body is dimmed too: OKF keeps such
+  pages "for links and history"), a page past its `stale_after`, and a page whose
+  `sources[].last_modified` is newer than its own `generated.at`.
+- **A header line** of badges: `type`, `status` (only when it is not the default
+  `stable`), the **trust tier** OKF derives from `verified` — *unverified*,
+  *machine-checked*, or *human-reviewed* once a `human:` actor has signed — the generation
+  stamp (`🤖 claude-code/unknown · 2026-08-07`), and `tags`.
+- **The title** only when it says more than the page's first heading.
+- **The `description`** as a lead paragraph.
+- **The sources**, each with its id, a link (labelled with the linked page's own title),
+  and any keys a wiki adds such as `relation:`.
+- **Everything else** under a collapsible *Details*.
+
+**References in front matter become links.** Values such as `addresses: [problems/foo]`
+or `resource: ../sources/x.md` are links to the page they name, labelled with that page's
+title, and clicking one navigates in the tab like any other link. See [how a path is
+resolved](#how-a-path-in-front-matter-is-resolved).
+
+**Citations.** OKF attributes a claim with a footnote whose label is a source id,
+`…as reported[^lee2025].`, with no `[^lee2025]: …` definition in the body. Those become
+numbered citations that jump to the source on the card; a label that names no source is
+marked `[lee2025?]`. Footnotes defined in the body work as before.
+
+**Hover a link** to a Markdown page to see its `title` and `description` before following
+it.
+
+**Dates are shown as written.** `generated: { at: 2026-08-07T10:00:00+09:00 }` is the 7th
+where it was written; converting to UTC, as YAML's timestamp type does, would make it the
+6th. Front matter is read with the YAML 1.2 core schema, which leaves timestamps as text.
+
+[okf]: https://github.com/GoogleCloudPlatform/open-knowledge-format/blob/main/SPEC.md
+
+## The metadata card
+
+The card's layout comes from three layers, later ones winning:
+
+1. the built-in defaults, which know the OKF core keys;
+2. the `mdExplorer.frontMatterDisplay` setting;
+3. the `frontMatter:` section of **`.mdexplorer.yaml` at the wiki root**, which is where a
+   wiki describes its own extension keys, versioned alongside its pages.
+
+Mappings merge key by key and lists replace. Then `byType[<type>]` is layered on top for
+the page's `type`, by the same rule.
+
+```yaml
+# <wiki root>/.mdexplorer.yaml
+frontMatter:
+  header: [type, status, trust, generated, tags]   # the first line; `trust` is the tier
+  lead: description                                 # the lead paragraph
+  hidden: [okf_version, root]                       # never shown
+  hideTitleWhenSameAsH1: true
+  details: collapsed                                # collapsed | expanded | hidden
+  fields:
+    stage:    { as: badge }
+    severity: { as: badge, colors: { high: red, medium: orange, low: gray } }
+    status:   { as: badge, colors: { draft: yellow }, hideValues: [stable] }
+    generated: { as: template, template: "🤖 {by} · {at|date}" }
+    addresses: { as: links, label: title }
+  byType:
+    source:  { header: [type, status, trust, citekey, venue, year] }
+    problem: { header: [type, status, severity, stage] }
+```
+
+| `as` | Draws the value as |
+| --- | --- |
+| `auto` | The default for any key not configured: a URL or a resolvable path is a link, a list is chips (or a table if it holds mappings), a mapping is a nested list, anything else text. |
+| `text` | Plain text. |
+| `badge` | A badge per value, coloured by `colors` (`red` `orange` `yellow` `green` `blue` `purple` `gray` `none`); values in `hideValues` are skipped. |
+| `chips` | A chip per list item. |
+| `date` | The `YYYY-MM-DD` part, as written. |
+| `link` / `links` | A link per path; `label: path` shows the path instead of the target's title. |
+| `table` | A table, one row per mapping in the list. |
+| `template` | `{key}`, `{key.sub}` and `{key\|date}` filled from the value. The result is text: markup in a template or a value is escaped, never interpreted. |
+| `sources` | The source list (the default for `sources`). |
+| `hidden` | Not shown. |
+
+An invalid entry is reported once in the log (*mdExplorer: Show Log*) and that key falls
+back to `auto`. Changes to `.mdexplorer.yaml` re-render open previews. The file is read in
+untrusted workspaces too: it only changes layout, and nothing in it can produce markup.
+
+`docs/research-wiki.mdexplorer.yaml` is a fuller example for a research wiki.
 
 ## How it is put together
 
@@ -123,8 +216,15 @@ src/
   reclaim.ts                turns stray Markdown text editors into previews
   documentText.ts           reads a document without building a text model
   renderer/frontMatter.ts   YAML front matter: hidden, carded, or raw
+  renderer/card.ts          the metadata card
+  renderer/okfCite.ts       [^id] citations of front matter sources
   renderer/wikiLink.ts      [[wiki link]] inline rule
   wikiIndex.ts              workspace file index and wiki root detection
+  okf/service.ts            per-document preparation: roots, existence, display config
+  okf/pathResolver.ts       front matter path values -> files (no vscode dependency)
+  okf/model.ts              OKF v0.2 keys, trust tiers, dates (no vscode dependency)
+  okf/displayConfig.ts      card layout defaults and layering (no vscode dependency)
+  okf/metaCache.ts          title/description of linked pages, for labels and hovers
   editModeTracker.ts        which files the reader asked to edit (persisted)
   api.ts                    the API returned from activate()
   renderer/                 markdown-it pipeline, link classification, highlighting
@@ -170,6 +270,39 @@ which subtree that is. In order of precedence:
 Only files inside the open workspace are indexed, so a root pointing outside it will not
 find anything. Where two files share a name, the one nearest the document wins: same
 folder first, then the longest shared path, then the shallowest.
+
+### The OKF bundle root
+
+An OKF bundle is the directory holding an `index.md` whose front matter declares
+`okf_version`. It is the base of OKF *Concept IDs* — `problems/foo` means
+`<bundle>/problems/foo.md` — and of links starting with `/`. It need not be the wiki root:
+a research wiki may keep raw material beside the bundle, with `root: research` pointing at
+`research/` and the bundle at `research/wiki/`.
+
+So mdExplorer keeps both. The **wiki root** is found as above, with `root:` first; the
+**bundle root** is the nearest directory between the document and the wiki root (both
+included) holding such an `index.md`, and is the wiki root itself when there is none. The
+wiki root caps the search: `root:` is the author saying where the wiki ends.
+
+A body link starting with `/` is read from the bundle root first, then the workspace
+folder, then the filesystem root, and goes to the first that exists. Outside a bundle that
+is the workspace folder, as before.
+
+### How a path in front matter is resolved
+
+Front matter written by models mixes several kinds of path, often within one page:
+
+| Written as | Example | Resolved against |
+| --- | --- | --- |
+| `./` or `../` | `../sources/x.md` | the document's folder |
+| `/…` | `/problems/foo.md` | the bundle root; failing that, the filesystem (shown with ⚠, since it breaks when the wiki moves) |
+| anything else with a `/` or an extension | `problems/foo`, `x.md`, `raw/papers/a.pdf` | the document's folder, the bundle root and the wiki root, in that order |
+
+A value without an extension is also tried with `.md`. For the last row, the value becomes
+a link **only when exactly one candidate exists**. If it names a file under two bases —
+`notes/dup.md` both in the bundle and beside it — it is shown with a `?` and the
+candidates on hover, rather than guessed at. A value with an extension that resolves
+nowhere is marked as missing; one without (`claude-code/unknown`) is just text.
 
 ### Which form should `root:` take?
 

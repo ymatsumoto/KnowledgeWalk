@@ -1,0 +1,66 @@
+# Example .mdexplorer.yaml for an OKF v0.2 research wiki (the schema in research/CLAUDE.md).
+#
+# Place it at the wiki root — the directory `root:` names, e.g. research/.mdexplorer.yaml —
+# and open previews re-render when it changes. Only the wiki's own extension keys need
+# describing here: the OKF core keys (type, status, generated, verified, sources, ...)
+# already have defaults.
+
+frontMatter:
+  # The first line of every card. `trust` is the tier derived from `verified`.
+  header: [type, status, trust, generated, stage, tags]
+  hidden: [okf_version, root]
+
+  fields:
+    # Reading / solving / maturity stage. Values differ by page type, so one map covers
+    # them all.
+    stage:
+      as: badge
+      colors:
+        # source pages
+        to-read: gray
+        skimmed: yellow
+        read: blue
+        deep-read: green
+        # problem pages
+        open: red
+        partially-addressed: orange
+        solved: green
+        # topic pages
+        active: green
+        mature: blue
+        dormant: gray
+        # idea pages
+        seed: gray
+        developing: yellow
+        promising: blue
+        validated: green
+        parked: gray
+        discarded: gray
+    severity:   { as: badge, colors: { high: red, medium: orange, low: gray } }
+    maturity:   { as: badge, colors: { vague: gray, well-defined: blue, formalized: green } }
+    provenance: { as: badge, colors: { literature: blue, own-work: purple, mixed: gray } }
+    kind:       { as: badge }
+    rating:     { as: template, template: "★ {value}/5" }
+    citekey:    { as: text }
+    authors:    { as: chips }
+    aliases:    { as: chips }
+    ingested:   { as: date }
+    created:    { as: date }
+    # Concept IDs of related pages, shown by the linked page's title.
+    concepts:         { as: links }
+    methods:          { as: links }
+    problems:         { as: links }
+    entities:         { as: links }
+    addresses:        { as: links }
+    addressed_by:     { as: links }
+    ideas:            { as: links }
+    related_problems: { as: links }
+    related_ideas:    { as: links }
+
+  byType:
+    source:
+      header: [type, kind, status, trust, generated, stage, rating, citekey, venue, year]
+    problem:
+      header: [type, status, trust, generated, severity, maturity, stage]
+    idea:
+      header: [type, status, trust, generated, stage, provenance]

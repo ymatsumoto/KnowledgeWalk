@@ -45,8 +45,8 @@ interface RenderEnv extends RenderContext {
   linkCount: number;
   /** Base for `/`-prefixed links, derived from `prepared`. */
   rootLinks?: RootLinkContext;
-  /** Problems already logged during this render, so each is reported once. */
-  warned: Set<string>;
+  /** Log a problem with the document, once per render. */
+  okfWarn(message: string): void;
   /** `sources[].id` -> entry, for `[^id]` citations; see okfCite. */
   okfSources?: Map<string, SourceEntry>;
 }
@@ -125,12 +125,7 @@ function createMarkdownIt(cfg: MdxConfig): MarkdownIt {
       prepared: renderEnv.prepared,
       firstH1: heading >= 0 ? tokens[heading + 1]?.content : undefined,
       nextLinkId: () => renderEnv.linkCount++,
-      warn: (message) => {
-        if (!renderEnv.warned.has(message)) {
-          renderEnv.warned.add(message);
-          log.warn(`${renderEnv.docUri.path}: ${message}`);
-        }
-      },
+      warn: renderEnv.okfWarn,
       now: Date.now(),
     });
   };
@@ -211,10 +206,16 @@ function getMarkdownIt(cfg: MdxConfig): MarkdownIt {
 
 export function renderMarkdown(text: string, cfg: MdxConfig, context: RenderContext): string {
   const { prepared } = context;
+  const warned = new Set<string>();
   const env: RenderEnv = {
     ...context,
     linkCount: 0,
-    warned: new Set(),
+    okfWarn: (message: string) => {
+      if (!warned.has(message)) {
+        warned.add(message);
+        log.warn(`${context.docUri.path}: ${message}`);
+      }
+    },
     okfSources: sourcesById(prepared?.frontMatter),
     rootLinks: prepared
       ? { bundleRoot: prepared.roots.bundleRoot, exists: prepared.exists }
