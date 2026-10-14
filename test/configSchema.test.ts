@@ -7,9 +7,9 @@ import { COLORS, FIELD_KINDS, TOP_LEVEL, mergeDisplay } from '../src/okf/display
 
 const ROOT = path.resolve(__dirname, '..', '..');
 /** The sample wiki's own configuration. */
-const SAMPLE_CONFIG = 'samples/okf/handbook/.mdexplorer.yaml';
+const SAMPLE_CONFIG = 'samples/okf/handbook/.knowledgewalk.yaml';
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-const schema = manifest.contributes.configuration.properties['mdExplorer.frontMatterDisplay'];
+const schema = manifest.contributes.configuration.properties['knowledgeWalk.frontMatterDisplay'];
 
 type Schema = Record<string, any>;
 
@@ -79,7 +79,7 @@ test('the schema offers exactly the display kinds and colours the code accepts',
 test('the example configurations are valid, both to the schema and to the code', () => {
   const examples = fs
     .readdirSync(path.join(ROOT, 'docs', 'examples'))
-    .filter((name) => name.endsWith('.mdexplorer.yaml'))
+    .filter((name) => name.endsWith('.knowledgewalk.yaml'))
     .map((name) => `docs/examples/${name}`);
   assert.ok(examples.length >= 3, examples.join(', '));
   for (const file of [...examples, SAMPLE_CONFIG]) {

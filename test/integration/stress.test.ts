@@ -93,5 +93,5 @@ test('nothing failed to render during the whole run', async () => {
   // A document that fails to render still produces a tab with the right title and a
   // working history, so every other assertion here can pass while the page shows an
   // error. This is the check that catches that.
-  assert.equal(getApi().renderErrors, 0, 'see the mdExplorer output channel for details');
+  assert.equal(getApi().renderErrors, 0, 'see the KnowledgeWalk output channel for details');
 });

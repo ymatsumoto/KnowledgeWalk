@@ -1,7 +1,7 @@
 ---
 title: Guide
 tags:
-  - mdExplorer
+  - KnowledgeWalk
   - preview
 created: 2026-09-02
 source: https://code.visualstudio.com/api
@@ -22,9 +22,9 @@ If the tab is now labelled `guide.md`, the tab title followed the link.
 
 Arriving through a `guide.md#settings` link, this heading should be at the top of the view.
 
-- `mdExplorer.doubleClickToEdit`
-- `mdExplorer.mermaid.enabled`
-- `mdExplorer.math.enabled`
+- `knowledgeWalk.doubleClickToEdit`
+- `knowledgeWalk.mermaid.enabled`
+- `knowledgeWalk.math.enabled`
 
 ## Footnotes
 

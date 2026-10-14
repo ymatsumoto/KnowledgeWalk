@@ -60,7 +60,7 @@ export interface PreviewHost {
  * browser has already laid out — stays alive.
  */
 export class PreviewPanel {
-  static readonly viewType = 'mdExplorer.preview';
+  static readonly viewType = 'knowledgeWalk.preview';
 
   private history: NavigationHistory;
   private ready = false;

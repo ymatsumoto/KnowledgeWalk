@@ -65,7 +65,7 @@ test('indexed files exist without a stat; others are checked on disk once', asyn
   }
 });
 
-test('the wiki root .mdexplorer.yaml is layered over the settings, then byType', async () => {
+test('the wiki root .knowledgewalk.yaml is layered over the settings, then byType', async () => {
   const incident = await prepare('incidents/db-outage.md');
   assert.equal(incident.display.fields.priority?.as, 'badge');
   assert.equal(incident.display.fields.priority?.colors?.high, 'red');

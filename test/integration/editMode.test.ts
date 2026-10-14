@@ -9,7 +9,7 @@ test('Open in Editor replaces the preview with a plain text editor', async () =>
   await openThroughResolver(sample('guide.md'));
   await waitFor('the preview to become active', () => getApi().activePreview);
 
-  await vscode.commands.executeCommand('mdExplorer.switchToEditor');
+  await vscode.commands.executeCommand('knowledgeWalk.switchToEditor');
 
   const tab = await waitFor('a text editor for guide.md', () => {
     const candidate = activeTab();
@@ -33,7 +33,7 @@ test('an editor opened deliberately is not pulled back into a preview', async ()
 });
 
 test('Open Preview turns the text editor back into a preview', async () => {
-  await vscode.commands.executeCommand('mdExplorer.showPreview');
+  await vscode.commands.executeCommand('knowledgeWalk.showPreview');
 
   const tab = await waitFor('the preview to come back', () => {
     const candidate = activeTab();
@@ -48,7 +48,7 @@ test('Open Preview turns the text editor back into a preview', async () => {
 test('Open Preview to the Side leaves the editor open and adds a preview', async () => {
   await closeEverything();
   const uri = sample('guide.md');
-  await vscode.commands.executeCommand('mdExplorer.showPreviewToSide', uri);
+  await vscode.commands.executeCommand('knowledgeWalk.showPreviewToSide', uri);
   await waitFor('the side preview', () => getApi().previews.length === 1);
 
   await vscode.commands.executeCommand('vscode.openWith', uri, 'default');
@@ -78,7 +78,7 @@ test('a Markdown file that slips into a plain text editor is turned into a previ
 });
 
 test('the reclaim safety net can be switched off', async () => {
-  const config = vscode.workspace.getConfiguration('mdExplorer');
+  const config = vscode.workspace.getConfiguration('knowledgeWalk');
   await config.update('reclaimTextEditors', false, vscode.ConfigurationTarget.Global);
   try {
     await closeEverything();
@@ -104,7 +104,7 @@ test('Open in Editor works when focus has moved out of the editor area', async (
   await vscode.commands.executeCommand('workbench.view.explorer');
   await new Promise((resolve) => setTimeout(resolve, 300));
 
-  await vscode.commands.executeCommand('mdExplorer.switchToEditor');
+  await vscode.commands.executeCommand('knowledgeWalk.switchToEditor');
 
   const tab = await waitFor('a text editor for guide.md', () => {
     const candidate = vscode.window.tabGroups.all
@@ -122,7 +122,7 @@ test('PERF: switching to the editor is not slow', async () => {
   await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
 
   const started = Date.now();
-  await vscode.commands.executeCommand('mdExplorer.switchToEditor');
+  await vscode.commands.executeCommand('knowledgeWalk.switchToEditor');
   await waitFor(
     'the text editor',
     () => vscode.window.activeTextEditor?.document.uri.path.endsWith('index.md'),

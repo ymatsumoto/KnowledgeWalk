@@ -14,7 +14,7 @@ import type { PreviewManager } from './previewManager';
  * title, so navigation can rename the tab as the reader moves.
  */
 export class RedirectEditorProvider implements vscode.CustomReadonlyEditorProvider {
-  static readonly viewType = 'mdExplorer.redirect';
+  static readonly viewType = 'knowledgeWalk.redirect';
 
   constructor(private readonly manager: PreviewManager) {}
 

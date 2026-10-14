@@ -71,7 +71,7 @@ test('the header line carries type, trust, generation and the wiki\'s own badges
   assert.match(header, /mdx-c-default" title="type">incident</);
   assert.match(header, />unverified</);
   assert.match(header, /🤖 my-agent\/1\.4 · 2026-08-07/);
-  // From the sample wiki's .mdexplorer.yaml.
+  // From the sample wiki's .knowledgewalk.yaml.
   assert.match(header, /mdx-c-red" title="priority"><span class="mdx-badge-key">priority<\/span>high</);
   assert.match(header, /title="phase"><span class="mdx-badge-key">phase<\/span>open</);
   // stable is the default status and not worth a badge.

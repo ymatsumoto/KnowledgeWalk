@@ -59,7 +59,7 @@ const EXTENSION = /\.[a-z0-9]*[a-z][a-z0-9]*$/i;
 /**
  * Extensions that say "this is a file" with confidence. A bare value carrying anything
  * else — `db.prod`, `v2.final` — may be a file or may be a name, so failing to find it is
- * not reported. `mdExplorer.knownFileExtensions` adds to this list (see RefContext).
+ * not reported. `knowledgeWalk.knownFileExtensions` adds to this list (see RefContext).
  */
 export const FILE_EXTENSIONS: ReadonlySet<string> = new Set([
   ...MARKDOWN_EXTENSIONS,

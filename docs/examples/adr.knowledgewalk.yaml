@@ -1,4 +1,4 @@
-# .mdexplorer.yaml for architecture decision records kept as an OKF wiki.
+# .knowledgewalk.yaml for architecture decision records kept as an OKF wiki.
 #
 # Decisions use `type: decision` with a `phase` of proposed | accepted | superseded |
 # rejected (OKF reserves `status` for its own draft | stable | deprecated), plus

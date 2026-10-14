@@ -1,16 +1,16 @@
 import { strict as assert } from 'node:assert';
-import type { MdExplorerApi } from '../../src/api';
+import type { KnowledgeWalkApi } from '../../src/api';
 
-let api: MdExplorerApi | undefined;
+let api: KnowledgeWalkApi | undefined;
 
-export function setApi(value: MdExplorerApi): void {
+export function setApi(value: KnowledgeWalkApi): void {
   api = value;
 }
 
 /** The extension's exported API, available once `run()` has activated it. */
-export function getApi(): MdExplorerApi {
+export function getApi(): KnowledgeWalkApi {
   if (!api) {
-    throw new Error('The mdExplorer API was not captured; did activate() return it?');
+    throw new Error('The KnowledgeWalk API was not captured; did activate() return it?');
   }
   return api;
 }
@@ -53,8 +53,8 @@ export async function waitFor<T>(
 
 export async function runCases(): Promise<void> {
   const failures: string[] = [];
-  // MDX_ONLY=<text> runs just the cases whose name contains it.
-  const only = process.env.MDX_ONLY;
+  // KW_ONLY=<text> runs just the cases whose name contains it.
+  const only = process.env.KW_ONLY;
   for (const { name, fn } of cases.filter((c) => !only || c.name.includes(only))) {
     try {
       await fn();

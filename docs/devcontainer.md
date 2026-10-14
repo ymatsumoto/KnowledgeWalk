@@ -62,9 +62,9 @@ printf '%s' "$current" > "$stamp"
 ## Shipping a new build
 
 ```bash
-MDX_DEPLOY_DIR=/path/to/.devcontainer/extensions npm run deploy:devcontainer
+KW_DEPLOY_DIR=/path/to/.devcontainer/extensions npm run deploy:devcontainer
 ```
 
 packages the extension and copies the `.vsix` into that folder, replacing older builds of
-mdExplorer. Without `MDX_DEPLOY_DIR` it uses `../.devcontainer/extensions` next to this
+KnowledgeWalk. Without `KW_DEPLOY_DIR` it uses `../.devcontainer/extensions` next to this
 repository, if that folder exists. Re-attach (or run the script) and reload the window.

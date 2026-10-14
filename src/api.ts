@@ -31,7 +31,7 @@ export interface PreviewSnapshot {
  * Returned from `activate`, so other extensions — and the integration tests — can drive
  * a preview through exactly the code paths a reader's clicks go through.
  */
-export interface MdExplorerApi {
+export interface KnowledgeWalkApi {
   readonly previews: PreviewSnapshot[];
   /**
    * How many documents have failed to render since activation. A preview that fails

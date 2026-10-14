@@ -10,7 +10,7 @@ export interface MdxConfig {
   math: boolean;
   allowRawHtml: boolean;
   frontMatter: FrontMatterMode;
-  /** `mdExplorer.frontMatterDisplay`: the user layer of the card layout. */
+  /** `knowledgeWalk.frontMatterDisplay`: the user layer of the card layout. */
   frontMatterDisplay: unknown;
   /** Front matter key that names a document's wiki root. */
   wikiRootKey: string;
@@ -27,7 +27,7 @@ export interface MdxConfig {
 }
 
 export function readConfig(scope?: vscode.Uri): MdxConfig {
-  const c = vscode.workspace.getConfiguration('mdExplorer', scope ?? null);
+  const c = vscode.workspace.getConfiguration('knowledgeWalk', scope ?? null);
   return {
     doubleClickToEdit: c.get<boolean>('doubleClickToEdit', true),
     mermaid: c.get<boolean>('mermaid.enabled', true),

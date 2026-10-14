@@ -5,7 +5,7 @@ import { assert, test, waitFor } from './harness';
 import { closeEverything, SAMPLES } from './shared';
 
 /**
- * The JSON schema contributed for mdExplorer.frontMatterDisplay should drive VS Code's
+ * The JSON schema contributed for knowledgeWalk.frontMatterDisplay should drive VS Code's
  * own completion and validation in settings.json. Uses a throwaway folder settings
  * file, removed afterwards so it cannot leak into other cases.
  */
@@ -13,7 +13,7 @@ const dir = path.join(SAMPLES, '.vscode');
 const file = path.join(dir, 'settings.json');
 
 const SETTINGS = `{
-  "mdExplorer.frontMatterDisplay": {
+  "knowledgeWalk.frontMatterDisplay": {
     "fields": {
       "stage": { "as": "" },
       "severity": { "as": "badge", "colors": { "high": "magenta" } }

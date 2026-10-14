@@ -1,5 +1,7 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
-import type { MdExplorerApi } from '../../src/api';
+import type { KnowledgeWalkApi } from '../../src/api';
 import { runCases, setApi } from './harness';
 import './perf.test';
 import './editorAssociation.test';
@@ -13,9 +15,15 @@ import './schema.test';
 
 /** Entry point VS Code calls inside the extension host. */
 export async function run(): Promise<void> {
-  const extension = vscode.extensions.getExtension<MdExplorerApi>('local.mdexplorer');
+  // The id comes from package.json, so a change of publisher or name cannot leave the
+  // suite looking for an extension that no longer exists.
+  const manifest = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '..', '..', 'package.json'), 'utf8')
+  ) as { publisher: string; name: string };
+  const id = `${manifest.publisher}.${manifest.name}`;
+  const extension = vscode.extensions.getExtension<KnowledgeWalkApi>(id);
   if (!extension) {
-    throw new Error('local.mdexplorer is not installed in the test instance');
+    throw new Error(`${id} is not installed in the test instance`);
   }
   setApi(await extension.activate());
   await runCases();

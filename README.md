@@ -1,4 +1,4 @@
-# mdExplorer
+# KnowledgeWalk
 
 Read Markdown in VS Code the way you read a website: `.md` files open as a rendered
 page, links to other `.md` files load **in the same tab**, and Back/Forward take you
@@ -10,7 +10,7 @@ through where you have been.
 another file, anywhere — gives you the rendered page, not the source. Double-click the
 body (or use the right-click menu) to switch to the text editor; the preview closes and
 the editor takes its place, with the cursor on the line you double-clicked.
-`mdExplorer: Open Preview` in the editor's title bar brings you back.
+`KnowledgeWalk: Open Preview` in the editor's title bar brings you back.
 
 **One tab per document, links stay in the tab.** Each file you open gets its own tab.
 Clicking a link to another `.md` file loads it in the tab you are already in, and the
@@ -28,7 +28,7 @@ supported; those fall back to a link.
 **Filenames are not links.** markdown-it's autolinker treats anything shaped like a
 hostname as a URL, which turns `build.py` or `setup.cfg` mentioned in prose into a
 dead link. Only text that carries a scheme — `https://…` — is linked; set
-`mdExplorer.linkify` to `all` for the looser behaviour, or `off` for none.
+`knowledgeWalk.linkify` to `all` for the looser behaviour, or `off` for none.
 
 **History that remembers where you were.** The ← and → buttons in the preview tab's
 title bar walk the tab's history, as do <kbd>Alt</kbd>+<kbd>←</kbd> /
@@ -67,12 +67,12 @@ has to ask for the webview find widget explicitly — it is off by default.
 parses as a setext heading in plain Markdown, which is why it usually shows up as a wall
 of bold text. When the front matter has a `type` — every [OKF](#generated-wikis-and-okf-v02)
 page does, and most generated wikis follow suit — it is drawn as a metadata card above the
-document; otherwise it is dropped. `mdExplorer.frontMatter` switches this: `table` for a
+document; otherwise it is dropped. `knowledgeWalk.frontMatter` switches this: `table` for a
 card on every document, `hide` for none, `source` for the raw YAML.
 
 ## Installing
 
-Install **mdExplorer** from the Visual Studio Marketplace or Open VSX, or build a `.vsix`
+Install **KnowledgeWalk** from the Visual Studio Marketplace or Open VSX, or build a `.vsix`
 yourself (see [Developing](#developing)) and run *Extensions: Install from VSIX…*. Then
 reload the window: tabs that were already open come back as text editors until they are
 reopened (see [If a .md file still opens as text](#if-a-md-file-still-opens-as-text)).
@@ -81,26 +81,26 @@ reopened (see [If a .md file still opens as text](#if-a-md-file-still-opens-as-t
 
 | Setting | Default | |
 | --- | --- | --- |
-| `mdExplorer.doubleClickToEdit` | `true` | Double-click the body to switch to the editor. Turn this off if it fights with selecting text. |
-| `mdExplorer.mermaid.enabled` | `true` | Render ` ```mermaid ` blocks as diagrams. |
-| `mdExplorer.math.enabled` | `true` | Render `$…$` and `$$…$$` with KaTeX. |
-| `mdExplorer.allowRawHtml` | `true` | Allow raw HTML in Markdown. Output is sanitized either way. |
-| `mdExplorer.frontMatter` | `auto` | `auto` (a card when the front matter has a `type`), `table` (always a card), `hide` or `source` (raw YAML). |
-| `mdExplorer.knownFileExtensions` | `[]` | Extra extensions (`.fasta`, `.drawio`, …) that mark a front matter value as a file, so a broken one is flagged. |
-| `mdExplorer.frontMatterDisplay` | `{}` | Layout of the card; see [The metadata card](#the-metadata-card). A wiki's own `.mdexplorer.yaml` is layered over it. |
-| `mdExplorer.wikiLinks` | `true` | Resolve `[[wiki links]]`. |
-| `mdExplorer.wikiRootMarkers` | `[".obsidian"]` | Files or directories that mark a wiki root. |
-| `mdExplorer.wikiRootKey` | `root` | The front matter key that names a document's wiki root. Change it if `root` already means something else in your documents. |
-| `mdExplorer.wikiLinkFallback` | `unique` | `unique` resolves a name outside the wiki when exactly one file matches; `none` keeps wikis hermetic. |
-| `mdExplorer.linkify` | `urls` | `urls` (text with a scheme), `all` (also bare hostnames) or `off`. |
-| `mdExplorer.retainHiddenPreviews` | `true` | Keep hidden previews loaded so returning to a tab is instant. Off trades memory for a re-render. |
-| `mdExplorer.reclaimTextEditors` | `true` | Turn a Markdown file that landed in a plain text editor into a preview. Files opened with **Open in Editor** are left alone. |
-| `mdExplorer.maxHistoryLength` | `50` | Entries kept per tab. |
-| `mdExplorer.scrollOffset` | `8` | Breathing room above an element scrolled to the top. |
+| `knowledgeWalk.doubleClickToEdit` | `true` | Double-click the body to switch to the editor. Turn this off if it fights with selecting text. |
+| `knowledgeWalk.mermaid.enabled` | `true` | Render ` ```mermaid ` blocks as diagrams. |
+| `knowledgeWalk.math.enabled` | `true` | Render `$…$` and `$$…$$` with KaTeX. |
+| `knowledgeWalk.allowRawHtml` | `true` | Allow raw HTML in Markdown. Output is sanitized either way. |
+| `knowledgeWalk.frontMatter` | `auto` | `auto` (a card when the front matter has a `type`), `table` (always a card), `hide` or `source` (raw YAML). |
+| `knowledgeWalk.knownFileExtensions` | `[]` | Extra extensions (`.fasta`, `.drawio`, …) that mark a front matter value as a file, so a broken one is flagged. |
+| `knowledgeWalk.frontMatterDisplay` | `{}` | Layout of the card; see [The metadata card](#the-metadata-card). A wiki's own `.knowledgewalk.yaml` is layered over it. |
+| `knowledgeWalk.wikiLinks` | `true` | Resolve `[[wiki links]]`. |
+| `knowledgeWalk.wikiRootMarkers` | `[".obsidian"]` | Files or directories that mark a wiki root. |
+| `knowledgeWalk.wikiRootKey` | `root` | The front matter key that names a document's wiki root. Change it if `root` already means something else in your documents. |
+| `knowledgeWalk.wikiLinkFallback` | `unique` | `unique` resolves a name outside the wiki when exactly one file matches; `none` keeps wikis hermetic. |
+| `knowledgeWalk.linkify` | `urls` | `urls` (text with a scheme), `all` (also bare hostnames) or `off`. |
+| `knowledgeWalk.retainHiddenPreviews` | `true` | Keep hidden previews loaded so returning to a tab is instant. Off trades memory for a re-render. |
+| `knowledgeWalk.reclaimTextEditors` | `true` | Turn a Markdown file that landed in a plain text editor into a preview. Files opened with **Open in Editor** are left alone. |
+| `knowledgeWalk.maxHistoryLength` | `50` | Entries kept per tab. |
+| `knowledgeWalk.scrollOffset` | `8` | Breathing room above an element scrolled to the top. |
 
 ## Generated wikis and OKF v0.2
 
-mdExplorer is tuned for reading Markdown that a model wrote and maintains — in
+KnowledgeWalk is tuned for reading Markdown that a model wrote and maintains — in
 particular wikis following the [Open Knowledge Format v0.2][okf], where every page carries
 YAML front matter with a `type`, a `description`, the `sources` it was derived from, who
 `generated` it and who has `verified` it.
@@ -144,15 +144,15 @@ where it was written; converting to UTC, as YAML's timestamp type does, would ma
 The card's layout comes from three layers, later ones winning:
 
 1. the built-in defaults, which know the OKF core keys;
-2. the `mdExplorer.frontMatterDisplay` setting;
-3. the `frontMatter:` section of **`.mdexplorer.yaml` at the wiki root**, which is where a
+2. the `knowledgeWalk.frontMatterDisplay` setting;
+3. the `frontMatter:` section of **`.knowledgewalk.yaml` at the wiki root**, which is where a
    wiki describes its own extension keys, versioned alongside its pages.
 
 Mappings merge key by key and lists replace. Then `byType[<type>]` is layered on top for
 the page's `type`, by the same rule.
 
 ```yaml
-# <wiki root>/.mdexplorer.yaml
+# <wiki root>/.knowledgewalk.yaml
 frontMatter:
   header: [type, status, trust, generated, tags]   # the first line; `trust` is the tier
   lead: description                                 # the lead paragraph
@@ -186,11 +186,11 @@ frontMatter:
 Both places are checked as you type. The setting carries a JSON schema, so in
 `settings.json` VS Code completes the setting names, every `as` kind and colour, and
 underlines anything it would not accept. The same schema is offered for
-`.mdexplorer.yaml` through the [YAML extension][yaml-ext] (`redhat.vscode-yaml`), when it
+`.knowledgewalk.yaml` through the [YAML extension][yaml-ext] (`redhat.vscode-yaml`), when it
 is installed.
 
-An invalid entry is reported once in the log (*mdExplorer: Show Log*) and that key falls
-back to `auto`. Changes to `.mdexplorer.yaml` re-render open previews. The file is read in
+An invalid entry is reported once in the log (*KnowledgeWalk: Show Log*) and that key falls
+back to `auto`. Changes to `.knowledgewalk.yaml` re-render open previews. The file is read in
 untrusted workspaces too: it only changes layout, and nothing in it can produce markup.
 
 Fuller examples are in [`docs/examples/`](docs/examples): a minimal OKF wiki, an
@@ -204,7 +204,7 @@ VS Code pins a custom editor's tab title to the file it was opened with, and off
 way to change it ([microsoft/vscode#160543][160543]). A preview built directly on a
 custom editor would therefore still say `a.md` after you followed a link to `b.md`.
 
-So `mdExplorer.redirect` is a custom editor registered as the *default* for `*.md`, and
+So `knowledgeWalk.redirect` is a custom editor registered as the *default* for `*.md`, and
 its only job is to hand the file over: it opens a plain `WebviewPanel` in the same slot
 and closes itself. A `WebviewPanel`'s title *is* writable, so from there the tab can
 follow you from file to file while the webview — and everything the browser has already
@@ -216,7 +216,7 @@ The custom editor is not the only way a Markdown text editor can appear, though:
 restored from a session that predates the extension come back as text editors, and a
 `workbench.editorAssociations` entry for `*.md` overrides a custom editor outright. So a
 second, narrower net catches strays — any plain text editor showing a `.md` file becomes
-a preview, unless you asked for that file in an editor (`mdExplorer.reclaimTextEditors`).
+a preview, unless you asked for that file in an editor (`knowledgeWalk.reclaimTextEditors`).
 
 Markdown is converted to HTML in the extension host, because rewriting relative image
 paths needs `Webview.asWebviewUri`, which only exists there. The webview receives HTML,
@@ -271,7 +271,7 @@ same measurements read 1289 ms and 1.3 s. Three things keep it there:
   rather than on a timer, so it stops working as soon as the layout stops moving.
 
 Previews stay loaded while their tab is hidden so switching back is instant. With many
-previews open that costs memory; `mdExplorer.retainHiddenPreviews: false` trades it for a
+previews open that costs memory; `knowledgeWalk.retainHiddenPreviews: false` trades it for a
 re-render on return, and scroll position is preserved either way.
 
 ## Where the wiki root comes from
@@ -280,9 +280,9 @@ A bare `[[Note]]` only means something relative to a wiki, so the extension has 
 which subtree that is. In order of precedence:
 
 1. **`root:` in the document's own YAML front matter** (the key name is
-   `mdExplorer.wikiRootKey`).
+   `knowledgeWalk.wikiRootKey`).
 2. **The nearest ancestor holding a root marker** — `.obsidian` by default, configurable
-   through `mdExplorer.wikiRootMarkers`.
+   through `knowledgeWalk.wikiRootMarkers`.
 3. **The workspace folder** holding the document.
 4. **The document's own directory.**
 
@@ -298,7 +298,7 @@ An OKF bundle is the directory holding an `index.md` whose front matter declares
 wiki root: a knowledge base may keep attachments or raw material beside the bundle, with
 `root: handbook` pointing at `handbook/` and the bundle at `handbook/wiki/`.
 
-So mdExplorer keeps both. The **wiki root** is found as above, with `root:` first; the
+So KnowledgeWalk keeps both. The **wiki root** is found as above, with `root:` first; the
 **bundle root** is the nearest directory between the document and the wiki root (both
 included) holding such an `index.md`, and is the wiki root itself when there is none. The
 wiki root caps the search: `root:` is the author saying where the wiki ends.
@@ -322,7 +322,7 @@ a link **only when exactly one candidate exists**. If it names a file under two 
 `notes/dup.md` both in the bundle and beside it — it is shown with a `?` and the
 candidates on hover, rather than guessed at. A value with an extension that resolves
 nowhere is marked as missing — if the extension is a common file type or listed in
-`mdExplorer.knownFileExtensions`. Anything else (`my-agent/1.4`, `db.prod`) may well be a
+`knowledgeWalk.knownFileExtensions`. Anything else (`my-agent/1.4`, `db.prod`) may well be a
 name rather than a file, and is just text.
 
 ### Which form should `root:` take?
@@ -380,7 +380,7 @@ exactly one file has that name**:
 
 The local wiki always wins, so this can never change the meaning of a link that already
 worked. And because an ambiguous name is refused rather than guessed at, a link never
-quietly points into an unrelated project. Set `mdExplorer.wikiLinkFallback` to `none` to
+quietly points into an unrelated project. Set `knowledgeWalk.wikiLinkFallback` to `none` to
 keep every wiki hermetic.
 
 When an ambiguous name does need to resolve, spell out the path — `[[../handbook/Home]]`
@@ -394,7 +394,7 @@ theirs:
 
 ```jsonc
 // .vscode/settings.json
-"mdExplorer.wikiRootMarkers": [".obsidian", ".mdwiki"]
+"knowledgeWalk.wikiRootMarkers": [".obsidian", ".mdwiki"]
 ```
 
 ```
@@ -419,7 +419,7 @@ they cannot be triggered by accident.
 
 ## Diagnostics
 
-`mdExplorer: Show Log` opens an output channel carrying activation, every navigation,
+`KnowledgeWalk: Show Log` opens an output channel carrying activation, every navigation,
 render failures, and any error raised inside the preview page (which would otherwise
 only reach a webview devtools console nobody has open).
 
@@ -451,7 +451,7 @@ to the preview that had focus last, for as long as it is still on screen.
    running window is not picked up by tabs that are already open.
 2. **Close the old tabs and open the file again.** VS Code restores each tab as whatever
    editor it was last time, so tabs from before the install come back as text editors.
-   With `mdExplorer.reclaimTextEditors` on they are converted automatically, but only
+   With `knowledgeWalk.reclaimTextEditors` on they are converted automatically, but only
    once the extension has been activated in that window.
 3. **Check `workbench.editorAssociations`** in your user settings. An entry such as
    `"*.md": "default"` overrides the preview. Remove it, or leave the reclaim setting on.
@@ -465,7 +465,7 @@ npm test                 # unit tests
 npm run test:integration # drives a real VS Code instance
 npm run test:all
 npm run typecheck
-npm run package          # -> mdexplorer-<version>.vsix, through vsce
+npm run package          # -> knowledgewalk-<version>.vsix, through vsce
 ```
 
 The integration suite launches VS Code, so on a headless machine run it under a virtual
@@ -473,7 +473,7 @@ display: `xvfb-run -a npm run test:integration`. It covers the parts unit tests 
 reach — that `.md` resolves to the preview at all, that a link keeps you in one tab and
 renames it, that Back and Forward walk the history, that switching to the editor and
 back replaces the tab rather than piling up new ones, and that the settings schema drives
-completion in `settings.json`. Set `MDX_ONLY=<text>` to run only the cases whose name
+completion in `settings.json`. Set `KW_ONLY=<text>` to run only the cases whose name
 contains it.
 
 `npm run package` packages with `@vscode/vsce`, which needs the `repository` field in
@@ -488,7 +488,7 @@ contains it.
 3. Visual Studio Marketplace: `npx vsce publish` (needs a publisher and a personal access
    token, `vsce login <publisher>`).
 4. Open VSX, for VSCodium, Gitpod and other editors that do not read the Marketplace:
-   `npx ovsx publish mdexplorer-<version>.vsix -p <token>`.
+   `npx ovsx publish knowledgewalk-<version>.vsix -p <token>`.
 
 Press <kbd>F5</kbd> to launch an Extension Development Host on `samples/`, or:
 
