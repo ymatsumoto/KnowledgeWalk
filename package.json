@@ -2,7 +2,7 @@
   "name": "mdexplorer",
   "displayName": "mdExplorer",
   "description": "Read Markdown in VS Code like a web browser: preview by default, in-tab link navigation, and back/forward history.",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "publisher": "local",
   "license": "MIT",
   "engines": {

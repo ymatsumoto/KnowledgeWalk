@@ -26,6 +26,11 @@ export interface PreviewState {
   index: number;
   /** Maintained by the webview, so a reloaded page returns to the same offset. */
   scrollTop?: number;
+  /**
+   * Maintained by the webview: per document URI, the indices of the `<details>` folds the
+   * reader left open, so the page looks the same when they come back to it.
+   */
+  folds?: Record<string, number[]>;
 }
 
 export interface WebviewConfig {
