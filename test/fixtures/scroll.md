@@ -1,189 +1,189 @@
-# スクロール規則の確認用
+# Scroll rules
 
-このファイルには**リンクが 1 つだけ**あり、長い本文の後ろに置いてあります。
-リンク ID は 0 に固定されるので、戻ったときの復帰位置を厳密に検証できます。
+This file has **exactly one link**, placed after a long body.
+Its link id is always 0, so the position Back returns to can be checked exactly.
 
-1. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+1. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-2. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+2. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-3. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+3. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-4. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+4. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-5. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+5. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-6. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+6. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-7. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+7. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-8. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+8. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-9. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+9. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-10. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+10. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-11. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+11. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-12. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+12. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-13. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+13. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-14. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+14. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-15. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+15. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-16. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+16. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-17. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+17. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-18. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+18. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-19. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+19. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-20. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+20. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-21. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+21. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-22. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+22. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-23. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+23. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-24. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+24. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-25. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+25. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-26. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+26. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-27. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+27. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-28. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+28. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-29. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+29. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-30. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+30. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-31. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+31. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-32. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+32. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-33. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+33. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-34. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+34. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-35. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+35. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-36. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+36. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-37. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+37. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-38. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+38. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-39. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+39. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-40. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+40. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-41. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+41. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-42. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+42. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-43. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+43. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-44. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+44. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-45. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+45. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-46. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+46. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-47. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+47. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-48. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+48. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-49. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+49. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-50. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+50. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-51. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+51. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-52. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+52. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-53. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+53. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-54. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+54. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-55. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+55. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-56. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+56. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-57. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+57. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-58. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+58. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-59. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+59. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-60. 埋め草の段落。ページを十分に長くして、リンクが最初の画面より下に来るようにしています。
+60. Filler paragraph. It makes the page long enough that the link sits below the first screen.
 
-## ここが唯一のリンク
+## The only link
 
-[リンク先へ](target.md)
+[To the target](target.md)
 
-1. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+1. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-2. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+2. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-3. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+3. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-4. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+4. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-5. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+5. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-6. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+6. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-7. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+7. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-8. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+8. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-9. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+9. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-10. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+10. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-11. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+11. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-12. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+12. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-13. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+13. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-14. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+14. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-15. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+15. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-16. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+16. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-17. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+17. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-18. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+18. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-19. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+19. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-20. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+20. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-21. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+21. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-22. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+22. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-23. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+23. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-24. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+24. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-25. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+25. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-26. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+26. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-27. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+27. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-28. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+28. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-29. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+29. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 
-30. リンクより後ろの埋め草。戻ったときにリンクを最上部へ持ち上げる余地を作ります。
+30. Filler after the link. It leaves room for Back to lift the link to the top of the view.
 

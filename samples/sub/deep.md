@@ -1,19 +1,19 @@
-# サブフォルダのページ
+# A page in a subfolder
 
-[目次へ（../index.md）](../index.md) ・ [ガイドの設定節へ](../guide.md#設定)
+[To the index (../index.md)](../index.md) · [To the guide's Settings section](../guide.md#settings)
 
-## 相対パスの確認
+## Relative paths
 
-このページと同じ階層にある画像です。相対パスが正しく解決されていれば表示されます。
+An image in the same folder as this page. It shows if relative paths resolve correctly.
 
-![同じ階層の画像](inline.png)
+![An image in the same folder](inline.png)
 
-親階層の画像も参照できます。
+An image in the parent folder can be referenced too.
 
-![親階層の画像](../assets/logo.png)
+![An image in the parent folder](../assets/logo.png)
 
-## ルート相対パス
+## Root-relative paths
 
-ワークスペースを `samples/` として開いている場合、次のリンクが `index.md` を指します。
+With `samples/` open as the workspace, this link points at `index.md`.
 
-[ルート相対リンク](/index.md)
+[A root-relative link](/index.md)

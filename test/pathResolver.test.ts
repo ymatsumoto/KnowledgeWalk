@@ -2,48 +2,48 @@ import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import { looksLikePath, resolveRef, type RefContext } from '../src/okf/pathResolver';
 
-// Mirrors samples/okf: wiki root `research/`, OKF bundle `research/wiki/`.
-const ROOT = '/ws/research';
+// Mirrors samples/okf: wiki root `handbook/`, OKF bundle `handbook/wiki/`.
+const ROOT = '/ws/handbook';
 const ctx: RefContext = {
-  docDir: `${ROOT}/wiki/ideas`,
+  docDir: `${ROOT}/wiki/decisions`,
   bundleRoot: `${ROOT}/wiki`,
   wikiRoot: ROOT,
 };
 
 const FILES = new Set([
-  `${ROOT}/wiki/ideas/i1.md`,
-  `${ROOT}/wiki/ideas/i1-progress.md`,
-  `${ROOT}/wiki/problems/p1.md`,
-  `${ROOT}/wiki/sources/s1.md`,
+  `${ROOT}/wiki/decisions/read-replicas.md`,
+  `${ROOT}/wiki/decisions/benchmark.md`,
+  `${ROOT}/wiki/incidents/db-outage.md`,
+  `${ROOT}/wiki/sources/report.md`,
   `${ROOT}/wiki/notes/dup.md`,
   `${ROOT}/notes/dup.md`,
-  `${ROOT}/raw/papers/paper.pdf`,
-  '/root/work/planC/REPORT.md',
+  `${ROOT}/attachments/diagram.pdf`,
+  '/srv/shared/report.md',
 ]);
 const exists = (p: string) => FILES.has(p);
 
-test('the five shapes found in real OKF wikis each resolve against their own base', () => {
-  assert.deepEqual(resolveRef('../sources/s1.md', ctx, exists), {
-    kind: 'file', path: `${ROOT}/wiki/sources/s1.md`, isMarkdown: true, fragment: undefined, via: 'doc',
+test('the five shapes found in generated OKF wikis each resolve against their own base', () => {
+  assert.deepEqual(resolveRef('../sources/report.md', ctx, exists), {
+    kind: 'file', path: `${ROOT}/wiki/sources/report.md`, isMarkdown: true, fragment: undefined, via: 'doc',
   });
-  assert.deepEqual(resolveRef('i1-progress.md', ctx, exists), {
-    kind: 'file', path: `${ROOT}/wiki/ideas/i1-progress.md`, isMarkdown: true, fragment: undefined, via: 'doc',
+  assert.deepEqual(resolveRef('benchmark.md', ctx, exists), {
+    kind: 'file', path: `${ROOT}/wiki/decisions/benchmark.md`, isMarkdown: true, fragment: undefined, via: 'doc',
   });
-  assert.deepEqual(resolveRef('problems/p1', ctx, exists), {
-    kind: 'file', path: `${ROOT}/wiki/problems/p1.md`, isMarkdown: true, fragment: undefined, via: 'bundle',
+  assert.deepEqual(resolveRef('incidents/db-outage', ctx, exists), {
+    kind: 'file', path: `${ROOT}/wiki/incidents/db-outage.md`, isMarkdown: true, fragment: undefined, via: 'bundle',
   });
-  assert.deepEqual(resolveRef('raw/papers/paper.pdf', ctx, exists), {
-    kind: 'file', path: `${ROOT}/raw/papers/paper.pdf`, isMarkdown: false, fragment: undefined, via: 'wiki',
+  assert.deepEqual(resolveRef('attachments/diagram.pdf', ctx, exists), {
+    kind: 'file', path: `${ROOT}/attachments/diagram.pdf`, isMarkdown: false, fragment: undefined, via: 'wiki',
   });
-  assert.deepEqual(resolveRef('/root/work/planC/REPORT.md', ctx, exists), {
-    kind: 'file', path: '/root/work/planC/REPORT.md', isMarkdown: true, fragment: undefined, via: 'fs', nonPortable: true,
+  assert.deepEqual(resolveRef('/srv/shared/report.md', ctx, exists), {
+    kind: 'file', path: '/srv/shared/report.md', isMarkdown: true, fragment: undefined, via: 'fs', nonPortable: true,
   });
 });
 
 test('a leading slash is read from the bundle root first', () => {
-  const result = resolveRef('/problems/p1.md', ctx, exists);
+  const result = resolveRef('/incidents/db-outage.md', ctx, exists);
   assert.equal(result.kind, 'file');
-  assert.equal(result.kind === 'file' && result.path, `${ROOT}/wiki/problems/p1.md`);
+  assert.equal(result.kind === 'file' && result.path, `${ROOT}/wiki/incidents/db-outage.md`);
   assert.equal(result.kind === 'file' && result.via, 'bundle');
   assert.equal(result.kind === 'file' && result.nonPortable, undefined);
 });
@@ -56,11 +56,11 @@ test('a name that exists under two bases is refused, not guessed', () => {
 });
 
 test('a missing file is reported, strongly only when it looks like a file', () => {
-  const withExt = resolveRef('problems/nope.md', ctx, exists);
+  const withExt = resolveRef('incidents/nope.md', ctx, exists);
   assert.equal(withExt.kind, 'missing');
   assert.equal(withExt.kind === 'missing' && withExt.strong, true);
 
-  const actor = resolveRef('claude-code/unknown', ctx, exists);
+  const actor = resolveRef('my-agent/1.4', ctx, exists);
   assert.equal(actor.kind, 'missing');
   assert.equal(actor.kind === 'missing' && actor.strong, false);
 
@@ -69,9 +69,9 @@ test('a missing file is reported, strongly only when it looks like a file', () =
 });
 
 test('a fragment is carried and does not disturb resolution', () => {
-  const result = resolveRef('problems/p1#課題の記述', ctx, exists);
-  assert.equal(result.kind === 'file' && result.fragment, '課題の記述');
-  assert.equal(result.kind === 'file' && result.path, `${ROOT}/wiki/problems/p1.md`);
+  const result = resolveRef('incidents/db-outage#Überblick', ctx, exists);
+  assert.equal(result.kind === 'file' && result.fragment, 'Überblick');
+  assert.equal(result.kind === 'file' && result.path, `${ROOT}/wiki/incidents/db-outage.md`);
 });
 
 test('URLs are external and prose is text', () => {
@@ -79,7 +79,7 @@ test('URLs are external and prose is text', () => {
     kind: 'external', href: 'https://doi.org/10.1/x',
   });
   assert.deepEqual(resolveRef('own-work', ctx, exists), { kind: 'text' });
-  assert.deepEqual(resolveRef('単一座位の天井', ctx, exists), { kind: 'text' });
+  assert.deepEqual(resolveRef('Primary database outage', ctx, exists), { kind: 'text' });
   assert.deepEqual(resolveRef('a title with/slash', ctx, exists), { kind: 'text' });
   assert.deepEqual(resolveRef('v0.2', ctx, exists), { kind: 'text' });
 });
@@ -105,10 +105,10 @@ test('when every base coincides a file is still found once', () => {
 });
 
 test('a bare name with an unfamiliar extension is not reported missing', () => {
-  const name = resolveRef('mlstdb.NTM', ctx, exists);
+  const name = resolveRef('db.prod', ctx, exists);
   assert.equal(name.kind === 'missing' && name.strong, false);
   const known = resolveRef('nope.pdf', ctx, exists);
   assert.equal(known.kind === 'missing' && known.strong, true);
-  const pathy = resolveRef('data/nope.NTM', ctx, exists);
+  const pathy = resolveRef('data/nope.prod', ctx, exists);
   assert.equal(pathy.kind === 'missing' && pathy.strong, true);
 });

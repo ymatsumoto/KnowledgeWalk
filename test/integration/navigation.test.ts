@@ -84,7 +84,7 @@ test('navigating after Back discards the forward branch', async () => {
 });
 
 test('relative links resolve from the document that contains them', async () => {
-  getApi().followLink('../guide.md#設定', 1);
+  getApi().followLink('../guide.md#settings', 1);
   const snapshot = await waitFor('the preview to move up a directory', () => {
     const current = getApi().activePreview;
     return current && current.uri.endsWith('/guide.md') ? current : undefined;

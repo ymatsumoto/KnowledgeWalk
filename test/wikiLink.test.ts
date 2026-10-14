@@ -16,16 +16,16 @@ const VAULT = [
 
 /**
  * Two same-named wikis side by side, plus a second project that grew links into the
- * first one later. `Shared protocol` exists once in the whole workspace; `Index` exists
+ * first one later. `On-call guide` exists once in the whole workspace; `Index` exists
  * in both wikis.
  */
 const TWO_WIKIS = [
-  '/ws/a/research/Home.md',
-  '/ws/a/research/Index.md',
-  '/ws/a/research/Shared protocol.md',
-  '/ws/b/research/Home.md',
-  '/ws/b/research/Index.md',
-  '/ws/research2/hoge.md',
+  '/ws/a/handbook/Home.md',
+  '/ws/a/handbook/Index.md',
+  '/ws/a/handbook/On-call guide.md',
+  '/ws/b/handbook/Home.md',
+  '/ws/b/handbook/Index.md',
+  '/ws/project-x/plan.md',
 ];
 
 async function buildTwoWikis(): Promise<WikiLinkIndex> {
@@ -258,22 +258,22 @@ test('an ancestor-name root scopes resolution the same way a path does', async (
 test('two directories with the same name each resolve to their own', async () => {
   const index = await buildTwoWikis();
   for (const side of ['a', 'b']) {
-    const from = Uri.file(`/ws/${side}/research/Index.md`);
-    const root = await index.rootFor(from, 'research');
-    assert.equal(root?.path, `/ws/${side}/research`, side);
+    const from = Uri.file(`/ws/${side}/handbook/Index.md`);
+    const root = await index.rootFor(from, 'handbook');
+    assert.equal(root?.path, `/ws/${side}/handbook`, side);
     // A name that exists in both wikis stays inside the document's own.
     const link = index.resolve('Home', from, { root });
-    assert.equal(link?.uri.path, `/ws/${side}/research/Home.md`, side);
+    assert.equal(link?.uri.path, `/ws/${side}/handbook/Home.md`, side);
   }
 });
 
 test('a name in both wikis is never resolved across them', async () => {
   const index = await buildTwoWikis();
-  const from = Uri.file('/ws/a/research/Home.md');
-  const root = await index.rootFor(from, 'research');
+  const from = Uri.file('/ws/a/handbook/Home.md');
+  const root = await index.rootFor(from, 'handbook');
   // "Index" exists in /ws/a and /ws/b: the local one wins, with no fallback involved.
   const link = index.resolve('Index', from, { root });
-  assert.equal(link?.uri.path, '/ws/a/research/Index.md');
+  assert.equal(link?.uri.path, '/ws/a/handbook/Index.md');
   assert.equal(link?.crossWiki, undefined);
 });
 
@@ -281,20 +281,20 @@ test('a name in both wikis is never resolved across them', async () => {
 
 test('a name outside the wiki resolves when exactly one file has it', async () => {
   const index = await buildTwoWikis();
-  const from = Uri.file('/ws/research2/hoge.md');
-  const root = await index.rootFor(from, 'research2');
-  assert.equal(root?.path, '/ws/research2');
+  const from = Uri.file('/ws/project-x/plan.md');
+  const root = await index.rootFor(from, 'project-x');
+  assert.equal(root?.path, '/ws/project-x');
 
-  const link = index.resolve('Shared protocol', from, { root });
-  assert.equal(link?.uri.path, '/ws/a/research/Shared protocol.md');
+  const link = index.resolve('On-call guide', from, { root });
+  assert.equal(link?.uri.path, '/ws/a/handbook/On-call guide.md');
   assert.equal(link?.exists, true);
   assert.equal(link?.crossWiki, true, 'and it is marked as leaving the wiki');
 });
 
 test('an ambiguous name outside the wiki stays unresolved rather than guessing', async () => {
   const index = await buildTwoWikis();
-  const from = Uri.file('/ws/research2/hoge.md');
-  const root = await index.rootFor(from, 'research2');
+  const from = Uri.file('/ws/project-x/plan.md');
+  const root = await index.rootFor(from, 'project-x');
   // "Home" exists in both wikis, so there is no defensible answer.
   const link = index.resolve('Home', from, { root });
   assert.equal(link?.exists, false);
@@ -302,27 +302,27 @@ test('an ambiguous name outside the wiki stays unresolved rather than guessing',
 
 test('the fallback can be switched off', async () => {
   const index = await buildTwoWikis();
-  const from = Uri.file('/ws/research2/hoge.md');
-  const root = await index.rootFor(from, 'research2');
-  const link = index.resolve('Shared protocol', from, { root, fallback: 'none' });
+  const from = Uri.file('/ws/project-x/plan.md');
+  const root = await index.rootFor(from, 'project-x');
+  const link = index.resolve('On-call guide', from, { root, fallback: 'none' });
   assert.equal(link?.exists, false);
 });
 
 test('links back into the second project work the same way', async () => {
   const index = await buildTwoWikis();
-  const from = Uri.file('/ws/a/research/Home.md');
-  const root = await index.rootFor(from, 'research');
-  const link = index.resolve('hoge', from, { root });
-  assert.equal(link?.uri.path, '/ws/research2/hoge.md');
+  const from = Uri.file('/ws/a/handbook/Home.md');
+  const root = await index.rootFor(from, 'handbook');
+  const link = index.resolve('plan', from, { root });
+  assert.equal(link?.uri.path, '/ws/project-x/plan.md');
   assert.equal(link?.crossWiki, true);
 });
 
 test('a cross-wiki link is marked in the rendered HTML', async () => {
   const index = await buildTwoWikis();
   resetRenderer();
-  const from = Uri.file('/ws/research2/hoge.md');
-  const root = await index.rootFor(from, 'research2');
-  const html = renderMarkdown('[[Shared protocol]]\n', CONFIG, {
+  const from = Uri.file('/ws/project-x/plan.md');
+  const root = await index.rootFor(from, 'project-x');
+  const html = renderMarkdown('[[On-call guide]]\n', CONFIG, {
     docUri: from,
     webview,
     wikiIndex: index,

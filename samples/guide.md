@@ -1,5 +1,5 @@
 ---
-title: ガイド
+title: Guide
 tags:
   - mdExplorer
   - preview
@@ -7,31 +7,31 @@ created: 2026-09-02
 source: https://code.visualstudio.com/api
 draft: false
 ---
-# ガイド
+# Guide
 
-[目次に戻る](index.md) ・ [深い階層のページ](sub/deep.md)
+[Back to the index](index.md) · [A page in a subfolder](sub/deep.md)
 
-## 概要
+## Overview
 
-このページは、リンク遷移とタブ名の追従を確かめるためのものです。
-タブ名が `guide.md` になっていれば、要件 2 が満たされています。
+This page is for checking link navigation and that the tab title follows it.
+If the tab is now labelled `guide.md`, the tab title followed the link.
 
-> 引用ブロックの表示確認。`インラインコード` も含みます。
+> A blockquote, with some `inline code` in it.
 
-## 設定
+## Settings
 
-`guide.md#設定` のリンクから来た場合、この見出しが画面の最上部にあるはずです。
+Arriving through a `guide.md#settings` link, this heading should be at the top of the view.
 
 - `mdExplorer.doubleClickToEdit`
 - `mdExplorer.mermaid.enabled`
 - `mdExplorer.math.enabled`
 
-## 脚注
+## Footnotes
 
-脚注の参照です[^1]。
+This is a footnote reference[^1].
 
-[^1]: 脚注の本文。クリックすると同じページ内を移動します。
+[^1]: The footnote text. Clicking the reference moves within the page.
 
-## さらに深く
+## Further down
 
-[サブフォルダのページへ](sub/deep.md#相対パスの確認)
+[To the subfolder page](sub/deep.md#relative-paths)
