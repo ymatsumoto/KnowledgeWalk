@@ -54,6 +54,19 @@ const WINDOWS_DRIVE = /^[a-z]:[\\/]/i;
 /** An extension with at least one letter, so `v0.2` or `1.5` are not file names. */
 const EXTENSION = /\.[a-z0-9]*[a-z][a-z0-9]*$/i;
 
+/**
+ * Extensions that say "this is a file" with confidence. A bare value carrying anything
+ * else — `mlstdb.NTM`, `v2.final` — may be a file or may be a name, so failing to find
+ * it is not reported.
+ */
+const FILE_EXTENSIONS = new Set([
+  ...MARKDOWN_EXTENSIONS,
+  '.txt', '.pdf', '.html', '.htm', '.csv', '.tsv', '.json', '.yaml', '.yml', '.toml', '.xml',
+  '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.bib', '.tex', '.ipynb', '.py', '.r',
+  '.sh', '.js', '.ts', '.c', '.h', '.cpp', '.rs', '.go', '.java', '.sql', '.log', '.docx',
+  '.xlsx', '.pptx', '.zip', '.gz', '.tar', '.fasta', '.fa', '.fastq', '.vcf', '.gff', '.bam',
+]);
+
 export function isMarkdownPath(p: string): boolean {
   return MARKDOWN_EXTENSIONS.has(path.posix.extname(p).toLowerCase());
 }
@@ -161,7 +174,11 @@ export function resolveRef(
   if (hits.size > 1) {
     return { kind: 'ambiguous', candidates: [...hits.keys()] };
   }
-  // `claude-code/unknown` is shaped like a path but almost certainly is not one; only
-  // a value carrying a file extension is reported as a broken reference.
-  return { kind: 'missing', tried, strong: hasExtension(pathPart) };
+  // `claude-code/unknown` is shaped like a path but almost certainly is not one, and
+  // `mlstdb.NTM` may well be a name. Only a value that clearly names a file — a path
+  // with an extension, or a known file extension — is reported as a broken reference.
+  const strong =
+    FILE_EXTENSIONS.has(path.posix.extname(pathPart).toLowerCase()) ||
+    (pathPart.includes('/') && hasExtension(pathPart));
+  return { kind: 'missing', tried, strong };
 }

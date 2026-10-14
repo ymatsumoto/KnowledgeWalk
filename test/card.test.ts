@@ -2,7 +2,7 @@ import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { Uri, __setFiles, __setStatPaths, __setWorkspaceFolders } from 'vscode';
+import { Uri, __setFiles, __setStatDirectories, __setStatPaths, __setWorkspaceFolders } from 'vscode';
 import { WikiLinkIndex } from '../src/wikiIndex';
 import { OkfService } from '../src/okf/service';
 import { renderMarkdown, resetRenderer } from '../src/renderer/markdown';
@@ -175,4 +175,38 @@ test('a document without sources leaves [^x] alone', async () => {
   const uri = Uri.file(path.join(BUNDLE, 'notes', 'x.md'));
   const html = renderMarkdown('Text[^x].\n', CONFIG, { docUri: uri, webview, wikiIndex: index });
   assert.match(html, /Text\[\^x\]\./);
+});
+
+test('a directory is neither a link nor reported missing', async () => {
+  __setStatDirectories(['/root/work/design']);
+  try {
+    resetRenderer();
+    const file = path.join(BUNDLE, 'ideas', 'i1-progress.md');
+    const uri = Uri.file(file);
+    const text = '---\ntype: source\nresource: /root/work/design\n---\n\n# x\n';
+    const prepared = await service.prepare(uri, text);
+    const html = renderMarkdown(text, CONFIG, { docUri: uri, webview, wikiIndex: index, prepared });
+    assert.match(html, /<span class="mdx-ref-directory" title="Directory: \/root\/work\/design">\/root\/work\/design<\/span>/);
+  } finally {
+    __setStatDirectories([]);
+  }
+});
+
+test('problems with a document are logged once each', async () => {
+  const { log } = await import('../src/log');
+  const seen: string[] = [];
+  const original = log.warn;
+  (log as any).warn = (message: string) => seen.push(message);
+  try {
+    resetRenderer();
+    const uri = Uri.file(path.join(BUNDLE, 'ideas', 'x.md'));
+    const text = '---\ntype: idea\nstale_after: next spring\nsources:\n  - { id: a, resource: https://e.org }\n---\n\nOne[^zz] two[^zz] three[^a].\n';
+    const prepared = await service.prepare(uri, text);
+    const html = renderMarkdown(text, CONFIG, { docUri: uri, webview, wikiIndex: index, prepared });
+    assert.match(html, /\[zz\?\]/);
+    assert.equal(seen.filter((m) => m.includes('[^zz]')).length, 1, seen.join('\n'));
+    assert.equal(seen.filter((m) => m.includes('next spring')).length, 1, seen.join('\n'));
+  } finally {
+    (log as any).warn = original;
+  }
 });

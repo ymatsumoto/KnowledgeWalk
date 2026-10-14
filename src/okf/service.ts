@@ -32,8 +32,10 @@ export interface PreparedDocument {
   roots: DocRoots;
   /** Parsed front matter, when the document has a usable block. */
   frontMatter?: Record<string, unknown>;
-  /** Synchronous existence check for a path on the document's filesystem. */
+  /** Synchronous existence check for a file on the document's filesystem. */
   exists(p: string): boolean;
+  /** Whether `p` is a directory, for paths that were checked on disk. */
+  isDirectory(p: string): boolean;
   /** The context `resolveRef` needs for this document. */
   refContext: RefContext;
   /** Card layout for this document: defaults, settings, `.mdexplorer.yaml`, `byType`. */
@@ -148,11 +150,18 @@ export class OkfService implements vscode.Disposable {
       }
     }
     const onDisk = new Set<string>();
+    const directories = new Set<string>();
     await Promise.all(
       [...unknown].slice(0, MAX_STATS).map(async (p) => {
         try {
-          await vscode.workspace.fs.stat(uri.with({ path: p, query: '', fragment: '' }));
-          onDisk.add(p);
+          const stat = await vscode.workspace.fs.stat(uri.with({ path: p, query: '', fragment: '' }));
+          // A directory is not something a link can open; it is remembered so it is
+          // not reported as missing either.
+          if (stat.type & vscode.FileType.Directory) {
+            directories.add(p);
+          } else {
+            onDisk.add(p);
+          }
         } catch {
           // Does not exist; nothing to record.
         }
@@ -175,6 +184,7 @@ export class OkfService implements vscode.Disposable {
       display: forType.config,
       targets,
       exists,
+      isDirectory: (p: string) => directories.has(p),
     };
   }
 

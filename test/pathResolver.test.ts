@@ -103,3 +103,12 @@ test('when every base coincides a file is still found once', () => {
     kind: 'file', path: '/ws/a/b.md', isMarkdown: true, fragment: undefined, via: 'doc',
   });
 });
+
+test('a bare name with an unfamiliar extension is not reported missing', () => {
+  const name = resolveRef('mlstdb.NTM', ctx, exists);
+  assert.equal(name.kind === 'missing' && name.strong, false);
+  const known = resolveRef('nope.pdf', ctx, exists);
+  assert.equal(known.kind === 'missing' && known.strong, true);
+  const pathy = resolveRef('data/nope.NTM', ctx, exists);
+  assert.equal(pathy.kind === 'missing' && pathy.strong, true);
+});

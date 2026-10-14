@@ -169,7 +169,15 @@ export function __setFiles(paths: string[]): void {
   files = paths.map((p) => Uri.file(p));
 }
 
+export const FileType = { Unknown: 0, File: 1, Directory: 2, SymbolicLink: 64 } as const;
+
 let statPaths = new Set<string>();
+let statDirectories = new Set<string>();
+
+/** Test helper: paths `workspace.fs.stat` should report as directories. */
+export function __setStatDirectories(paths: string[]): void {
+  statDirectories = new Set(paths);
+}
 
 /**
  * Test helper: paths `workspace.fs.stat` should report as existing. Everything else is
@@ -212,7 +220,10 @@ export const workspace = {
   fs: {
     async stat(uri: Uri): Promise<{ type: number }> {
       if (statPaths.has(uri.path)) {
-        return { type: 1 };
+        return { type: FileType.File };
+      }
+      if (statDirectories.has(uri.path)) {
+        return { type: FileType.Directory };
       }
       throw new Error('not found');
     },
