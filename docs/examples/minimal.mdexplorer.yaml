@@ -1,0 +1,8 @@
+# .mdexplorer.yaml for a plain OKF v0.2 wiki that adds no keys of its own.
+#
+# The built-in defaults already draw every OKF core key, so this file only adjusts the
+# layout: tags move under Details and the fold starts open.
+
+frontMatter:
+  header: [type, status, trust, generated]
+  details: expanded

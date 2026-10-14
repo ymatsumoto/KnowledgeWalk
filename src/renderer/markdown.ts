@@ -25,7 +25,7 @@ import type { RootLinkContext } from './linkRewrite';
  *
  *  - `off`   nothing is autolinked
  *  - `urls`  only text carrying an explicit scheme, e.g. `https://example.com`
- *  - `all`   also bare domain-like text, which mistakes `vcf2phylip.py` for a host
+ *  - `all`   also bare domain-like text, which mistakes `build.py` for a host
  */
 export type LinkifyMode = 'off' | 'urls' | 'all';
 
@@ -84,7 +84,7 @@ function createMarkdownIt(cfg: MdxConfig): MarkdownIt {
 
   if (cfg.linkify === 'urls') {
     // linkify-it's "fuzzy" matching treats anything shaped like a hostname as a link,
-    // so a filename mentioned in prose — `vcf2phylip.py`, `setup.cfg` — becomes a dead
+    // so a filename mentioned in prose — `build.py`, `setup.cfg` — becomes a dead
     // link to a nonexistent host. Only autolink text that says it is a URL.
     md.linkify.set({ fuzzyLink: false, fuzzyEmail: false, fuzzyIP: false });
   }

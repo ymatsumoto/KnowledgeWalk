@@ -15,9 +15,9 @@ export type ActorKind = 'human' | 'process' | 'producer' | 'other';
 export interface Actor {
   raw: string;
   kind: ActorKind;
-  /** `ymatsumoto` in `human:ymatsumoto`, `claude-code` in `claude-code/unknown`. */
+  /** `alice` in `human:alice`, `my-agent` in `my-agent/1.4`. */
   id: string;
-  /** `unknown` in `claude-code/unknown`. */
+  /** `1.4` in `my-agent/1.4`. */
   version?: string;
 }
 
