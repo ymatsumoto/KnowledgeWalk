@@ -128,7 +128,7 @@ test('trust, draft status and newer sources are shown', async () => {
   assert.match(html, /mdx-c-yellow" title="status">draft</);
   assert.match(html, /mdx-card-banner mdx-c-blue"><strong>Sources changed since<\/strong> bench1 was modified/);
   assert.match(html, /🤖 my-agent\/2\.0 · 2026-08-07/, 'the date as written, not shifted to UTC');
-  assert.match(card(await render('decisions/read-replicas-benchmark.md')), />machine-checked</);
+  assert.match(card(await render('decisions/read-replicas-benchmark.md')), />machine-confirmed</);
 });
 
 test('deprecated and stale pages carry banners, and a filesystem path is flagged', async () => {

@@ -6,6 +6,8 @@
   bundles the OKF repository ships): it is the top of the run of directories that each
   hold an `index.md`. References such as `policies/margin-standard.md` in those bundles
   now resolve.
+- The middle trust tier is labelled *machine-confirmed*, the term OKF §5.3 uses (was
+  *machine-checked*).
 
 ## 0.4.0
 

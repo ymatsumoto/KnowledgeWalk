@@ -54,7 +54,7 @@ function trustLabel(tier: 'unverified' | 'machine' | 'human'): string {
     case 'human':
       return vscode.l10n.t('human-reviewed');
     case 'machine':
-      return vscode.l10n.t('machine-checked');
+      return vscode.l10n.t('machine-confirmed');
     default:
       return vscode.l10n.t('unverified');
   }

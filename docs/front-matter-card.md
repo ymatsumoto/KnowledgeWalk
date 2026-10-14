@@ -18,7 +18,7 @@ YAML front matter with a `type`, a `description`, the `sources` it was derived f
   `sources[].last_modified` is newer than its own `generated.at`.
 - **A header line** of badges: `type`, `status` (only when it is not the default
   `stable`), the **trust tier** OKF derives from `verified` — *unverified*,
-  *machine-checked*, or *human-reviewed* once a `human:` actor has signed — the generation
+  *machine-confirmed*, or *human-reviewed* once a `human:` actor has signed — the generation
   stamp (`🤖 my-agent/1.4 · 2026-08-07`), and `tags`.
 - **The title** only when it says more than the page's first heading.
 - **The `description`** as a lead paragraph.
