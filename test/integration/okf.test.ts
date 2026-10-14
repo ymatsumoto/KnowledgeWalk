@@ -39,3 +39,28 @@ test('OKF: a /-prefixed link is read from the bundle root, not the workspace fol
   );
   assert.equal(allTabs().length, 1, `navigation must not open a tab: ${describeTabs()}`);
 });
+
+test('OKF: a link on the metadata card navigates in the tab, and Back returns', async () => {
+  await closeEverything();
+  const html = await openOkf('ideas', 'i1.md');
+  // addresses: [problems/p1] — a Concept ID, resolved against the bundle root.
+  const ids = linkIdsTo(html, '/okf/research/wiki/problems/p1.md');
+  assert.ok(ids.length >= 1, 'the card links to problems/p1.md');
+  assert.match(html, /<section class="mdx-card/);
+
+  assert.ok(getApi().clickRenderedLink(ids[0]));
+  const snapshot = await waitFor('the preview to move to problems/p1.md', () => {
+    const current = getApi().activePreview;
+    return current?.uri.endsWith('/problems/p1.md') ? current : undefined;
+  });
+  assert.equal(snapshot.title, 'p1.md');
+  assert.equal(allTabs().length, 1, `navigation must not open a tab: ${describeTabs()}`);
+
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  getApi().goBack();
+  const back = await waitFor('Back to ideas/i1.md', () => {
+    const current = getApi().activePreview;
+    return current?.uri.endsWith('/ideas/i1.md') ? current : undefined;
+  });
+  assert.equal(back.departureLinkId, ids[0], 'Back remembers the card link that was followed');
+});

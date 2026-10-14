@@ -5,6 +5,7 @@ import { readDocumentText } from '../documentText';
 import type { WikiLinkIndex } from '../wikiIndex';
 import { looksLikePath, resolveRef, type RefContext } from './pathResolver';
 import { displayForType, mergeDisplay, type DisplayConfig } from './displayConfig';
+import { MetaCache, type TargetMeta } from './metaCache';
 
 /** Per-wiki display settings live in this file at the wiki root. */
 export const LOCAL_CONFIG_FILE = '.mdexplorer.yaml';
@@ -37,7 +38,17 @@ export interface PreparedDocument {
   refContext: RefContext;
   /** Card layout for this document: defaults, settings, `.mdexplorer.yaml`, `byType`. */
   display: DisplayConfig;
+  /** Summaries of the Markdown pages front matter links to, keyed by path. */
+  targets: Map<string, TargetMeta>;
 }
+
+/**
+ * How long a render waits for the titles of linked pages. Past this the card shows the
+ * paths as written; titles that arrive later are used the next time the page renders,
+ * rather than re-rendering and moving the page under the reader.
+ */
+const TARGET_BUDGET_MS = 150;
+const TARGET_CONCURRENCY = 16;
 
 /** More than enough for any real page; a guard against a pathological document. */
 const MAX_STATS = 200;
@@ -68,6 +79,7 @@ export class OkfService implements vscode.Disposable {
   /** Fires when a `.mdexplorer.yaml` changes, so open previews can re-render. */
   readonly onDidChangeDisplay = this.displayChanged.event;
   private readonly disposables: vscode.Disposable[] = [];
+  readonly meta = new MetaCache();
 
   constructor(private readonly index: WikiLinkIndex) {
     const indexWatcher = vscode.workspace.createFileSystemWatcher('**/index.md');
@@ -87,7 +99,8 @@ export class OkfService implements vscode.Disposable {
       configWatcher.onDidCreate(invalidateDisplay),
       configWatcher.onDidChange(invalidateDisplay),
       configWatcher.onDidDelete(invalidateDisplay),
-      this.displayChanged
+      this.displayChanged,
+      this.meta
     );
   }
 
@@ -146,6 +159,9 @@ export class OkfService implements vscode.Disposable {
       })
     );
 
+    const exists = (p: string) => onDisk.has(p) || this.index.has(uri.with({ path: p }));
+    const targets = await this.targetsOf(uri, values, refContext, exists);
+
     const local = await this.loadLocalDisplay(roots.wikiRoot);
     const merged = mergeDisplay(userDisplay, local);
     const type = typeof frontMatter?.type === 'string' ? frontMatter.type : undefined;
@@ -157,8 +173,48 @@ export class OkfService implements vscode.Disposable {
       frontMatter,
       refContext,
       display: forType.config,
-      exists: (p: string) => onDisk.has(p) || this.index.has(uri.with({ path: p })),
+      targets,
+      exists,
     };
+  }
+
+  /** Titles of the Markdown pages the front matter links to, within the time budget. */
+  private async targetsOf(
+    uri: vscode.Uri,
+    values: string[],
+    refContext: RefContext,
+    exists: (p: string) => boolean
+  ): Promise<Map<string, TargetMeta>> {
+    const paths = new Set<string>();
+    for (const value of values) {
+      if (looksLikePath(value)) {
+        const ref = resolveRef(value, refContext, exists);
+        if (ref.kind === 'file' && ref.isMarkdown) {
+          paths.add(ref.path);
+        }
+      }
+    }
+    const targets = new Map<string, TargetMeta>();
+    if (paths.size === 0) {
+      return targets;
+    }
+    const queue = [...paths];
+    const worker = async () => {
+      for (let p = queue.shift(); p !== undefined; p = queue.shift()) {
+        const meta = await this.meta.get(uri.with({ path: p, query: '', fragment: '' }));
+        if (meta) {
+          targets.set(p, meta);
+        }
+      }
+    };
+    let timer: NodeJS.Timeout | undefined;
+    await Promise.race([
+      Promise.all(Array.from({ length: Math.min(TARGET_CONCURRENCY, queue.length) }, worker)),
+      new Promise<void>((resolve) => (timer = setTimeout(resolve, TARGET_BUDGET_MS))),
+    ]);
+    clearTimeout(timer);
+    // A copy: workers still running must not change what this render already used.
+    return new Map(targets);
   }
 
   /**

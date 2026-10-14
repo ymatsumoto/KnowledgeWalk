@@ -14,6 +14,7 @@ import { escapeHtml, highlightCode } from './highlight';
 import { renderFrontMatter, readFrontMatter } from './frontMatter';
 import { wikiLinkPlugin } from './wikiLink';
 import type { WikiLinkIndex } from '../wikiIndex';
+import { log } from '../log';
 import type { PreparedDocument } from '../okf/service';
 import type { RootLinkContext } from './linkRewrite';
 
@@ -42,6 +43,8 @@ interface RenderEnv extends RenderContext {
   linkCount: number;
   /** Base for `/`-prefixed links, derived from `prepared`. */
   rootLinks?: RootLinkContext;
+  /** Problems already logged during this render, so each is reported once. */
+  warned: Set<string>;
 }
 
 /**
@@ -109,8 +112,23 @@ function createMarkdownIt(cfg: MdxConfig): MarkdownIt {
   const defaultRender = (tokens: Token[], idx: number, options: Options, _env: unknown, self: Renderer) =>
     self.renderToken(tokens, idx, options);
 
-  md.renderer.rules.front_matter = (tokens, idx) =>
-    renderFrontMatter(String(tokens[idx].meta ?? ''), cfg.frontMatter);
+  md.renderer.rules.front_matter = (tokens, idx, _options, env) => {
+    const renderEnv = env as RenderEnv;
+    const heading = tokens.findIndex((token) => token.type === 'heading_open' && token.tag === 'h1');
+    return renderFrontMatter(String(tokens[idx].meta ?? ''), cfg.frontMatter, {
+      docUri: renderEnv.docUri,
+      prepared: renderEnv.prepared,
+      firstH1: heading >= 0 ? tokens[heading + 1]?.content : undefined,
+      nextLinkId: () => renderEnv.linkCount++,
+      warn: (message) => {
+        if (!renderEnv.warned.has(message)) {
+          renderEnv.warned.add(message);
+          log.warn(`${renderEnv.docUri.path}: ${message}`);
+        }
+      },
+      now: Date.now(),
+    });
+  };
 
   md.renderer.rules.link_open = (tokens, idx, options, env, self) => {
     const token = tokens[idx];
@@ -191,6 +209,7 @@ export function renderMarkdown(text: string, cfg: MdxConfig, context: RenderCont
   const env: RenderEnv = {
     ...context,
     linkCount: 0,
+    warned: new Set(),
     rootLinks: prepared
       ? { bundleRoot: prepared.roots.bundleRoot, exists: prepared.exists }
       : undefined,

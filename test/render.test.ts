@@ -169,11 +169,28 @@ test('YAML front matter is dropped by default rather than rendered as bold text'
 
 test('front matter can be shown as a metadata card', () => {
   const html = renderText(FRONT_MATTER, { frontMatter: 'table' });
-  assert.match(html, /<dl class="mdx-frontmatter">/);
-  assert.match(html, /<dt>title<\/dt><dd>A wiki page<\/dd>/);
+  assert.match(html, /<section class="mdx-card"/);
+  // The title differs from the body's H1, so it is kept, as a subtitle.
+  assert.match(html, /<div class="mdx-card-subtitle">A wiki page<\/div>/);
   assert.match(html, /<span class="mdx-fm-chip">alpha<\/span>/);
-  assert.match(html, /data-mdx-kind="external"[^>]*https:\/\/example\.com\/page/);
-  assert.match(html, /mdx-fm-empty/, 'an empty value is shown as a dash');
+  assert.match(html, /<dt>source<\/dt><dd><a [^>]*data-mdx-kind="external"[^>]*https:\/\/example\.com\/page/);
+  assert.match(html, /<dt>empty<\/dt><dd><span class="mdx-fm-empty">/, 'an empty value is shown as a dash');
+});
+
+test('auto shows a card only for front matter with a type', () => {
+  assert.doesNotMatch(renderText(FRONT_MATTER, { frontMatter: 'auto' }), /mdx-card/);
+  const typed = renderText(`---\ntype: note\n---\n\n# H\n`, { frontMatter: 'auto' });
+  assert.match(typed, /<section class="mdx-card"/);
+  assert.match(typed, /<span class="mdx-badge mdx-c-default" title="type">note<\/span>/);
+});
+
+test('values in the card are escaped', () => {
+  const html = renderText(`---\ntype: "<img src=x onerror=alert(1)>"\nnote: "<b>bold</b>"\n---\n`, {
+    frontMatter: 'table',
+  });
+  assert.doesNotMatch(html, /<img src=x/);
+  assert.doesNotMatch(html, /<b>bold/);
+  assert.match(html, /&lt;b&gt;bold&lt;\/b&gt;/);
 });
 
 test('front matter can be shown as raw YAML', () => {
@@ -183,7 +200,7 @@ test('front matter can be shown as raw YAML', () => {
 });
 
 test('front matter does not shift the source lines double-click maps to', () => {
-  for (const mode of ['hide', 'table', 'source'] as const) {
+  for (const mode of ['hide', 'table', 'source', 'auto'] as const) {
     const html = renderText(FRONT_MATTER, { frontMatter: mode });
     // `# Heading` is line 9 (0-based): eight front matter lines plus the blank line.
     assert.match(html, /<h1[^>]*data-line="9"/, mode);

@@ -479,8 +479,9 @@ document.addEventListener('dblclick', (event) => {
     return;
   }
   const target = event.target as HTMLElement | null;
-  // Links are the one thing a double-click should not hijack.
-  if (target?.closest('a')) {
+  // Links, and the card's fold-out summary — two quick clicks there open and close it —
+  // are the things a double-click should not hijack.
+  if (target?.closest('a, summary')) {
     return;
   }
   const block = target?.closest<HTMLElement>('[data-line]');
