@@ -13,6 +13,8 @@ import { classifyLink, resolveResource } from './linkRewrite';
 import { escapeHtml, highlightCode } from './highlight';
 import { renderFrontMatter, readFrontMatter } from './frontMatter';
 import { wikiLinkPlugin } from './wikiLink';
+import { okfCitePlugin } from './okfCite';
+import { parseOkf, type SourceEntry } from '../okf/model';
 import type { WikiLinkIndex } from '../wikiIndex';
 import { log } from '../log';
 import type { PreparedDocument } from '../okf/service';
@@ -45,6 +47,8 @@ interface RenderEnv extends RenderContext {
   rootLinks?: RootLinkContext;
   /** Problems already logged during this render, so each is reported once. */
   warned: Set<string>;
+  /** `sources[].id` -> entry, for `[^id]` citations; see okfCite. */
+  okfSources?: Map<string, SourceEntry>;
 }
 
 /**
@@ -91,6 +95,7 @@ function createMarkdownIt(cfg: MdxConfig): MarkdownIt {
       encodeURIComponent(s.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-À-￿]/g, '')),
   });
   md.use(footnote);
+  md.use(okfCitePlugin);
   // Consumes the `---` block at the top of the file, which would otherwise parse as a
   // setext heading. The callback is unused; the token carries the text.
   md.use(frontMatterPlugin, () => undefined);
@@ -210,6 +215,7 @@ export function renderMarkdown(text: string, cfg: MdxConfig, context: RenderCont
     ...context,
     linkCount: 0,
     warned: new Set(),
+    okfSources: sourcesById(prepared?.frontMatter),
     rootLinks: prepared
       ? { bundleRoot: prepared.roots.bundleRoot, exists: prepared.exists }
       : undefined,
@@ -218,6 +224,19 @@ export function renderMarkdown(text: string, cfg: MdxConfig, context: RenderCont
   // markdown-it-task-lists emits `checked=""type="checkbox"` without a separating
   // space. Parsers recover from it, but there is no reason to ship invalid markup.
   return html.replace(/checked=""type=/g, 'checked="" type=');
+}
+
+function sourcesById(frontMatter: Record<string, unknown> | undefined): Map<string, SourceEntry> | undefined {
+  if (!frontMatter || !Array.isArray(frontMatter.sources)) {
+    return undefined;
+  }
+  const byId = new Map<string, SourceEntry>();
+  for (const source of parseOkf(frontMatter).sources) {
+    if (source.id && !byId.has(source.id)) {
+      byId.set(source.id, source);
+    }
+  }
+  return byId;
 }
 
 /** Invalidate the cached markdown-it instance, e.g. after a settings change. */

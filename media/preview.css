@@ -482,6 +482,22 @@ a.mdx-ref-nonportable::after {
   color: var(--vscode-errorForeground, #e5534b);
 }
 
+/* ------------------------------------------------------------- citations */
+
+.mdx-cite {
+  font-size: 0.75em;
+  line-height: 0;
+}
+
+.mdx-cite a {
+  padding: 0 0.1em;
+}
+
+.mdx-cite-missing {
+  color: var(--vscode-errorForeground, #e5534b);
+  cursor: help;
+}
+
 /* ------------------------------------------------------------- footnotes */
 
 .footnotes {
