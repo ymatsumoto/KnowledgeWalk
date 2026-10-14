@@ -211,7 +211,7 @@
           "enumDescriptions": [
             "Never turn plain text into links.",
             "Only text with an explicit scheme, such as https://example.com.",
-            "Also bare domain-like text \u2014 this mistakes filenames such as vcf2phylip.py for hostnames."
+            "Also bare domain-like text \u2014 this mistakes filenames such as build.py for hostnames."
           ],
           "description": "Which plain text in a document is turned into links."
         },
@@ -257,7 +257,7 @@
         "mdExplorer.frontMatterDisplay": {
           "type": "object",
           "default": {},
-          "markdownDescription": "How front matter keys are laid out on the metadata card: `header`, `lead`, `hidden`, `details`, `fields` (per key, e.g. `{ \"stage\": { \"as\": \"badge\" } }`) and `byType`. Layered over the built-in OKF defaults; a `frontMatter:` section in `.mdexplorer.yaml` at the wiki root is layered over this. See the README.",
+          "markdownDescription": "How front matter keys are laid out on the metadata card: `header`, `lead`, `hidden`, `details`, `fields` (per key, e.g. `{ \"priority\": { \"as\": \"badge\" } }`) and `byType`. Layered over the built-in OKF defaults; a `frontMatter:` section in `.mdexplorer.yaml` at the wiki root is layered over this. See the README.",
           "additionalProperties": false,
           "properties": {
             "header": {
@@ -271,9 +271,7 @@
                   "trust",
                   "generated",
                   "tags",
-                  "description",
-                  "stage",
-                  "severity"
+                  "description"
                 ]
               }
             },
@@ -292,9 +290,7 @@
                   "trust",
                   "generated",
                   "tags",
-                  "description",
-                  "stage",
-                  "severity"
+                  "description"
                 ]
               }
             },
@@ -317,7 +313,7 @@
             },
             "fields": {
               "type": "object",
-              "markdownDescription": "Display per front matter key, e.g. `{ \"stage\": { \"as\": \"badge\" } }`.",
+              "markdownDescription": "Display per front matter key, e.g. `{ \"priority\": { \"as\": \"badge\" } }`.",
               "additionalProperties": {
                 "anyOf": [
                   {
@@ -459,7 +455,7 @@
             },
             "byType": {
               "type": "object",
-              "markdownDescription": "Overrides for documents of one `type`, layered last, e.g. `{ \"problem\": { \"header\": [\"type\", \"severity\"] } }`.",
+              "markdownDescription": "Overrides for documents of one `type`, layered last, e.g. `{ \"decision\": { \"header\": [\"type\", \"status\", \"owner\"] } }`.",
               "additionalProperties": {
                 "type": "object",
                 "additionalProperties": false,
@@ -475,9 +471,7 @@
                         "trust",
                         "generated",
                         "tags",
-                        "description",
-                        "stage",
-                        "severity"
+                        "description"
                       ]
                     }
                   },
@@ -496,9 +490,7 @@
                         "trust",
                         "generated",
                         "tags",
-                        "description",
-                        "stage",
-                        "severity"
+                        "description"
                       ]
                     }
                   },
@@ -521,7 +513,7 @@
                   },
                   "fields": {
                     "type": "object",
-                    "markdownDescription": "Display per front matter key, e.g. `{ \"stage\": { \"as\": \"badge\" } }`.",
+                    "markdownDescription": "Display per front matter key, e.g. `{ \"priority\": { \"as\": \"badge\" } }`.",
                     "additionalProperties": {
                       "anyOf": [
                         {

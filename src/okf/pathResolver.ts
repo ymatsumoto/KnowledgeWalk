@@ -6,12 +6,12 @@ import * as path from 'path';
  * OKF front matter refers to other files in several shapes at once, and the real wikis
  * this viewer is built for mix all of them:
  *
- *  - `../sources/x.md`            relative to the document
- *  - `progress-20260802.md`       a bare file name, also relative to the document
- *  - `problems/foo`               an OKF Concept ID, relative to the bundle root
- *  - `raw/papers/x.pdf`           relative to the wiki root (`root:` in front matter)
- *  - `/root/work/planC/REPORT.md` a filesystem path, which OKF would read as
- *                                 bundle-relative
+ *  - `../sources/x.md`              relative to the document
+ *  - `notes-2026-08-02.md`          a bare file name, also relative to the document
+ *  - `runbooks/restart-db`          an OKF Concept ID, relative to the bundle root
+ *  - `attachments/diagram.pdf`      relative to the wiki root (`root:` in front matter)
+ *  - `/home/alice/shared/report.md` a filesystem path, which OKF would read as
+ *                                   bundle-relative
  *
  * A value whose base is not spelled out is tried against every base in a fixed order,
  * and becomes a link only when exactly one candidate exists. Guessing between two real
@@ -56,7 +56,7 @@ const EXTENSION = /\.[a-z0-9]*[a-z][a-z0-9]*$/i;
 
 /**
  * Extensions that say "this is a file" with confidence. A bare value carrying anything
- * else — `mlstdb.NTM`, `v2.final` — may be a file or may be a name, so failing to find
+ * else — `db.prod`, `v2.final` — may be a file or may be a name, so failing to find
  * it is not reported.
  */
 const FILE_EXTENSIONS = new Set([
@@ -174,8 +174,8 @@ export function resolveRef(
   if (hits.size > 1) {
     return { kind: 'ambiguous', candidates: [...hits.keys()] };
   }
-  // `claude-code/unknown` is shaped like a path but almost certainly is not one, and
-  // `mlstdb.NTM` may well be a name. Only a value that clearly names a file — a path
+  // `my-agent/1.4` is shaped like a path but almost certainly is not one, and `db.prod`
+  // may well be a name. Only a value that clearly names a file — a path
   // with an extension, or a known file extension — is reported as a broken reference.
   const strong =
     FILE_EXTENSIONS.has(path.posix.extname(pathPart).toLowerCase()) ||

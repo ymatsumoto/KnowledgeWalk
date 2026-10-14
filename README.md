@@ -26,7 +26,7 @@ turned into a link to nowhere. Embedding another *document* (transclusion) is no
 supported; those fall back to a link.
 
 **Filenames are not links.** markdown-it's autolinker treats anything shaped like a
-hostname as a URL, which turns `vcf2phylip.py` or `setup.cfg` mentioned in prose into a
+hostname as a URL, which turns `build.py` or `setup.cfg` mentioned in prose into a
 dead link. Only text that carries a scheme — `https://…` — is linked; set
 `mdExplorer.linkify` to `all` for the looser behaviour, or `off` for none.
 
@@ -70,6 +70,13 @@ page does, and most generated wikis follow suit — it is drawn as a metadata ca
 document; otherwise it is dropped. `mdExplorer.frontMatter` switches this: `table` for a
 card on every document, `hide` for none, `source` for the raw YAML.
 
+## Installing
+
+Install **mdExplorer** from the Visual Studio Marketplace or Open VSX, or build a `.vsix`
+yourself (see [Developing](#developing)) and run *Extensions: Install from VSIX…*. Then
+reload the window: tabs that were already open come back as text editors until they are
+reopened (see [If a .md file still opens as text](#if-a-md-file-still-opens-as-text)).
+
 ## Settings
 
 | Setting | Default | |
@@ -104,22 +111,22 @@ YAML front matter with a `type`, a `description`, the `sources` it was derived f
 - **A header line** of badges: `type`, `status` (only when it is not the default
   `stable`), the **trust tier** OKF derives from `verified` — *unverified*,
   *machine-checked*, or *human-reviewed* once a `human:` actor has signed — the generation
-  stamp (`🤖 claude-code/unknown · 2026-08-07`), and `tags`.
+  stamp (`🤖 my-agent/1.4 · 2026-08-07`), and `tags`.
 - **The title** only when it says more than the page's first heading.
 - **The `description`** as a lead paragraph.
 - **The sources**, each with its id, a link (labelled with the linked page's own title),
   and any keys a wiki adds such as `relation:`.
 - **Everything else** under a collapsible *Details*.
 
-**References in front matter become links.** Values such as `addresses: [problems/foo]`
+**References in front matter become links.** Values such as `related: [runbooks/restart-db]`
 or `resource: ../sources/x.md` are links to the page they name, labelled with that page's
 title, and clicking one navigates in the tab like any other link. See [how a path is
 resolved](#how-a-path-in-front-matter-is-resolved).
 
 **Citations.** OKF attributes a claim with a footnote whose label is a source id,
-`…as reported[^lee2025].`, with no `[^lee2025]: …` definition in the body. Those become
+`…as reported[^smith2024].`, with no `[^smith2024]: …` definition in the body. Those become
 numbered citations that jump to the source on the card; a label that names no source is
-marked `[lee2025?]`. Footnotes defined in the body work as before.
+marked `[smith2024?]`. Footnotes defined in the body work as before.
 
 **Hover a link** to a Markdown page to see its `title` and `description` before following
 it.
@@ -151,14 +158,14 @@ frontMatter:
   hideTitleWhenSameAsH1: true
   details: collapsed                                # collapsed | expanded | hidden
   fields:
-    stage:    { as: badge }
-    severity: { as: badge, colors: { high: red, medium: orange, low: gray } }
-    status:   { as: badge, colors: { draft: yellow }, hideValues: [stable] }
+    owner:     { as: text }
+    priority:  { as: badge, colors: { high: red, medium: orange, low: gray } }
+    status:    { as: badge, colors: { draft: yellow }, hideValues: [stable] }
     generated: { as: template, template: "🤖 {by} · {at|date}" }
-    addresses: { as: links, label: title }
+    related:   { as: links, label: title }
   byType:
-    source:  { header: [type, status, trust, citekey, venue, year] }
-    problem: { header: [type, status, severity, stage] }
+    decision: { header: [type, status, trust, phase, owner] }
+    incident: { header: [type, status, priority, owner] }
 ```
 
 | `as` | Draws the value as |
@@ -184,7 +191,8 @@ An invalid entry is reported once in the log (*mdExplorer: Show Log*) and that k
 back to `auto`. Changes to `.mdexplorer.yaml` re-render open previews. The file is read in
 untrusted workspaces too: it only changes layout, and nothing in it can produce markup.
 
-`docs/research-wiki.mdexplorer.yaml` is a fuller example for a research wiki.
+Fuller examples are in [`docs/examples/`](docs/examples): a minimal OKF wiki, an
+Obsidian-style notes vault, architecture decision records, and a research wiki.
 
 [yaml-ext]: https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml
 
@@ -282,10 +290,10 @@ folder first, then the longest shared path, then the shallowest.
 ### The OKF bundle root
 
 An OKF bundle is the directory holding an `index.md` whose front matter declares
-`okf_version`. It is the base of OKF *Concept IDs* — `problems/foo` means
-`<bundle>/problems/foo.md` — and of links starting with `/`. It need not be the wiki root:
-a research wiki may keep raw material beside the bundle, with `root: research` pointing at
-`research/` and the bundle at `research/wiki/`.
+`okf_version`. It is the base of OKF *Concept IDs* — `runbooks/restart-db` means
+`<bundle>/runbooks/restart-db.md` — and of links starting with `/`. It need not be the
+wiki root: a knowledge base may keep attachments or raw material beside the bundle, with
+`root: handbook` pointing at `handbook/` and the bundle at `handbook/wiki/`.
 
 So mdExplorer keeps both. The **wiki root** is found as above, with `root:` first; the
 **bundle root** is the nearest directory between the document and the wiki root (both
@@ -303,14 +311,14 @@ Front matter written by models mixes several kinds of path, often within one pag
 | Written as | Example | Resolved against |
 | --- | --- | --- |
 | `./` or `../` | `../sources/x.md` | the document's folder |
-| `/…` | `/problems/foo.md` | the bundle root; failing that, the filesystem (shown with ⚠, since it breaks when the wiki moves) |
-| anything else with a `/` or an extension | `problems/foo`, `x.md`, `raw/papers/a.pdf` | the document's folder, the bundle root and the wiki root, in that order |
+| `/…` | `/runbooks/restart-db.md` | the bundle root; failing that, the filesystem (shown with ⚠, since it breaks when the wiki moves) |
+| anything else with a `/` or an extension | `runbooks/restart-db`, `x.md`, `attachments/diagram.pdf` | the document's folder, the bundle root and the wiki root, in that order |
 
 A value without an extension is also tried with `.md`. For the last row, the value becomes
 a link **only when exactly one candidate exists**. If it names a file under two bases —
 `notes/dup.md` both in the bundle and beside it — it is shown with a `?` and the
 candidates on hover, rather than guessed at. A value with an extension that resolves
-nowhere is marked as missing; one without (`claude-code/unknown`) is just text.
+nowhere is marked as missing; one without (`my-agent/1.4`) is just text.
 
 ### Which form should `root:` take?
 
@@ -319,8 +327,8 @@ name*, so the value is identical in every page of the wiki however deeply it sit
 
 ```yaml
 ---
-title: Sequencing pipeline
-root: research
+title: Restarting the database
+root: handbook
 ---
 ```
 
@@ -329,9 +337,9 @@ value depend on where the page happens to live:
 
 | Form | Example | |
 | --- | --- | --- |
-| **Ancestor name** | `root: research` | Same literal everywhere. Survives moving a page between folders and cloning the wiki. **Recommended.** |
-| Relative path | `root: ..` | Depends on the page's depth: `research/a.md` needs `..` while `research/notes/b.md` needs `../..`. A generator has to track its own depth, and a wrong value mis-resolves links silently rather than failing. |
-| Absolute path | `root: /root/work/research` | Stops working as soon as the wiki is cloned, moved, or mounted at another path — and in a devcontainer the host and container paths differ, so it is wrong on one side by construction. Machine-specific state does not belong in content. |
+| **Ancestor name** | `root: handbook` | Same literal everywhere. Survives moving a page between folders and cloning the wiki. **Recommended.** |
+| Relative path | `root: ..` | Depends on the page's depth: `handbook/a.md` needs `..` while `handbook/notes/b.md` needs `../..`. A generator has to track its own depth, and a wrong value mis-resolves links silently rather than failing. |
+| Absolute path | `root: /home/alice/handbook` | Stops working as soon as the wiki is cloned, moved, or mounted at another path — and in a devcontainer the host and container paths differ, so it is wrong on one side by construction. Machine-specific state does not belong in content. |
 | Relative level | `root: 2` | The relative path's problems, plus an off-by-one question ("is 0 this folder or the parent?") and no standard meaning. Not supported. |
 
 All three supported forms are recognised by shape: a leading `/` is absolute, anything
@@ -342,35 +350,35 @@ a warning rather than resolving to something arbitrary.
 ### Several wikis, and links between them
 
 **Two directories with the same name never collide.** An ancestor name is resolved against
-the document's own path, so `root: research` means a different directory depending on
+the document's own path, so `root: handbook` means a different directory depending on
 which file is asking:
 
 ```
-ws/a/research/Index.md   root: research  ->  ws/a/research
-ws/b/research/Index.md   root: research  ->  ws/b/research
+ws/a/handbook/Index.md   root: handbook  ->  ws/a/handbook
+ws/b/handbook/Index.md   root: handbook  ->  ws/b/handbook
 ```
 
 A name that exists in both — `Home`, say — resolves inside the asking document's own wiki.
 Nothing crosses over. This is the one real advantage of the ancestor-name form over a
 shared setting: the answer is per-document by construction.
 
-**A project can grow links into a wiki later.** Say `research/` was self-contained and
-`research2/hoge.md` now wants to link into it. A `[[wiki link]]` whose name is not in the
+**A project can grow links into a wiki later.** Say `handbook/` was self-contained and
+`project-x/notes.md` now wants to link into it. A `[[wiki link]]` whose name is not in the
 document's own wiki is looked up across the whole workspace, and resolved **only if
 exactly one file has that name**:
 
 | From | Link | Result |
 | --- | --- | --- |
-| `research2/hoge.md` | `[[Shared protocol]]` (one such file, in `research/`) | resolves, marked with a ↗ |
-| `research2/hoge.md` | `[[Home]]` (exists in two wikis) | unresolved — there is no defensible answer |
-| `research/Home.md` | `[[hoge]]` | resolves back into `research2/`, same rule |
+| `project-x/notes.md` | `[[On-call guide]]` (one such file, in `handbook/`) | resolves, marked with a ↗ |
+| `project-x/notes.md` | `[[Home]]` (exists in two wikis) | unresolved — there is no defensible answer |
+| `handbook/Home.md` | `[[notes]]` | resolves back into `project-x/`, same rule |
 
 The local wiki always wins, so this can never change the meaning of a link that already
 worked. And because an ambiguous name is refused rather than guessed at, a link never
 quietly points into an unrelated project. Set `mdExplorer.wikiLinkFallback` to `none` to
 keep every wiki hermetic.
 
-When an ambiguous name does need to resolve, spell out the path — `[[../research/Home]]`
+When an ambiguous name does need to resolve, spell out the path — `[[../handbook/Home]]`
 — which is read from the wiki root first and then relative to the document.
 
 ### Or leave it out entirely
@@ -385,10 +393,10 @@ theirs:
 ```
 
 ```
-research/
+handbook/
   .mdwiki          <- empty file; nothing to keep in sync
   Home.md
-  notes/Alignment.md
+  notes/On-call guide.md
 ```
 
 Nothing in the documents can then be wrong or go stale. Use `root:` when a single wiki
@@ -443,47 +451,6 @@ to the preview that had focus last, for as long as it is still on screen.
 3. **Check `workbench.editorAssociations`** in your user settings. An entry such as
    `"*.md": "default"` overrides the preview. Remove it, or leave the reclaim setting on.
 
-## Installing it into a devcontainer
-
-`customizations.vscode.extensions` in `devcontainer.json` only accepts Marketplace ids,
-and `code --install-extension` is the *remote-cli* binary, which talks to an attached
-window over an IPC socket and fails when there is none — during `postCreateCommand`, or
-whenever that socket has gone stale. The server ships its own CLI that installs
-headlessly, and that is what `.devcontainer/install-local-extensions.sh` uses:
-
-```
-~/.vscode-server/bin/<commit>/bin/code-server --install-extension <file>.vsix --force
-```
-
-The script installs every `.vsix` in `.devcontainer/extensions/`, keyed on a checksum
-stamp so re-attaching costs about 10 ms. It is wired into both lifecycle hooks: to
-`postCreateCommand` (a no-op if the server is not unpacked yet) and to
-`postAttachCommand`, which is also how a rebuilt `.vsix` reaches an existing container.
-It depends on nothing beyond bash and `md5sum` — the base image here has no `node` and no
-`unzip`.
-
-To ship a new build: `npm run deploy:devcontainer`, then reload the window.
-
-### Should this be on the Marketplace instead?
-
-Only once you want it somewhere the source is not. The Marketplace's one real advantage
-is that VS Code updates the extension for you, and the devcontainer config collapses to
-one line in `customizations.vscode.extensions`. Against it:
-
-- **There is no private Marketplace for VS Code extensions.** Publishing makes it public.
-  Open VSX is the alternative registry, but VS Code proper does not read it — only
-  VSCodium, Gitpod and Theia do.
-- Publishing needs a Marketplace publisher (a free Azure DevOps organisation) and a
-  personal access token, and `@vscode/vsce` requires Node >= 18 — which the base image
-  here does not have, so releases would have to run from CI or the host.
-- Every change then costs a version bump and a publish before it reaches the container,
-  where today it costs one `npm run deploy:devcontainer`.
-
-If you do publish: set a real `publisher` and `repository` in `package.json` (both are
-absent on purpose — a placeholder repository URL would ship a dead link in the listing),
-add an `icon`, then `vsce login <publisher>` and `vsce publish`. After that, replace the
-`.vsix` and the lifecycle hooks with the id in `customizations.vscode.extensions`.
-
 ## Developing
 
 ```bash
@@ -502,10 +469,10 @@ reach — that `.md` resolves to the preview at all, that a link keeps you in on
 renames it, that Back and Forward walk the history, and that switching to the editor and
 back replaces the tab rather than piling up new ones.
 
-`npm run package` builds the `.vsix` directly rather than through `@vscode/vsce`, which
-needs Node >= 18. Install the result with
-`code --install-extension mdexplorer-0.1.0.vsix`, and remove it again with
-`code --uninstall-extension local.mdexplorer`.
+`npm run package` builds the `.vsix` directly rather than through `@vscode/vsce`, so it
+runs on any Node that can run esbuild. Install the result with
+`code --install-extension mdexplorer-<version>.vsix`. To install a local build into a dev
+container, see [docs/devcontainer.md](docs/devcontainer.md).
 
 Press <kbd>F5</kbd> to launch an Extension Development Host on `samples/`, or:
 

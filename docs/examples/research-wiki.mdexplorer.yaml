@@ -1,9 +1,10 @@
-# Example .mdexplorer.yaml for an OKF v0.2 research wiki (the schema in research/CLAUDE.md).
+# .mdexplorer.yaml for a research wiki: literature notes, open problems and ideas.
 #
-# Place it at the wiki root — the directory `root:` names, e.g. research/.mdexplorer.yaml —
-# and open previews re-render when it changes. Only the wiki's own extension keys need
-# describing here: the OKF core keys (type, status, generated, verified, sources, ...)
-# already have defaults.
+# Page types: source (a paper or note read), concept, method, entity, topic, problem
+# (an open question) and idea (an attempt at one). Each type tracks its own `stage`.
+# Place this file at the wiki root — the directory `root:` names — and open previews
+# re-render when it changes. Only the wiki's own extension keys are described here: the
+# OKF core keys (type, status, generated, verified, sources, ...) have defaults.
 
 frontMatter:
   # The first line of every card. `trust` is the tier derived from `verified`.

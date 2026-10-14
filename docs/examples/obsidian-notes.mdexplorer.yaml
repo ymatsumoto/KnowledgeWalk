@@ -1,0 +1,18 @@
+# .mdexplorer.yaml for an Obsidian-style notes vault.
+#
+# Typical front matter: tags, aliases, created/updated dates, a `status` such as
+# `seedling | budding | evergreen`, and `up:` / `related:` links between notes. Pages may
+# have no `type`; set mdExplorer.frontMatter to `table` to show a card on every note.
+
+frontMatter:
+  header: [status, tags, created, updated]
+  hidden: [cssclasses, publish]
+  fields:
+    status:
+      as: badge
+      colors: { seedling: yellow, budding: blue, evergreen: green }
+    aliases: { as: chips }
+    created: { as: date }
+    updated: { as: date }
+    up:      { as: links }
+    related: { as: links }

@@ -103,7 +103,7 @@ export class WikiLinkIndex implements vscode.Disposable {
    *
    * A `root:` value is read in one of three ways, and the first is the one to prefer:
    *
-   *  - a bare name (`root: research`) is the nearest **ancestor directory** with that
+   *  - a bare name (`root: handbook`) is the nearest **ancestor directory** with that
    *    name, so every page of the wiki carries the same literal value no matter how
    *    deeply it sits;
    *  - a path (`root: ..`, `root: ../..`) is relative to the document, which means the

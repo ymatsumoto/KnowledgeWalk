@@ -6,6 +6,8 @@ import * as yaml from 'js-yaml';
 import { COLORS, FIELD_KINDS, TOP_LEVEL, mergeDisplay } from '../src/okf/displayConfig';
 
 const ROOT = path.resolve(__dirname, '..', '..');
+/** The sample wiki's own configuration. */
+const SAMPLE_CONFIG = 'samples/okf/research/.mdexplorer.yaml';
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const schema = manifest.contributes.configuration.properties['mdExplorer.frontMatterDisplay'];
 
@@ -75,7 +77,12 @@ test('the schema offers exactly the display kinds and colours the code accepts',
 });
 
 test('the example configurations are valid, both to the schema and to the code', () => {
-  for (const file of ['docs/research-wiki.mdexplorer.yaml', 'samples/okf/research/.mdexplorer.yaml']) {
+  const examples = fs
+    .readdirSync(path.join(ROOT, 'docs', 'examples'))
+    .filter((name) => name.endsWith('.mdexplorer.yaml'))
+    .map((name) => `docs/examples/${name}`);
+  assert.ok(examples.length >= 3, examples.join(', '));
+  for (const file of [...examples, SAMPLE_CONFIG]) {
     const data = yaml.load(fs.readFileSync(path.join(ROOT, file), 'utf8')) as { frontMatter: unknown };
     assert.deepEqual(validate(data.frontMatter, schema), [], file);
     assert.deepEqual(mergeDisplay(data.frontMatter).warnings, [], file);
