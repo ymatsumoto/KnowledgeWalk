@@ -210,3 +210,13 @@ test('problems with a document are logged once each', async () => {
     (log as any).warn = original;
   }
 });
+
+test('a source cited twice keeps the number it was first given', async () => {
+  resetRenderer();
+  const uri = Uri.file(path.join(BUNDLE, 'ideas', 'y.md'));
+  const text = '---\ntype: idea\nsources:\n  - { id: a, resource: https://e.org/a }\n  - { id: b, resource: https://e.org/b }\n---\n\nOne[^b] two[^a] three[^b].\n';
+  const prepared = await service.prepare(uri, text);
+  const html = renderMarkdown(text, CONFIG, { docUri: uri, webview, wikiIndex: index, prepared });
+  const numbers = [...html.matchAll(/data-mdx-cite="(\w)"[^>]*>\[(\d)\]/g)].map((m) => `${m[1]}${m[2]}`);
+  assert.deepEqual(numbers, ['b1', 'a2', 'b1']);
+});
