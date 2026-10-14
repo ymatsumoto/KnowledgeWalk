@@ -12,6 +12,7 @@
     "Other"
   ],
   "main": "./dist/extension.js",
+  "l10n": "./l10n",
   "activationEvents": [
     "onStartupFinished",
     "onWebviewPanel:mdExplorer.preview",

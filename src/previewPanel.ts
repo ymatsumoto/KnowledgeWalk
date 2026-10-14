@@ -507,7 +507,7 @@ export class PreviewPanel {
 
   private errorHtml(uri: vscode.Uri, error: unknown): string {
     const detail = error instanceof Error ? error.message : String(error);
-    return `<div class="mdx-error"><h1>Cannot open this document</h1><p><code>${escapeHtml(
+    return `<div class="mdx-error"><h1>${escapeHtml(vscode.l10n.t('Cannot open this document'))}</h1><p><code>${escapeHtml(
       uri.fsPath || uri.toString()
     )}</code></p><p>${escapeHtml(detail)}</p></div>`;
   }
@@ -575,7 +575,7 @@ export class PreviewPanel {
     } catch (error) {
       log.debug(`peek failed for ${target}`, error);
     }
-    return { type: 'peekResult', target, found: false };
+    return { type: 'peekResult', target, found: false, notFound: vscode.l10n.t('This page does not exist.') };
   }
 
   private async answerPeek(target: string): Promise<void> {

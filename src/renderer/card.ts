@@ -1,4 +1,4 @@
-import type * as vscode from 'vscode';
+import * as vscode from 'vscode';
 import * as path from 'path';
 import { escapeHtml } from './highlight';
 import {
@@ -49,11 +49,16 @@ export interface CardEnv {
 /** Keys whose badge reads well without the key name in front of it. */
 const UNLABELLED_BADGES = new Set(['type', 'status']);
 
-const TRUST_LABELS = {
-  unverified: 'unverified',
-  machine: 'machine-checked',
-  human: 'human-reviewed',
-} as const;
+function trustLabel(tier: 'unverified' | 'machine' | 'human'): string {
+  switch (tier) {
+    case 'human':
+      return vscode.l10n.t('human-reviewed');
+    case 'machine':
+      return vscode.l10n.t('machine-checked');
+    default:
+      return vscode.l10n.t('unverified');
+  }
+}
 
 class Card {
   private readonly display: DisplayConfig;
@@ -105,15 +110,19 @@ class Card {
     }
     if (this.meta.status === 'deprecated' && this.visible('status')) {
       banners.push(
-        this.banner('gray', 'Deprecated', 'Kept so links and history still work; no longer current.')
+        this.banner(
+          'gray',
+          vscode.l10n.t('Deprecated'),
+          vscode.l10n.t('Kept so links and history still work; no longer current.')
+        )
       );
     }
     if (isStale(this.meta, this.env.now)) {
       banners.push(
         this.banner(
           'orange',
-          'Possibly out of date',
-          `Marked stale after ${formatDate(this.meta.staleAfter)}.`
+          vscode.l10n.t('Possibly out of date'),
+          vscode.l10n.t('Marked stale after {0}.', formatDate(this.meta.staleAfter) ?? '')
         )
       );
     }
@@ -123,8 +132,10 @@ class Card {
       banners.push(
         this.banner(
           'blue',
-          'Sources changed since',
-          `${names.join(', ')} ${newer.length === 1 ? 'was' : 'were'} modified after this page was generated (${formatDate(this.meta.generated?.at)}).`
+          vscode.l10n.t('Sources changed since'),
+          newer.length === 1
+            ? vscode.l10n.t('{0} was modified after this page was generated ({1}).', names[0], formatDate(this.meta.generated?.at) ?? '')
+            : vscode.l10n.t('{0} were modified after this page was generated ({1}).', names.join(', '), formatDate(this.meta.generated?.at) ?? '')
         )
       );
     }
@@ -181,7 +192,7 @@ class Card {
     }
     const newer = new Set(sourcesNewerThanPage(this.meta));
     const items = this.meta.sources.map((source) => this.source(source, newer.has(source)));
-    return `<div class="mdx-card-sources"><div class="mdx-card-section">Sources</div><ol>${items.join('')}</ol></div>`;
+    return `<div class="mdx-card-sources"><div class="mdx-card-section">${escapeHtml(vscode.l10n.t('Sources'))}</div><ol>${items.join('')}</ol></div>`;
   }
 
   private source(source: SourceEntry, changed: boolean): string {
@@ -201,7 +212,7 @@ class Card {
     }
     if (source.lastModified) {
       extra.push(
-        `<span class="mdx-src-extra${changed ? ' mdx-src-changed' : ''}">modified ${escapeHtml(formatDate(source.lastModified) ?? '')}</span>`
+        `<span class="mdx-src-extra${changed ? ' mdx-src-changed' : ''}">${escapeHtml(vscode.l10n.t('modified {0}', formatDate(source.lastModified) ?? ''))}</span>`
       );
     }
     return `<li${id}>${label}${main}${extra.join('')}</li>`;
@@ -227,7 +238,7 @@ class Card {
       return '';
     }
     const open = this.display.details === 'expanded' ? ' open' : '';
-    return `<details class="mdx-card-details"${open}><summary>Details <span class="mdx-card-count">${rows.length}</span></summary><dl class="mdx-frontmatter">${rows.join('')}</dl></details>`;
+    return `<details class="mdx-card-details"${open}><summary>${escapeHtml(vscode.l10n.t('Details'))} <span class="mdx-card-count">${rows.length}</span></summary><dl class="mdx-frontmatter">${rows.join('')}</dl></details>`;
   }
 
   // ------------------------------------------------------------- values
@@ -244,9 +255,9 @@ class Card {
     const tier = this.meta.trust;
     const color = tier === 'human' ? 'green' : tier === 'machine' ? 'blue' : 'outline';
     const detail = this.meta.verified.length
-      ? `Verified by ${this.meta.verified.map(stampText).join('; ')}`
-      : 'No one has verified this page.';
-    return `<span class="mdx-badge mdx-c-${color}" title="${escapeHtml(detail)}">${TRUST_LABELS[tier]}</span>`;
+      ? vscode.l10n.t('Verified by {0}', this.meta.verified.map(stampText).join('; '))
+      : vscode.l10n.t('No one has verified this page.');
+    return `<span class="mdx-badge mdx-c-${color}" title="${escapeHtml(detail)}">${escapeHtml(trustLabel(tier))}</span>`;
   }
 
   /** A value on the header line: compact, one line. */
@@ -394,7 +405,7 @@ class Card {
           `data-mdx-target="${escapeHtml(target.toString())}"`,
           result.fragment ? `data-mdx-fragment="${escapeHtml(result.fragment)}"` : '',
           `href="${escapeHtml(value)}"`,
-          `title="${escapeHtml(result.nonPortable ? `${target.fsPath} — a machine-specific path` : target.fsPath)}"`,
+          `title="${escapeHtml(result.nonPortable ? vscode.l10n.t('{0} — a machine-specific path', target.fsPath) : target.fsPath)}"`,
         ].filter(Boolean);
         if (result.nonPortable) {
           this.env.warn(`"${value}" is a filesystem path; it will break when the wiki moves`);
@@ -404,15 +415,15 @@ class Card {
       }
       case 'ambiguous':
         this.env.warn(`"${value}" matches more than one file: ${result.candidates.join(', ')}`);
-        return `<span class="mdx-ref-ambiguous" title="${escapeHtml(`Ambiguous: ${result.candidates.join(' | ')}`)}">${escapeHtml(label ?? value)}</span>`;
+        return `<span class="mdx-ref-ambiguous" title="${escapeHtml(vscode.l10n.t('Ambiguous: {0}', result.candidates.join(' | ')))}">${escapeHtml(label ?? value)}</span>`;
       case 'missing': {
         const directory = result.tried.find((p) => this.env.prepared?.isDirectory(p));
         if (directory) {
-          return `<span class="mdx-ref-directory" title="${escapeHtml(`Directory: ${directory}`)}">${escapeHtml(label ?? value)}</span>`;
+          return `<span class="mdx-ref-directory" title="${escapeHtml(vscode.l10n.t('Directory: {0}', directory))}">${escapeHtml(label ?? value)}</span>`;
         }
         if (result.strong) {
           this.env.warn(`"${value}" does not resolve to a file`);
-          return `<span class="mdx-ref-missing" title="${escapeHtml(`Not found: ${result.tried.join(' | ')}`)}">${escapeHtml(label ?? value)}</span>`;
+          return `<span class="mdx-ref-missing" title="${escapeHtml(vscode.l10n.t('Not found: {0}', result.tried.join(' | ')))}">${escapeHtml(label ?? value)}</span>`;
         }
         return escapeHtml(label ?? value);
       }

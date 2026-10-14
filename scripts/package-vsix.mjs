@@ -17,7 +17,7 @@ const staging = path.join(root, '.vsix-staging');
 const vsixName = `${manifest.name}-${manifest.version}.vsix`;
 
 /** Files and directories that make up the shipped extension. */
-const CONTENTS = ['package.json', 'README.md', 'LICENSE', 'dist', 'media'];
+const CONTENTS = ['package.json', 'README.md', 'CHANGELOG.md', 'LICENSE', 'dist', 'media', 'l10n'];
 
 function escapeXml(value) {
   return value.replace(/[<>&'"]/g, (c) => `&#${c.charCodeAt(0)};`);

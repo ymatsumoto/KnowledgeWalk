@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import * as yaml from 'js-yaml';
 import { escapeHtml } from './highlight';
 import { renderCard, wantsCard, type CardEnv } from './card';
@@ -63,7 +64,7 @@ export function renderFrontMatter(raw: string, mode: FrontMatterMode, env: CardE
     data = yaml.load(raw, YAML_OPTIONS);
   } catch {
     // Malformed YAML is still worth showing, just not as a card.
-    return sourceBlock(raw, 'This front matter is not valid YAML.');
+    return sourceBlock(raw, vscode.l10n.t('This front matter is not valid YAML.'));
   }
   if (data === null || data === undefined) {
     return '';

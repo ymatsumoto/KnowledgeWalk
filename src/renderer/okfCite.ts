@@ -1,3 +1,4 @@
+import * as vscode from 'vscode';
 import type MarkdownIt from 'markdown-it';
 import type StateInline from 'markdown-it/lib/rules_inline/state_inline.mjs';
 import { escapeHtml } from './highlight';
@@ -83,6 +84,6 @@ export function okfCitePlugin(md: MarkdownIt): void {
 
   md.renderer.rules.okf_cite_missing = (tokens, idx) => {
     const { id } = tokens[idx].meta as { id: string };
-    return `<sup class="mdx-cite mdx-cite-missing" title="${escapeHtml(`No source with id "${id}" in front matter`)}">[${escapeHtml(id)}?]</sup>`;
+    return `<sup class="mdx-cite mdx-cite-missing" title="${escapeHtml(vscode.l10n.t('No source with id "{0}" in front matter', id))}">[${escapeHtml(id)}?]</sup>`;
   };
 }
