@@ -2,7 +2,7 @@
   "name": "knowledgewalk",
   "displayName": "KnowledgeWalk",
   "description": "A reader for LLM-maintained Markdown wikis and Open Knowledge Format (OKF) bundles: front matter cards with sources and trust, citations, link previews, and browser-style navigation.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "publisher": "ymatsumoto43",
   "license": "MIT",
   "repository": {
