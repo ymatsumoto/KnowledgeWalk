@@ -7,7 +7,7 @@ import { COLORS, FIELD_KINDS, TOP_LEVEL, mergeDisplay } from '../src/okf/display
 
 const ROOT = path.resolve(__dirname, '..', '..');
 /** The sample wiki's own configuration. */
-const SAMPLE_CONFIG = 'samples/okf/research/.mdexplorer.yaml';
+const SAMPLE_CONFIG = 'samples/okf/handbook/.mdexplorer.yaml';
 const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
 const schema = manifest.contributes.configuration.properties['mdExplorer.frontMatterDisplay'];
 
@@ -90,7 +90,7 @@ test('the example configurations are valid, both to the schema and to the code',
 });
 
 test('the schema rejects what the code would warn about', () => {
-  const bad = { fields: { stage: { as: 'sparkle' }, sev: { colors: { high: 'magenta' } } }, nonsense: 1, details: 'open' };
+  const bad = { fields: { phase: { as: 'sparkle' }, sev: { colors: { high: 'magenta' } } }, nonsense: 1, details: 'open' };
   const errors = validate(bad, schema);
   assert.equal(errors.length, 4, errors.join('\n'));
   assert.equal(mergeDisplay(bad).warnings.length, 4);

@@ -1,59 +1,59 @@
-# mdExplorer サンプル: 目次
+# mdExplorer samples: index
 
-このフォルダは mdExplorer の 3 つの要件を手で確かめるための資料です。
+This folder is for trying mdExplorer's behaviour by hand.
 
-![サンプル画像](assets/logo.png)
+![Sample image](assets/logo.png)
 
-## リンクの種類
+## Kinds of link
 
-| リンク | 期待される動作 |
+| Link | Expected behaviour |
 | --- | --- |
-| [ガイド](guide.md) | 同じタブでプレビュー遷移。タブ名が `guide.md` に変わる |
-| [深い階層のページ](sub/deep.md) | 相対パスが解決され、同じタブで開く |
-| [ガイドの「設定」節](guide.md#設定) | 同じタブで開き、その見出しが最上部に来る |
-| [このページの下の方](#スクロールの確認) | 同じページ内を移動し、履歴にも積まれる |
-| [CSV ファイル](data/table.csv) | 通常のテキストエディタで開く（プレビューにはならない） |
-| [外部サイト](https://code.visualstudio.com/api) | 既定のブラウザで開く |
+| [Guide](guide.md) | Navigates in the same tab; the tab is renamed `guide.md` |
+| [A page in a subfolder](sub/deep.md) | The relative path resolves and opens in the same tab |
+| [The guide's Settings section](guide.md#settings) | Opens in the same tab with that heading at the top |
+| [Further down this page](#scrolling) | Moves within the page and is added to the history |
+| [A CSV file](data/table.csv) | Opens in a normal text editor (not a preview) |
+| [External site](https://code.visualstudio.com/api) | Opens in the default browser |
 
-## OKF の wiki
+## An OKF wiki
 
-[サンプル研究 Wiki](okf/research/wiki/index.md) は OKF v0.2 の front matter（カード表示、出典、
-脚注、検証状態、廃止・期限切れの帯）を確かめるための小さなバンドルです。
+[The sample handbook](okf/handbook/wiki/index.md) is a small OKF v0.2 bundle for checking front matter (the card, sources,
+citations, verification, deprecated and stale banners).
 
 ## wiki link
 
-Obsidian 形式のリンクも使えます。
+Obsidian-style links work too.
 
-- [[guide]] — 名前だけでワークスペース全体から解決します
-- [[deep|サブフォルダのページ]] — `|` の後ろが表示名になります
-- [[guide#設定]] — 見出しを指定できます
-- [[存在しないページ]] — 該当ファイルが無いものはリンクにせず印だけ付けます
+- [[guide]] — resolved by name across the whole workspace
+- [[deep|the subfolder page]] — the text after `|` is shown
+- [[guide#settings]] — a heading can be named
+- [[No such page]] — a name with no file behind it is marked, not linked
 
-## リンクにならないもの
+## Things that are not links
 
-`vcf2phylip.py` を実行してから setup.cfg を確認します。これらは文中で言及しているだけ
-なので、リンクになりません。https://code.visualstudio.com は URL と分かるのでリンクに
-なります。
+Run `build.py`, then check setup.cfg. These are only mentioned
+in passing, so they are not links. https://code.visualstudio.com is clearly a URL, so it is
+one.
 
-## 数式
+## Math
 
-インラインの $E = mc^2$ と、独立した式:
+Inline $E = mc^2$, and a display equation:
 
 $$
 \int_{-\infty}^{\infty} e^{-x^2}\,dx = \sqrt{\pi}
 $$
 
-## 図
+## Diagram
 
 ```mermaid
 flowchart LR
-  A[".md を開く"] --> B["中継エディタ"]
+  A["Open .md"] --> B["Relay editor"]
   B --> C["WebviewPanel"]
-  C -->|"リンク"| C
-  C -->|"ダブルクリック"| D["テキストエディタ"]
+  C -->|"link"| C
+  C -->|"double-click"| D["Text editor"]
 ```
 
-## コード
+## Code
 
 ```ts
 export function classifyLink(href: string, base: Uri): ClassifiedLink {
@@ -64,59 +64,59 @@ export function classifyLink(href: string, base: Uri): ClassifiedLink {
 }
 ```
 
-## チェックリスト
+## Checklist
 
-- [x] プレビューが既定で開く
-- [x] リンクが同じタブで遷移する
-- [ ] 戻るとリンク位置に復帰する
+- [x] The preview opens by default
+- [x] Links navigate in the same tab
+- [ ] Back returns to the link
 
-## スクロールの確認
+## Scrolling
 
-ここから下に長い本文が続きます。**一番下のリンク**までスクロールしてから
-`guide.md` へ移動し、戻る（← / Alt+←）を押すと、
-クリックしたリンクが画面の最上部に来るはずです。
+A long body follows. Scroll down to **the link at the very bottom**, follow it to
+`guide.md`, then press Back (← / Alt+←),
+and the link you clicked should be back at the top of the view.
 
-1. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-2. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-3. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-4. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-5. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-6. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-7. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-8. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-9. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-10. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-11. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-12. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-13. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-14. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-15. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-16. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-17. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-18. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-19. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-20. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-21. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-22. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-23. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-24. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-25. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-26. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-27. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-28. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-29. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-30. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-31. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-32. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-33. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-34. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-35. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-36. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-37. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-38. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-39. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
-40. 埋め草の段落です。プレビューを十分に長くして、戻ったときのスクロール位置が正しく復元されることを確認できるようにしています。
+1. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+2. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+3. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+4. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+5. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+6. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+7. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+8. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+9. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+10. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+11. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+12. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+13. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+14. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+15. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+16. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+17. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+18. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+19. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+20. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+21. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+22. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+23. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+24. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+25. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+26. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+27. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+28. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+29. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+30. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+31. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+32. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+33. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+34. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+35. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+36. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+37. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+38. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+39. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
+40. Filler paragraph. It makes the preview long enough to check that Back restores the scroll position correctly.
 
-### ページ末尾のリンク
+### The link at the end of the page
 
-ここが最下部です。→ [ガイドを開く（このリンクが戻ったときに最上部に来る）](guide.md)
+This is the bottom. → [Open the guide (this link comes back to the top on Back)](guide.md)

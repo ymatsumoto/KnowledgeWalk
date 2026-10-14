@@ -1,7 +1,7 @@
 import { assert, getApi, test, waitFor } from './harness';
 import { allTabs, closeEverything, describeTabs, openThroughResolver, sample } from './shared';
 
-const BUNDLE = ['okf', 'research', 'wiki'];
+const BUNDLE = ['okf', 'handbook', 'wiki'];
 
 /** Ids of the rendered links whose resolved target ends with `suffix`, in page order. */
 export function linkIdsTo(html: string, suffix: string): number[] {
@@ -28,74 +28,74 @@ export async function openOkf(...parts: string[]): Promise<string> {
 
 test('OKF: a /-prefixed link is read from the bundle root, not the workspace folder', async () => {
   await closeEverything();
-  const html = await openOkf('problems', 'p1.md');
+  const html = await openOkf('incidents', 'db-outage.md');
   // Both the relative and the root-relative link land on the same page in the bundle.
-  const ids = linkIdsTo(html, '/okf/research/wiki/ideas/i1.md');
-  assert.ok(ids.length >= 2, `expected two links to ideas/i1.md, got ${ids.length}`);
+  const ids = linkIdsTo(html, '/okf/handbook/wiki/decisions/read-replicas.md');
+  assert.ok(ids.length >= 2, `expected two links to decisions/read-replicas.md, got ${ids.length}`);
 
   assert.ok(getApi().clickRenderedLink(ids[ids.length - 1]));
-  await waitFor('the preview to move to ideas/i1.md', () =>
-    getApi().activePreview?.uri.endsWith('/okf/research/wiki/ideas/i1.md')
+  await waitFor('the preview to move to decisions/read-replicas.md', () =>
+    getApi().activePreview?.uri.endsWith('/okf/handbook/wiki/decisions/read-replicas.md')
   );
   assert.equal(allTabs().length, 1, `navigation must not open a tab: ${describeTabs()}`);
 });
 
 test('OKF: a link on the metadata card navigates in the tab, and Back returns', async () => {
   await closeEverything();
-  const html = await openOkf('ideas', 'i1.md');
-  // addresses: [problems/p1] — a Concept ID, resolved against the bundle root.
-  const ids = linkIdsTo(html, '/okf/research/wiki/problems/p1.md');
-  assert.ok(ids.length >= 1, 'the card links to problems/p1.md');
+  const html = await openOkf('decisions', 'read-replicas.md');
+  // resolves: [incidents/db-outage] — a Concept ID, resolved against the bundle root.
+  const ids = linkIdsTo(html, '/okf/handbook/wiki/incidents/db-outage.md');
+  assert.ok(ids.length >= 1, 'the card links to incidents/db-outage.md');
   assert.match(html, /<section class="mdx-card/);
 
   assert.ok(getApi().clickRenderedLink(ids[0]));
-  const snapshot = await waitFor('the preview to move to problems/p1.md', () => {
+  const snapshot = await waitFor('the preview to move to incidents/db-outage.md', () => {
     const current = getApi().activePreview;
-    return current?.uri.endsWith('/problems/p1.md') ? current : undefined;
+    return current?.uri.endsWith('/incidents/db-outage.md') ? current : undefined;
   });
-  assert.equal(snapshot.title, 'p1.md');
+  assert.equal(snapshot.title, 'db-outage.md');
   assert.equal(allTabs().length, 1, `navigation must not open a tab: ${describeTabs()}`);
 
   await new Promise((resolve) => setTimeout(resolve, 200));
   getApi().goBack();
-  const back = await waitFor('Back to ideas/i1.md', () => {
+  const back = await waitFor('Back to decisions/read-replicas.md', () => {
     const current = getApi().activePreview;
-    return current?.uri.endsWith('/ideas/i1.md') ? current : undefined;
+    return current?.uri.endsWith('/decisions/read-replicas.md') ? current : undefined;
   });
   assert.equal(back.departureLinkId, ids[0], 'Back remembers the card link that was followed');
 });
 
 test('OKF: hovering a link asks for the linked page\'s title and description', async () => {
-  const html = await openOkf('ideas', 'i1.md');
-  const target = /data-mdx-target="([^"]*\/wiki\/problems\/p1\.md)"/.exec(html)?.[1];
-  assert.ok(target, 'the page links to problems/p1.md');
+  const html = await openOkf('decisions', 'read-replicas.md');
+  const target = /data-mdx-target="([^"]*\/wiki\/incidents\/db-outage\.md)"/.exec(html)?.[1];
+  assert.ok(target, 'the page links to incidents/db-outage.md');
   const answer = await getApi().peek(target.replace(/&amp;/g, '&'));
   assert.equal(answer?.found, true);
-  assert.equal(answer?.title, '単一座位の天井');
-  assert.match(answer?.description ?? '', /^どの 1 座位を足しても/);
+  assert.equal(answer?.title, 'Primary database outage');
+  assert.match(answer?.description ?? '', /^Write traffic saturated the primary/);
 
-  const missing = await getApi().peek(target.replace('p1.md', 'nope.md'));
+  const missing = await getApi().peek(target.replace('db-outage.md', 'nope.md'));
   assert.equal(missing?.found, false);
 });
 
 test('OKF: Back to a link inside the Details fold reopens the fold and lands on the link', async () => {
   await closeEverything();
-  const html = await openOkf('ideas', 'i1.md');
-  // `paper: raw/papers/paper.pdf` is not on the header line, so it sits inside the fold;
-  // `see_also`-style keys likewise. Take the first card link under <details>.
+  const html = await openOkf('decisions', 'read-replicas.md');
+  // Extension keys such as `resolves:` are not on the header line, so they sit inside the
+  // fold. Take the first card link under <details>.
   const fold = /<details class="mdx-card-details"[\s\S]*?<\/details>/.exec(html)?.[0] ?? '';
   const inFold = [...fold.matchAll(/<a data-mdx-link="(\d+)" data-mdx-kind="markdown"/g)].map((m) => Number(m[1]));
   assert.ok(inFold.length > 0, 'a markdown link inside the fold');
 
   assert.ok(getApi().clickRenderedLink(inFold[0]));
-  await waitFor('the preview to leave i1.md', () => !getApi().activePreview?.uri.endsWith('/ideas/i1.md'));
+  await waitFor('the preview to leave read-replicas.md', () => !getApi().activePreview?.uri.endsWith('/decisions/read-replicas.md'));
   await new Promise((resolve) => setTimeout(resolve, 200));
   getApi().goBack();
 
-  const settled = await waitFor('Back to settle on i1.md', () => {
+  const settled = await waitFor('Back to settle on read-replicas.md', () => {
     const current = getApi().activePreview;
     const scroll = current?.lastScroll;
-    return current?.uri.endsWith('/ideas/i1.md') && scroll?.mode === 'back' && scroll.final ? scroll : undefined;
+    return current?.uri.endsWith('/decisions/read-replicas.md') && scroll?.mode === 'back' && scroll.final ? scroll : undefined;
   }, 10000);
   assert.equal(settled.anchored, true, 'the link was found with a box to scroll to');
 });

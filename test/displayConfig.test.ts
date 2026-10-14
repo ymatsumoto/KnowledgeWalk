@@ -78,8 +78,8 @@ test('a layer that is not a mapping is ignored with a warning', () => {
 test('templates fill placeholders as plain text', () => {
   const date = (v: string) => v.slice(0, 10);
   assert.equal(
-    fillTemplate('🤖 {by} · {at|date}', { by: 'claude-code/unknown', at: '2026-08-07T10:00:00+09:00' }, { date }),
-    '🤖 claude-code/unknown · 2026-08-07'
+    fillTemplate('🤖 {by} · {at|date}', { by: 'my-agent/1.4', at: '2026-08-07T10:00:00+09:00' }, { date }),
+    '🤖 my-agent/1.4 · 2026-08-07'
   );
   assert.equal(fillTemplate('{a.b} {missing} {value}', { a: { b: 1 } }, {}), '1  ');
   assert.equal(fillTemplate('[{value}]', 'scalar', {}), '[scalar]');

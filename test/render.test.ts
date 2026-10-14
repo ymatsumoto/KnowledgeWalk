@@ -55,7 +55,7 @@ test('every link is classified and carries a resolved target', () => {
 
 test('a fragment on a markdown link survives into the attributes', () => {
   const html = render('index.md');
-  assert.match(html, /data-mdx-target="file:\/\/[^"]*guide\.md"[^>]*data-mdx-fragment="設定"/);
+  assert.match(html, /data-mdx-target="file:\/\/[^"]*guide\.md"[^>]*data-mdx-fragment="settings"/);
 });
 
 test('link ids are assigned in document order so Back can find them again', () => {
@@ -213,7 +213,7 @@ test('malformed front matter falls back to showing the raw text', () => {
 });
 
 test('a filename mentioned in prose is not turned into a link', () => {
-  const source = 'Run vcf2phylip.py first, then check setup.cfg and README.md.\n';
+  const source = 'Run build.py first, then check setup.cfg and README.md.\n';
   const html = renderText(source, { linkify: 'urls' });
   assert.doesNotMatch(html, /<a /, `nothing here is a URL: ${html}`);
 });
@@ -226,8 +226,8 @@ test('text that says it is a URL is still linked', () => {
 test('bare hostnames are only linked when linkify is set to all', () => {
   assert.doesNotMatch(renderText('Visit www.example.com.\n', { linkify: 'urls' }), /<a /);
   assert.match(renderText('Visit www.example.com.\n', { linkify: 'all' }), /<a /);
-  // The behaviour that made vcf2phylip.py a link in the first place.
-  assert.match(renderText('Run vcf2phylip.py\n', { linkify: 'all' }), /<a /);
+  // The behaviour that made build.py a link in the first place.
+  assert.match(renderText('Run build.py\n', { linkify: 'all' }), /<a /);
 });
 
 test('linkify can be switched off entirely', () => {
@@ -236,7 +236,14 @@ test('linkify can be switched off entirely', () => {
 
 test('explicit markdown links are unaffected by the linkify setting', () => {
   for (const mode of ['off', 'urls', 'all'] as const) {
-    const html = renderText('[script](vcf2phylip.py)\n', { linkify: mode });
+    const html = renderText('[script](build.py)\n', { linkify: mode });
     assert.match(html, /data-mdx-kind="file"/, mode);
   }
+});
+
+test('headings and fragments outside ASCII keep working', () => {
+  // Deliberately non-ASCII: heading ids are slugified with Unicode letters kept.
+  const html = renderText('## 設定 Überblick\n\n[jump](#設定-überblick)\n');
+  assert.match(html, /<h2 id="%E8%A8%AD%E5%AE%9A-%C3%BCberblick"/);
+  assert.match(html, /data-mdx-kind="anchor"[^>]*data-mdx-fragment="設定-überblick"/);
 });

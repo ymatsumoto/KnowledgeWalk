@@ -91,18 +91,18 @@ test('query strings and fragments are stripped from image sources', () => {
 
 test('in an OKF bundle a root-relative path is read from the bundle root first', () => {
   __setWorkspaceFolders(['/ws']);
-  const base = Uri.parse('file:///ws/research/wiki/ideas/i1.md');
+  const base = Uri.parse('file:///ws/handbook/wiki/decisions/read-replicas.md');
   const roots = {
-    bundleRoot: Uri.parse('file:///ws/research/wiki'),
+    bundleRoot: Uri.parse('file:///ws/handbook/wiki'),
     exists: (p: string) =>
-      ['/ws/research/wiki/problems/p1.md', '/ws/top.md', '/etc/notes.md'].includes(p),
+      ['/ws/handbook/wiki/incidents/db-outage.md', '/ws/top.md', '/etc/notes.md'].includes(p),
   };
-  assert.equal(classifyLink('/problems/p1.md', base, roots).target?.path, '/ws/research/wiki/problems/p1.md');
+  assert.equal(classifyLink('/incidents/db-outage.md', base, roots).target?.path, '/ws/handbook/wiki/incidents/db-outage.md');
   // Not in the bundle: the workspace folder, as before bundles existed.
   assert.equal(classifyLink('/top.md', base, roots).target?.path, '/ws/top.md');
   // Neither: a real filesystem path.
   assert.equal(classifyLink('/etc/notes.md', base, roots).target?.path, '/etc/notes.md');
   // Nowhere at all: the bundle, which is where OKF says it should have been.
-  assert.equal(classifyLink('/gone.md', base, roots).target?.path, '/ws/research/wiki/gone.md');
+  assert.equal(classifyLink('/gone.md', base, roots).target?.path, '/ws/handbook/wiki/gone.md');
   __setWorkspaceFolders([]);
 });

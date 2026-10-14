@@ -1,0 +1,9 @@
+# Display settings for this sample wiki's own extension keys.
+frontMatter:
+  fields:
+    phase:    { as: badge }
+    priority: { as: badge, colors: { high: red, medium: orange, low: gray } }
+    origin:   { as: badge }
+  byType:
+    source:   { header: [type, status, trust, generated, phase, citekey, venue, year] }
+    incident: { header: [type, status, trust, generated, priority, phase] }
