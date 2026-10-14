@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1
+
+- The OKF bundle root is found even when no `index.md` declares `okf_version` (as in the
+  bundles the OKF repository ships): it is the top of the run of directories that each
+  hold an `index.md`. References such as `policies/margin-standard.md` in those bundles
+  now resolve.
+
 ## 0.4.0
 
 - **Renamed from mdExplorer to KnowledgeWalk.** Settings and commands move from

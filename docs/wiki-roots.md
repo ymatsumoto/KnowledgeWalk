@@ -22,10 +22,16 @@ An OKF bundle is the directory holding an `index.md` whose front matter declares
 wiki root: a knowledge base may keep attachments or raw material beside the bundle, with
 `root: handbook` pointing at `handbook/` and the bundle at `handbook/wiki/`.
 
-So KnowledgeWalk keeps both. The **wiki root** is found as above, with `root:` first; the
-**bundle root** is the nearest directory between the document and the wiki root (both
-included) holding such an `index.md`, and is the wiki root itself when there is none. The
-wiki root caps the search: `root:` is the author saying where the wiki ends.
+So KnowledgeWalk keeps both. The **wiki root** is found as above, with `root:` first. The
+**bundle root** is, between the document and the wiki root (both included):
+
+1. the nearest directory whose `index.md` declares `okf_version`; or, since declaring it is
+   optional — the sample bundles in the OKF repository do not —
+2. the top of the unbroken run of directories holding an `index.md`, counted up from the
+   document's own directory (OKF's convention of an index in every directory); or
+3. the wiki root itself.
+
+The wiki root caps the search: `root:` is the author saying where the wiki ends.
 
 A body link starting with `/` is read from the bundle root first, then the workspace
 folder, then the filesystem root, and goes to the first that exists. Outside a bundle that
