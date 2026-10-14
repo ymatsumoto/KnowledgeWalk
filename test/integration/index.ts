@@ -9,6 +9,7 @@ import './scroll.test';
 import './sync.test';
 import './okf.test';
 import './stress.test';
+import './schema.test';
 
 /** Entry point VS Code calls inside the extension host. */
 export async function run(): Promise<void> {
