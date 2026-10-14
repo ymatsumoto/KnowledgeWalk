@@ -658,6 +658,15 @@
             }
           }
         },
+        "mdExplorer.knownFileExtensions": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string",
+            "pattern": "^\\.?[A-Za-z0-9_+-]+$"
+          },
+          "markdownDescription": "Extra file extensions, such as `.fasta` or `.drawio`, that mark a front matter value as a file. A value with one of these (or a common extension like `.md`, `.pdf`, `.csv`) that resolves nowhere is flagged as a broken reference; a value with an unfamiliar extension is assumed to be a name."
+        },
         "mdExplorer.wikiLinks": {
           "type": "boolean",
           "default": true,
@@ -672,6 +681,12 @@
             ".obsidian"
           ],
           "markdownDescription": "Files or directories whose presence marks a wiki root, used to resolve `[[wiki links]]` when a document has no `root:` in its front matter. Searched upwards from the document."
+        },
+        "mdExplorer.wikiRootKey": {
+          "type": "string",
+          "default": "root",
+          "minLength": 1,
+          "markdownDescription": "The front matter key a document uses to name its wiki root, e.g. `root: handbook`. Change it if `root` already means something else in your documents. The key is hidden from the metadata card."
         },
         "mdExplorer.wikiLinkFallback": {
           "type": "string",

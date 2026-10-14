@@ -45,6 +45,8 @@ export interface RefContext {
   bundleRoot: string;
   /** Wiki root (`root:` in front matter, a marker, or the workspace folder). */
   wikiRoot: string;
+  /** Extensions beyond FILE_EXTENSIONS that mark a value as a file (lower case, with dot). */
+  fileExtensions?: ReadonlySet<string>;
 }
 
 export const MARKDOWN_EXTENSIONS = new Set(['.md', '.markdown', '.mdown', '.mkd', '.mkdn']);
@@ -56,15 +58,15 @@ const EXTENSION = /\.[a-z0-9]*[a-z][a-z0-9]*$/i;
 
 /**
  * Extensions that say "this is a file" with confidence. A bare value carrying anything
- * else — `db.prod`, `v2.final` — may be a file or may be a name, so failing to find
- * it is not reported.
+ * else — `db.prod`, `v2.final` — may be a file or may be a name, so failing to find it is
+ * not reported. `mdExplorer.knownFileExtensions` adds to this list (see RefContext).
  */
-const FILE_EXTENSIONS = new Set([
+export const FILE_EXTENSIONS: ReadonlySet<string> = new Set([
   ...MARKDOWN_EXTENSIONS,
   '.txt', '.pdf', '.html', '.htm', '.csv', '.tsv', '.json', '.yaml', '.yml', '.toml', '.xml',
   '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.bib', '.tex', '.ipynb', '.py', '.r',
   '.sh', '.js', '.ts', '.c', '.h', '.cpp', '.rs', '.go', '.java', '.sql', '.log', '.docx',
-  '.xlsx', '.pptx', '.zip', '.gz', '.tar', '.fasta', '.fa', '.fastq', '.vcf', '.gff', '.bam',
+  '.xlsx', '.pptx', '.zip', '.gz', '.tar',
 ]);
 
 export function isMarkdownPath(p: string): boolean {
@@ -177,8 +179,10 @@ export function resolveRef(
   // `my-agent/1.4` is shaped like a path but almost certainly is not one, and `db.prod`
   // may well be a name. Only a value that clearly names a file — a path
   // with an extension, or a known file extension — is reported as a broken reference.
+  const extension = path.posix.extname(pathPart).toLowerCase();
   const strong =
-    FILE_EXTENSIONS.has(path.posix.extname(pathPart).toLowerCase()) ||
+    FILE_EXTENSIONS.has(extension) ||
+    !!ctx.fileExtensions?.has(extension) ||
     (pathPart.includes('/') && hasExtension(pathPart));
   return { kind: 'missing', tried, strong };
 }

@@ -23,6 +23,8 @@ const CONFIG: MdxConfig = {
   linkify: 'urls',
   frontMatter: 'hide',
   frontMatterDisplay: {},
+  wikiRootKey: 'root',
+  knownFileExtensions: [],
   maxHistoryLength: 50,
   scrollOffset: 8,
   wikiLinks: true,

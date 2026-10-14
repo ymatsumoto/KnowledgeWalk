@@ -451,7 +451,11 @@ export class PreviewPanel {
       }
       // Roots, front matter and every file the document mentions are looked up now, so
       // the render itself can stay synchronous.
-      const prepared = await this.host.okf.prepare(uri, text, cfg.frontMatterDisplay);
+      const prepared = await this.host.okf.prepare(uri, text, {
+        display: cfg.frontMatterDisplay,
+        rootKey: cfg.wikiRootKey,
+        fileExtensions: cfg.knownFileExtensions,
+      });
       if (this.disposed) {
         return;
       }
